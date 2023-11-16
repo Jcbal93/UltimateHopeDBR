@@ -51,7 +51,7 @@ obj
 							if(Target in get_step(Owner,Owner.dir))
 								spawn(1)
 									del src
-							Owner:Melee(MeleeTarget=Target,ExtendoAttack=1)
+							Owner:Melee1(MeleeTarget=Target,ExtendoAttack=1)
 
 					else
 						if(Target)

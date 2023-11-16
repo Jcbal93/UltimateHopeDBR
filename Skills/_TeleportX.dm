@@ -31,7 +31,7 @@ obj/Skills
 
 			UseableDead=0//if 1, allows use in dead/neardead zones
 			UseableArcane=0//if 1, allows use in arcane zone
-			//djinn and philosopher stones cannot be TP'd out of or into regardless
+			//Majin and philosopher stones cannot be TP'd out of or into regardless
 
 			//ManaCost
 			//CapacityCost
@@ -126,7 +126,7 @@ obj/Skills
 			Cooldown=10
 			TeleportMessage="focuses on a distant power before vanishing!"
 			ArriveMessage="appears instantly!"
-			var ClickTeleportToggle=1
+			var/ClickTeleportToggle=1
 			verb/Instant_Transmission()
 				set category="Utility"
 				src.Activate(usr)
@@ -298,7 +298,7 @@ obj/Skills
 									continue
 							Focals["[ta.name]"]=ta
 					if(src.FocalPerson)
-						for(var/mob/Players/m in world)
+						for(var/mob/Players/m in players)
 							if(m.NoTPZone(src.UseableDead, src.UseableArcane))
 								continue//disallow dead / arcane as targets (usually)
 							if(m==User)
@@ -425,7 +425,7 @@ obj/Skills
 							src.ReturnX=User.x
 							src.ReturnY=User.y
 							src.ReturnZ=User.z
-							Destination=locate(global.DeadX, global.DeadY, global.DeadZ)
+							Destination=locate(glob.DEATH_LOCATION[1], glob.DEATH_LOCATION[2], glob.DEATH_LOCATION[3])
 						else
 							src.ReturnX=User.x
 							src.ReturnY=User.y

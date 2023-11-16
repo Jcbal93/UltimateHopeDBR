@@ -1250,11 +1250,11 @@ mob/Player/AI/Nympharum
 		if(ai_owner)
 			if(ai_owner.is_arcane_beast.disallow_combat)
 				if(ai_state =="combat")
-					ai_state = "idle"
+					ai_state = "Idle"
 
 			if(ai_owner.PureRPMode || ai_owner.KO)
 				ai_state_switch = ai_state
-				ai_state = "idle"
+				ai_state = "Idle"
 			else
 				if(ai_owner.loc != owner_prev_loc)
 					if(ai_owner.CheckSlotless("Arcane Transmutation"))
@@ -1270,7 +1270,7 @@ mob/Player/AI/Nympharum
 				loc=ai_owner.loc
 		density = 0
 		switch(ai_state)
-			if("idle")
+			if("Idle")
 				//If the Nympharum is told to hold position.
 				if(return_position || (hold_position && get_dist(src, hold_position <= max_hold_distance)))
 					if(hold_position) return_position = null
@@ -1358,7 +1358,7 @@ mob/Player/AI/Nympharum
 
 					if(Target == prev_target)
 						Target = null
-						ai_state = "idle"
+						ai_state = "Idle"
 
 				if(Target && Beaming||BusterTech)
 					dir = angle2cardinal(GetAngle(src, Target))

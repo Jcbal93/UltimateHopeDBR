@@ -142,6 +142,57 @@ proc
 		I.pixel_y=offset_y
 
 
+	coolerFlashImage(mob/m, amt)
+		var/baseAmount = amt
+		for(var/x in 1 to baseAmount)
+			var/obj/coolImage/I = new
+			I.appearance_flags=32
+			I.icon=m.icon
+			I.alpha=135
+			I.overlays=m.overlays
+			I.icon_state=m.icon_state
+			I.color=m.color
+			I.transform=m.transform
+
+			var/turf/t = m.loc
+			t.vis_contents += I
+
+			I.dir=m.dir
+			switch(I.dir)
+				if(NORTH)
+					I.pixel_x=m.pixel_x + (rand(-8,8))
+					I.pixel_y=m.pixel_y - (x * 16)
+				if(NORTHWEST)
+					I.pixel_x= m.pixel_x + (x * 16)
+					I.pixel_y=m.pixel_y - (x * 16)
+				if(NORTHEAST)
+					I.pixel_x=m.pixel_x - (x * 16)
+					I.pixel_y=m.pixel_y - (x * 16)
+				if(SOUTH)
+					I.pixel_x=m.pixel_x + (rand(-8,8))
+					I.pixel_y=m.pixel_y + (x * 16)
+				if(EAST)
+					I.pixel_x=m.pixel_x - (x * 16)
+					I.pixel_y=m.pixel_y + (rand(-8,8))
+				if(SOUTHEAST)
+					I.pixel_x=m.pixel_x - (x * 16)
+					I.pixel_y=m.pixel_y + (x * 16)
+				if(SOUTHWEST)
+					I.pixel_x=m.pixel_x + (x * 16)
+					I.pixel_y=m.pixel_y + (x * 16)
+				if(WEST)
+					I.pixel_x=m.pixel_x + (x * 16)
+					I.pixel_y=m.pixel_y + (rand(-8,8))
+			I.pixel_z=m.pixel_z
+			I.name=m.name
+			I.Owner=m
+			if(prob(25))
+				I.color=rgb(14, 229, 237)
+			else if(prob(25))
+				I.color=rgb(5, 183, 121)
+			else
+				I.color=rgb(30, 18, 167)
+
 	FlashImage(mob/m)
 		var/AMT=1
 		while(AMT)
@@ -197,7 +248,8 @@ obj/Vanish
 		spawn()
 			animate(src,alpha=0,time=lifetime)
 			spawn(lifetime)
-				del src
+				Owner = null
+				src.loc = null
 obj/Afterimage
 	Grabbable=0
 	Destructable=0
@@ -251,7 +303,26 @@ obj/DashImage
 					a.vis_contents -= src
 				for(var/atom/movable/a in vis_locs)
 					a.vis_contents -= src
+				if(Owner)
+					Owner.vis_contents -= src
 				loc = null
+
+
+obj/coolImage
+	Grabbable=0
+	Destructable=0
+	New()
+		spawn(2)
+			animate(src,alpha=0,time=8)
+			spawn(8)
+				for(var/turf/a in vis_locs)
+					a.vis_contents -= src
+				for(var/atom/movable/a in vis_locs)
+					a.vis_contents -= src
+				if(Owner)
+					Owner.vis_contents -= src
+				loc = null
+
 
 obj/TrailImage
 	Grabbable=0
@@ -280,7 +351,7 @@ mob/Player
 				spawn(8)
 					del src
 		Del()
-			for(var/mob/m in world)
+			for(var/mob/m in players)
 				if(m.Target==src)
 					//m<<"Your target has been swapped from [src]([src.type]) to [Owner]([Owner.type])"
 					m.Target=Owner
@@ -329,7 +400,7 @@ proc
 				A.dir=get_dir(A,Target)
 				if(Striking)
 					A.NextAttack=0
-					A.Melee(1, 5, SureKB=1)
+					A.Melee1(1, 5, SureKB=1)
 			A.Dodging=0
 			Target.Dodging=0
 
@@ -338,7 +409,7 @@ proc
 		A.dir=get_dir(A,Target)
 		if(Striking)
 			A.NextAttack=0
-			A.Melee(1, 5, SureKB=15)
+			A.Melee1(1, 5, SureKB=15)
 
 	Dodge(mob/A)
 		var/changeX=pick(-8,-4,4,8)
@@ -378,7 +449,7 @@ proc
 			animate(A,pixel_x=-changeX, pixel_y=-changeY, time=3, flags=ANIMATION_RELATIVE | ANIMATION_PARALLEL)
 			sleep(3)
 			A.dir=get_dir(A,Target)
-			A.Melee(1, 5, accmulti=3, SureKB=15)
+			A.Melee1(1, 5, accmulti=3, SureKB=15)
 			A.Dodging=0
 	UltraPrediction2(mob/A,mob/Target)
 		var/changeX=pick(-16,-8,8,16)
@@ -396,5 +467,5 @@ proc
 			animate(A,pixel_x=-changeX, pixel_y=-changeY, time=3, flags=ANIMATION_RELATIVE | ANIMATION_PARALLEL)
 			sleep(3)
 			A.dir=get_dir(A,Target)
-			A.Melee(1, 5, accmulti=3)
+			A.Melee1(1, 5, accmulti=3)
 			A.Dodging=0

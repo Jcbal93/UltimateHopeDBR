@@ -68,9 +68,16 @@ mob/proc/ChatLog()
 */
 	return "Saves/PlayerLogs/[src.key]/[time2text(world.timeofday,"MM-DD-YY")]"
 
+/mob/verb/ViewSelfLogs()
+	set category = "Other"
+	set desc = "View your own logs."
+	SegmentLogs("Saves/PlayerLogs/[key]/")
+
+
 mob/proc/SegmentLogs(var/e)
 	var/list/entries=flist(e)
 	if(entries.len >= 1)
+		entries = sortByDate(entries)
 		var/file=input("What one do you want to read?","Rebirth") in entries
 		file = file("[e][file]")
 		var/ISF=file2text(file)
@@ -80,6 +87,56 @@ mob/proc/SegmentLogs(var/e)
 
 	else
 		src<<"No logs found."
+
+proc/sortByDate(list/l) // mm-dd-yy format.
+	var/list/sorted = new()
+	var/low_index
+	var/high_index
+	var/insert_index
+	var/midway_calc
+	var/current_index
+	var/current_item
+	var/list/list_bottom
+	var/list/date1_split
+	var/list/date2_split
+	var/date1_comparable
+	var/date2_comparable
+	var/current_sort
+	for (current_sort in l)
+		low_index = 1
+		high_index = sorted.len
+		while (low_index <= high_index)
+			midway_calc = (low_index + high_index) / 2
+			current_index = round(midway_calc)
+			if (midway_calc > current_index)
+				current_index++
+			current_item = sorted[current_index]
+
+			date1_split = splittext(current_item, "-")
+			date2_split = splittext(current_sort, "-")
+
+			date1_comparable = date1_split[3] + date1_split[1] + date1_split[2]
+			date2_comparable = date2_split[3] + date2_split[1] + date2_split[2]
+
+			if (date1_comparable > date2_comparable) // if this is < instead, it sorts from earliest to latest.
+				high_index = current_index - 1
+			else if (date1_comparable < date2_comparable) // u would flip this too
+				low_index = current_index + 1
+			else
+				low_index = current_index
+				break
+
+		insert_index = low_index
+
+		if (insert_index > sorted.len)
+			sorted += current_sort
+			continue
+
+		list_bottom = sorted.Copy(insert_index)
+		sorted.Cut(insert_index)
+		sorted += current_sort
+		sorted += list_bottom
+	return sorted
 
 mob/proc/SegmentTempLogs(var/e)
 	var/wtf=0

@@ -1,5 +1,18 @@
 
+mob/var/list/killed_AI
 
+mob/Players/verb/CheckAIKills()
+	set name = "Check AI Kills"
+	set category = "Other"
+	usr << "Your current AI kills are:"
+	for(var/i in killed_AI)
+		usr << "[i] - [killed_AI[i]]"
+
+/mob/Admin3/verb/AdminCheckAIKills(mob/Players/m in players)
+	set name = "Admin Check AI Kills"
+	usr << "[m]'s current AI kills are:"
+	for(var/i in m.killed_AI)
+		usr << "[i] - [m.killed_AI[i]]"
 
 update_loop/special_loop/ai_tracker_loop
 
@@ -7,7 +20,7 @@ update_loop/special_loop/ai_tracker_loop
 	New(tick_lag = 0)
 		..()
 		src.tick_lag = tick_lag
-		src.next_tick=world.time+Minute(1)
+		src.next_tick=world.time+Second(30)
 		updaters = new
 		for(var/obj/AI_Spot/ais in world)
 			if(ais in src.updaters)
@@ -24,7 +37,7 @@ update_loop/special_loop/ai_tracker_loop
 	Update(var/forced=0)
 		if(WorldLoading)
 			return
-		next_tick = world.time + Minute(1)
+		next_tick = world.time + Second(30)
 		for(var/obj/AI_Spot/a in src.updaters)
 			if(a.ai_active.len < a.ai_limit)
 				a.minute_pass()
@@ -97,7 +110,7 @@ mob/Admin2/verb/CreateAI()
 		a.AI_Database_Sync(index)
 		usr << "[a] has been created!"
 		sleep(50)
-		a.ai_state = "idle"
+		a.ai_state = "Idle"
 */
 
 var/list/ai_sig_pool = list(
@@ -359,10 +372,10 @@ mob/Player/AI
 		shifts_target=0//looks for a new target every 30 * this value seconds
 		targetting=0//counter for when to shift target
 		mob/Player/ai_owner = null
-		ai_state = "idle"
+		ai_state = "Idle"
 		go_home=0
-		ai_accuracy = 50
-		ai_vision = 12 // Ai's sight range. Tracking is lost at this distance * 2
+		ai_accuracy = 100
+		ai_vision = 3 // Ai's sight range. Tracking is lost at this distance * 2
 		ai_hostility = 1 //1 = Responds to attack and countdowns (facing them). 2 = Actively Seeks Targets.
 		//Mobs who respond to attacks should flash red in ANGEEER!!!
 
@@ -371,7 +384,7 @@ mob/Player/AI
 		ai_flickshot = 1 //Ai will make sudden turns to fire projectiles.
 
 		ai_adapting_power = 0
-		tmp/ai_power_adapted = 0 //Set to true the first time an AI takes damage.
+		ai_power_adapted = 0 //Set to true the first time an AI takes damage.
 		ai_adapting_max = 0 //Max power an AI may achieve.
 
 		ai_team
@@ -389,10 +402,10 @@ mob/Player/AI
 		ai_focus_owner_target
 		ai_team_fire = 1
 
-		ai_next_skill
-		ai_next_projectile
-		ai_next_qeueuable
-		ai_next_autohit
+		ai_next_skill = 0
+		ai_next_projectile = 0
+		ai_next_qeueuable = 0
+		ai_next_autohit = 0
 
 		ai_follow = 0 //Follows Owner
 		ai_protection = 0 //An AI will respond to attacks against its owner if they're within this amount of tiles. This means they will change targets by force.
@@ -422,7 +435,7 @@ mob/Player/AI
 		hold_position
 
 		prioritize_players
-		var/list/aggro_damage = list()
+		list/aggro_damage = list()
 
 		max_hold_distance = 3
 
@@ -437,24 +450,74 @@ mob/Player/AI
 		hostile_randomize
 		datum/ai_play_action/play_action
 		list/ai_tmpprops = list()
+		ai_type
 
-		tmp/last_zanzo
-		tmp/cloud_yeet_delay
+		last_zanzo
+		cloud_yeet_delay
+		hostile
+
+		last_loc
+		last_loc_tick = 0
 	New()
 		..()
-		ai_loop.Add(src)
+		MovementCharges = 5
+		ai_state = "Idle"
+		ticking_ai.Add(src)
 	CheckAscensions() //override to do nothing
 	proc/
 		EndLife(animatedeath=1) //Clear all references in this proc.
 			set waitfor=0
 			ai_loop.Remove(src)
-			if(senpai) senpai.ai_active.Remove(src)
+			ticking_ai.Remove(src)
+			if(senpai)
+				senpai.ai_active.Remove(src)
+				senpai = null
 			ai_state = null
 			if(animatedeath)
 				animate(src, alpha=0,time=5)
 				sleep(5)
-			src.loc = null //Let the garbage collector do it works.
-			del(src) //FUCK SHIT REEEE
+			for(var/obj/Skills/s in src)
+				s.AssociatedLegend = null
+				s.AssociatedGear = null
+				s.loc = null
+				DeleteSkill(s, 1)
+			for(var/i in vis_contents)
+				vis_contents -= i
+			companion_ais.Remove(src)
+			transform = null
+			filters = null
+			dd = null
+			Hair = null
+			Target = null
+			GlobalCooldowns = null
+			SkillsLocked = null
+			OldLoc = null
+			passive_handler = null
+			aggro_damage = null
+			Splits = null
+			information = null
+			secretDatum = null
+			MonkeySoldiers = null
+			knowledgeTracker = null
+			Items = null
+			equippedSword = null
+			equippedArmor = null
+			equippedWeights = null
+			play_action = null
+			overlays = null
+			underlays = null
+			if(BeingObserved.len>0)
+				for(var/mob/p in BeingObserved)
+					Observify(p,p)
+			if(BeingTargetted.len>0)
+				for(var/mob/p in BeingTargetted)
+					p.RemoveTarget()
+			if(active_projectiles.len>0)
+				for(var/obj/Skills/Projectile/_Projectile/p in active_projectiles)
+					p.endLife()
+			src.loc = null
+			sleep(50)
+			del src
 
 		GenerateAppearance(var/is_monster, include_clothes=1)
 			//No arguement = Human. 1 = Picks from all monster icons. If passed as a list, it will choose icon from that list.
@@ -634,52 +697,27 @@ mob/Player/AI
 							return 1
 			return 0
 
-		HitCheck(var/direction)
-			if(!direction) direction = dir
+		HitCheck()
 			var/list/to_hit = list()
-			if(SweepingStrike)
-				for(var/mob/m in oview(1, src)) to_hit += m
-			else
-				for(var/mob/m in get_step(src,direction)) if(prob(ai_accuracy * 1.5)) to_hit += m
-				for(var/mob/m in get_step(src,turn(direction, 45))) if(prob(ai_accuracy)) to_hit += m
-				for(var/mob/m in get_step(src,turn(direction, -45))) if(prob(ai_accuracy)) to_hit += m
-
-				for(var/mob/m in get_step(src,turn(direction, 90))) if(prob(ai_accuracy/2)) to_hit += m
-
-				for(var/mob/m in get_step(src,turn(direction, -90))) if(prob(ai_accuracy/2)) to_hit += m
-
-			for(var/mob/m in to_hit)
-				if(AllianceCheck(m)) to_hit -= m
-
+			for(var/mob/m in oview(1, src))
+				if(AllianceCheck(m))
+					continue
+				to_hit += m
 			return to_hit
 
 		FindTarget()
-			if(!Target)
-				for(var/mob/P in view(ai_vision,src))
-					if(prioritize_players && !P.client) continue
-					if(P == src) continue
-					if(P.invisibility > src.see_invisible)
-						continue
+			for(var/mob/P in view(ai_vision,src))
+				if(prioritize_players && !P.client) continue
+				if(P == src) continue
+				if(P.invisibility > src.see_invisible)
+					continue
 
-					if(AllianceCheck(P)) continue
+				if(AllianceCheck(P)) continue
+				if(Target && P==Target) continue
 
-					if(!return_position && !hold_position) return_position = loc
-					Target = P
-					return 1
-			else if(src.Target)
-				for(var/mob/P in view(ai_vision,src))
-					if(prioritize_players && !P.client) continue
-					if(P == src) continue
-					if(P.invisibility > src.see_invisible)
-						continue
-
-					if(AllianceCheck(P)) continue
-					if(P==src.Target) continue
-
-					if(!return_position && !hold_position) return_position = loc
-					Target = P
-					return 1
-
+				if(!return_position && !hold_position) return_position = loc
+				Target = P
+				return 1
 		WalkPosition()
 			var direction = angle2dir(ai_facedir)
 			var atom/location = get_step(src,direction)
@@ -711,18 +749,18 @@ mob/Player/AI
 
 	Update()
 		set waitfor=0
-		if(src.Health<=0 || src.KO)
-			if(!src.KO) Unconscious(null,"?!?!")
-
+		if(src.Health<=0 && !src.KO)
+			Unconscious(null,"?!?!")
 
 		if((src.Health+1 >= 100 - (100*HealthCut)-1) || (src.Energy+1 >= 100 - (100*EnergyCut)-1) || (src.ManaAmount+1 >= 100 - (100*ManaCut)-1))
 			if(world.time >= ai_next_gainloop)
-				AIGain()
+				aiGain()
 				ai_next_gainloop = world.time + 10
 		else
 			if(world.time >= ai_next_gainloop)
-				AIGain()
+				aiGain()
 				ai_next_gainloop = world.time + 100
+		// ??? this makes their next loop 10 seconds instead of 1?
 
 
 		if(play_action)
@@ -730,274 +768,259 @@ mob/Player/AI
 			return
 
 		if(src.KO)
-			if(src.KOTimer > 60) KOTimer=60
+			if(src.KOTimer > 60)
+				KOTimer=60
 			return
 		if(ai_stall)
 			ai_stall--
 			return
-		var/ai_state_switch
 		if(ai_owner)
 			if(ai_owner.PureRPMode)
-				ai_state_switch = ai_state
-				ai_state = "idle"
+				ai_state = "Idle"
+		AiBehavior()
+		// switch(ai_state) // THIS SEEMS TO HANDLE LOGIC FOR AI ACTIONS
+		// 	if("Idle")
+		// 		if(ai_hostility >= 2)
+		// 			src.FindTarget()
+		// 			if(Target)
+		// 				ai_state = "combat"
+		// 				return
+		// 		if(return_position || (hold_position && get_dist(src, hold_position) <= max_hold_distance))
+		// 			if(hold_position) return_position = null
+		// 			if(world.time >= next_move)
 
-		switch(ai_state)
-			if("idle")
-				if(ai_hostility >= 2)
-					src.FindTarget()
-					if(Target)
-						ai_state = "combat"
-						return
-				if(return_position || (hold_position && get_dist(src, hold_position) <= max_hold_distance))
-					if(hold_position) return_position = null
-					if(world.time >= next_move)
+		// 				ai_prev_position = loc
+		// 				step_to(src, (hold_position ? hold_position : return_position), max_hold_distance)
 
-						ai_prev_position = loc
-						step_to(src, (hold_position ? hold_position : return_position), max_hold_distance)
+		// 				next_move = world.time + MovementSpeed()
 
-						next_move = world.time + MovementSpeed()
-						if(return_position && get_dist(src, return_position) <=3)
-							return return_position = null
-				else
-					ai_trapped_check = 0
+		// 				if(return_position && get_dist(src, return_position) <=3)
+		// 					return return_position = null
+		// 		else
+		// 			ai_trapped_check = 0
 
-					if(ai_follow && ai_owner && ai_owner.icon_state != "Meditate")
-						if(icon_state == "Meditate")
-							icon_state = ""
-						if(!ai_owner)
-							EndLife(0)
-							return
-						if(world.time >= next_move)
-							var prev_loc = loc
-							if(ai_owner.z != src.z)
-								loc = locate(ai_owner.x, ai_owner.y,ai_owner.z)
-							next_move = world.time + ai_owner.MovementSpeed()/1.5
-							if(get_dist(src, src.ai_owner)>=10)
-								src.density=0
-								step_to(src, src.ai_owner, 2)
-								src.density=1
-								next_move = world.time+2
+		// 			if(ai_follow && ai_owner && ai_owner.icon_state != "Meditate")
+		// 				if(icon_state == "Meditate")
+		// 					icon_state = ""
+		// 				if(!ai_owner)
+		// 					EndLife(0)
+		// 					return
+		// 				if(world.time >= next_move)
+		// 					var prev_loc = loc
+		// 					if(ai_owner.z != src.z)
+		// 						loc = locate(ai_owner.x, ai_owner.y,ai_owner.z)
+		// 					next_move = world.time + 5
+		// 					if(get_dist(src, src.ai_owner)>=10)
+		// 						src.density=0
+		// 						step_towards(src, src.ai_owner, 2)
+		// 						src.density=1
+		// 						next_move = world.time+2
 
-							var/ai_len = ai_owner.ai_followers.Find(src)
+		// 					var/ai_len = ai_owner.ai_followers.Find(src)
 
-							step_to(src, src.ai_owner, 2 + round(ai_len/5))
-							step_away(src, src.ai_owner, 1 + round(ai_len/5))
-							if(loc == prev_loc) dir = src.ai_owner.dir //Make ai nicely face same dir as the owner.
-
-
-					else if((src.Health < 100 - (100*HealthCut)-1) || (ai_owner && ai_owner.icon_state =="Meditate"))
-						icon_state = "Meditate"
-						if(ai_stall == 0)
-							ai_stall = 10
-					else if(ai_wander)
-						ai_state = "wander"
-
-			if("combat")
-				if(world.time < ai_delayed) return
-
-				if(Launched || Stunned || icon_state=="KB")
-					return
-
-				if(icon_state == "Meditate")
-					icon_state = ""
-
-				if(src.Target)
-					if(src.Target.ai_alliances.len>0)
-						for(var/o in src.Target.ai_alliances)
-							if(o in src.ai_alliances)
-								src.Target=null
-								src.ai_state="idle"
+		// 					step_towards(src, src.ai_owner, 2 + round(ai_len/5))
+		// 					step_away(src, src.ai_owner, 1 + round(ai_len/5))
+		// 					if(loc == prev_loc) dir = src.ai_owner.dir //Make ai nicely face same dir as the owner.
 
 
-				if(get_dist(src, Target) >= ai_vision * 5)
-					Target = null
-				if(ai_focus_owner_target && ai_owner)
-					Target = ai_owner.Target
+		// 			else if((src.Health < 100 - (100*HealthCut)-1) || (ai_owner && ai_owner.icon_state =="Meditate"))
+		// 				icon_state = "Meditate"
+		// 				if(ai_stall == 0)
+		// 					ai_stall = 10
+		// 			else if(ai_wander)
+		// 				ai_state = "wander"
 
-				if(src.shifts_target)
-					if(world.time > src.targetting+(300*src.shifts_target))
-						src.FindTarget()
-						src.targetting=world.time
+		// 	if("combat")
+		// 		if(world.time < ai_delayed) return
 
-				if(!Target) if((ai_hostility >= 2 && !FindTarget()) || 2 > ai_hostility)
-					ai_state = "idle"
-					return
+		// 		if(Launched || Stunned || icon_state=="KB")
+		// 			return
 
-				if(prioritize_players && Target && !Target.client)
-					Target = null
-					ai_state = "idle"
-					return
+		// 		if(icon_state == "Meditate")
+		// 			icon_state = ""
 
-				if(Target.Flying && get_dist(src, Target) <= 15 && world.time > cloud_yeet_delay)
-					var/obj/Items/check = Target.EquippedFlyingDevice()
-					if(istype(check))
-						check.ObjectUse(Target)
-						Target << "[src] throws you off your flying device!"
-						cloud_yeet_delay = world.time + 30
-
-				if(Target.KO)
-					var prev_target = Target
-					if(istype(Target, /mob/Player/AI))
-						var/mob/Player/AI/a = Target
-						if(a.ai_owner)
-							Target = null
-							if(prob(40))
-								Target = a.ai_owner
-
-							else for(var/mob/m in a.ai_followers)
-								if(!m.KO)
-									Target=m
-									break
-							if(!Target)
-								Target = a.ai_owner
-
-					if(Target == prev_target)
-						Target = null
-						ai_state = "idle"
-
-				dir = angle2cardinal(ai_facedir)
-
-				if(Beaming||BusterTech)
-					dir = angle2cardinal(GetAngle(src, Target))
-					return
-
-				//Movement
-				if(!ai_movement_type)
-					var compare = angle_difference(ai_facedir, dir2angle(get_dir(src, Target)))
-					var/obj/Skills/use
-					if(world.time >= (next_move))for(var/obj/Skills/Projectile/_Projectile/p in view(2, src))
-						if(p.Area=="Beam")
-							if(prob(10 + ai_accuracy) && p.Owner)
-								spawn
-									if(p && p.Owner)
-										p.Owner.ForceCancelBeam()
-										p.Owner.ForceCancelBuster()
-					if(prob(ai_accuracy))
-						if((world.time > ai_next_skill) && world.time >= (next_move))
+		// 		if(src.Target)
+		// 			if(src.Target.ai_alliances.len>0)
+		// 				for(var/o in src.Target.ai_alliances)
+		// 					if(o in src.ai_alliances)
+		// 						src.Target=null
+		// 						src.ai_state="Idle"
 
 
-							var/list/queueables = list()
-							var/list/autohits = list()
-							var/list/projectiles = list()
+		// 		if(get_dist(src, Target) >= ai_vision * 5)
+		// 			Target = null
+		// 		if(ai_focus_owner_target && ai_owner)
+		// 			Target = ai_owner.Target
 
-							for(var/obj/Skills/s in src)
-								if(s.Using) continue
-								if(istype(s, /obj/Skills/Projectile))
-									projectiles += s
-								else if(istype(s, /obj/Skills/AutoHit))
-									autohits += s
-								else if(istype(s, /obj/Skills/Queue))
-									queueables += s
+		// 		if(src.shifts_target)
+		// 			if(world.time > src.targetting+(300*src.shifts_target))
+		// 				src.FindTarget()
+		// 				src.targetting=world.time
 
-							if(world.time > ai_next_projectile && projectiles.len)
-								if(get_dist(src, src.Target) >= 4)
-									var/obj/Skills/Projectile/p = pick(projectiles)
-									if( (x in (Target.x - 1 to Target.x + 1)) || (y in (Target.y - 1 to Target.y + 1) )   )
-										dir = angle2cardinal(GetAngle(src, Target))
-										UseProjectile(p)
-										use = p
-										ai_next_projectile = (world.time+50)/ai_spammer
+		// 		if(!Target)
+		// 			if((ai_hostility >= 2 && !FindTarget()) || 2 > ai_hostility)
+		// 				ai_state = "Idle"
+		// 				return
 
-							if(world.time > ai_next_autohit && !use && autohits.len)
+		// 		if(prioritize_players && Target && !Target.client)
+		// 			Target = null
+		// 			ai_state = "Idle"
+		// 			return
 
-								var/obj/Skills/AutoHit/a = pick(autohits)
-								if(a.Area in list("Arc","Circle"))
-									if(get_dist(src, Target) <= a.Distance + pick(-1,0,0,1))
-										dir = get_dir(src, Target)
-										Activate(a)
-										ai_next_autohit = (world.time+20)/ai_spammer
-								else if(a.Area in list("Strike","Wave", "Wide Wave"))
-									if(get_dist(src, Target) <= a.Rush+a.Distance+pick(-1,-1,0,0,0))
-										if(prob(ai_accuracy/2))
-											step(src, get_dir(src, Target))
-										dir = get_dir(src, Target)
-										if(prob(ai_accuracy/2))
-											if((x in (Target.x - 1 to Target.x + 1)) || (y in (Target.y - 1 to Target.y + 1) )  )
-												Activate(a)
-												use = a
-												ai_next_autohit = (world.time+20)/ai_spammer
-										else if(x == Target.x || y == Target.y)
-											Activate(a)
-											use = a
-											ai_next_autohit = (world.time+20)/ai_spammer
-								else if(a.Area in list("Target","Around Target"))
-									if(get_dist(src,Target) <= a.Distance - pick(0,0,-1,-1,-2))
-										Activate(a)
-										use = a
-										ai_next_autohit = (world.time+20)/ai_spammer
+		// 		if(Target.Flying && get_dist(src, Target) <= 15 && world.time > cloud_yeet_delay)
+		// 			var/obj/Items/check = Target.EquippedFlyingDevice()
+		// 			if(istype(check))
+		// 				check.ObjectUse(Target)
+		// 				Target << "[src] throws you off your flying device!"
+		// 				cloud_yeet_delay = world.time + 30
 
-							if(use) ai_next_skill = world.time + (use.Copyable ? use.Copyable * 5 : 50)
+		// 		if(Target.KO)
+		// 			var prev_target = Target
+		// 			if(istype(Target, /mob/Player/AI))
+		// 				var/mob/Player/AI/a = Target
+		// 				if(a.ai_owner)
+		// 					Target = null
+		// 					if(prob(40))
+		// 						Target = a.ai_owner
 
-							else if(locate(/obj/Skills/Dragon_Dash, src) && get_dist(src, Target) > 5)
-								use = locate(/obj/Skills/Dragon_Dash) in src
-								if(!use.Using)
-									if(prob(get_dist(src, Target) * 5))
-										SkillX("DragonDash",use)
-								else use=null
-							//if(world.time > ai_next_queueable && !use)
+		// 					else for(var/mob/m in a.ai_followers)
+		// 						if(!m.KO)
+		// 							Target=m
+		// 							break
+		// 					if(!Target)
+		// 						Target = a.ai_owner
 
-						var/hit
-						for(var/mob/m in HitCheck(angle2dir(ai_facedir)))
-							dir = get_dir(src,m)
-							Melee()
-							hit=1
-						if(!hit && prob(25) && world.time > last_zanzo +250/ai_spammer)
-							for(var/obj/Skills/Zanzoken/z in src)
-								if(get_dist(src, src.Target) >=3 && prob(50))
-									SkillX("Zanzoken",z)
-								else
-									SkillStunX("After Image Strike",z)
-								last_zanzo=world.time
+		// 			if(Target == prev_target)
+		// 				Target = null
+		// 				ai_state = "Idle"
 
-					if(world.time >= next_move && !use && Move_Requirements())
-						if(world.time > ai_turn_stall)
-							var erratic = 0
-							if((angle_difference(ai_facedir, dir2angle(get_dir(src, Target))) in -46 to 46) && prob(ai_accuracy/2)) //snap movement
-								ai_facedir = dir2angle(get_dir(src, Target))
-								ai_last_dirshift = world.time
-								if(get_dist(src,Target)>3)
-									erratic = 1
-							if(compare != 0)
-								if(compare > 0)
-									ai_facedir += min(45, compare) //* erratic ? 1+rand() : 1
-									if(prob(25)) ai_facedir += 45
-								else if(0 > compare)
-									ai_facedir += max(-45, compare) //* erratic ? 1+rand() : 1
-									if(prob(25)) ai_facedir += -45
-								ai_last_dirshift = world.time
-							else if(erratic && get_dist(src,Target)>2)
-								ai_facedir += pick(-45,45)
-								ai_last_dirshift = world.time
-								ai_turn_stall = world.time + MovementSpeed()*rand(1,3)
+		// 		dir = angle2cardinal(ai_facedir)
 
-						if(ai_last_dirshift + MovementSpeed()*2 < world.time)
-							ai_facedir+=pick(-45,-90,45,90,180,180)
-							ai_last_dirshift = world.time
-						if(get_dist(src, Target) >= 6)
-							step_to(src, Target)
-						else
-							var turf/walkto = WalkPosition()
-							step_to(src, walkto)
-						next_move = world.time + MovementSpeed()
-					dir = angle2dir(ai_facedir)
-					if(dir != get_dir(src, Target))
-						ai_facedir += 0
+		// 		if(Beaming||BusterTech)
+		// 			dir = angle2cardinal(GetAngle(src, Target))
+		// 			return
+
+		// 		//Movement
+		// 		if(!ai_movement_type)
+		// 			var compare = angle_difference(ai_facedir, dir2angle(get_dir(src, Target)))
+		// 			var/obj/Skills/use
+
+		// 			if(prob(ai_accuracy))
+		// 				if((world.time > ai_next_skill) && world.time >= (next_move))
+
+		// 					if(world.time > ai_next_projectile && Projectiles.len)
+		// 						if(get_dist(src, src.Target) >= 4)
+		// 							var/obj/Skills/Projectile/p = pick(Projectiles)
+		// 							if( (x in (Target.x - 1 to Target.x + 1)) || (y in (Target.y - 1 to Target.y + 1) )   )
+		// 								dir = angle2cardinal(GetAngle(src, Target))
+		// 								UseProjectile(p)
+		// 								use = p
+		// 								Projectiles -= p
+		// 								ai_next_projectile = (world.time+50)/ai_spammer
+		// 								spawn(p.Cooldown*10)
+		// 									Projectiles += p
+		// 					if(world.time > ai_next_autohit && !use && AutoHits.len)
+
+		// 						var/obj/Skills/AutoHit/a = pick(AutoHits)
+		// 						if(a.Area in list("Arc","Circle"))
+		// 							if(get_dist(src, Target) <= a.Distance + pick(-1,0,0,1))
+		// 								dir = get_dir(src, Target)
+		// 								Activate(a)
+		// 								ai_next_autohit = (world.time+20)/ai_spammer
+		// 						else if(a.Area in list("Strike","Wave", "Wide Wave"))
+		// 							if(get_dist(src, Target) <= a.Rush+a.Distance+pick(-1,-1,0,0,0))
+		// 								if(prob(ai_accuracy/2))
+		// 									step(src, get_dir(src, Target))
+		// 								dir = get_dir(src, Target)
+		// 								if(prob(ai_accuracy/2))
+		// 									if((x in (Target.x - 1 to Target.x + 1)) || (y in (Target.y - 1 to Target.y + 1) )  )
+		// 										Activate(a)
+		// 										use = a
+		// 										ai_next_autohit = (world.time+20)/ai_spammer
+		// 								else if(x == Target.x || y == Target.y)
+		// 									Activate(a)
+		// 									use = a
+		// 									ai_next_autohit = (world.time+20)/ai_spammer
+		// 						else if(a.Area in list("Target","Around Target"))
+		// 							if(get_dist(src,Target) <= a.Distance - pick(0,0,-1,-1,-2))
+		// 								Activate(a)
+		// 								use = a
+		// 								ai_next_autohit = (world.time+20)/ai_spammer
+		// 						AutoHits -= a
+		// 						spawn(a.Cooldown*10)
+		// 							AutoHits += a
+		// 					if(use) ai_next_skill = world.time + (use.Copyable ? use.Copyable * 5 : 50)
+
+		// 					else if(locate(/obj/Skills/Dragon_Dash, src) && get_dist(src, Target) > 5)
+		// 						use = locate(/obj/Skills/Dragon_Dash) in src.contents
+		// 						if(!use.Using)
+		// 							if(prob(get_dist(src, Target) * 5))
+		// 								SkillX("DragonDash",use)
+		// 						else use=null
+		// 					//if(world.time > ai_next_queueable && !use)
+
+		// 				var/hit
+		// 				for(var/mob/m in HitCheck())
+		// 					dir = get_dir(src,m)
+		// 					Melee1(GLOBAL_AI_DAMAGE)
+		// 					hit=1
+		// 				if(!hit && prob(25) && world.time > last_zanzo +250/ai_spammer)
+		// 					for(var/obj/Skills/Zanzoken/z in src)
+		// 						if(get_dist(src, src.Target) >=3 && prob(50))
+		// 							SkillX("Zanzoken",z)
+		// 						else
+		// 							SkillStunX("After Image Strike",z)
+		// 						last_zanzo=world.time
+
+		// 			if(world.time >= next_move && !use && Move_Requirements())
+		// 				if(world.time > ai_turn_stall)
+		// 					var erratic = 0
+		// 					if((angle_difference(ai_facedir, dir2angle(get_dir(src, Target))) in -46 to 46) && prob(ai_accuracy/2)) //snap movement
+		// 						ai_facedir = dir2angle(get_dir(src, Target))
+		// 						ai_last_dirshift = world.time
+		// 						if(get_dist(src,Target)>3)
+		// 							erratic = 1
+		// 					if(compare != 0)
+		// 						if(compare > 0)
+		// 							ai_facedir += min(45, compare) //* erratic ? 1+rand() : 1
+		// 							if(prob(25)) ai_facedir += 45
+		// 						else if(0 > compare)
+		// 							ai_facedir += max(-45, compare) //* erratic ? 1+rand() : 1
+		// 							if(prob(25)) ai_facedir += -45
+		// 						ai_last_dirshift = world.time
+		// 					else if(erratic && get_dist(src,Target)>2)
+		// 						ai_facedir += pick(-45,45)
+		// 						ai_last_dirshift = world.time
+		// 						ai_turn_stall = world.time + MovementSpeed()*rand(1,3)
+
+		// 				if(ai_last_dirshift + MovementSpeed()*2 < world.time)
+		// 					ai_facedir+=pick(-45,-90,45,90,180,180)
+		// 					ai_last_dirshift = world.time
+		// 				if(get_dist(src, Target) >= 6)
+		// 					step_to(src, Target)
+		// 				else
+		// 					var turf/walkto = WalkPosition()
+		// 					step_to(src, walkto)
+		// 				next_move = world.time + MovementSpeed()
+		// 			dir = angle2dir(ai_facedir)
+		// 			if(dir != get_dir(src, Target))
+		// 				ai_facedir += 0
 
 
-				else
-					switch(ai_movement_type)
-						if("Circle Owner")
-							return
+		// 		else
+		// 			switch(ai_movement_type)
+		// 				if("Circle Owner")
+		// 					return
 
-			if("wander")
-				if(world.time >= next_move)
-					step(src, pick(NORTH,SOUTH,EAST,WEST,NORTHWEST,SOUTHWEST,NORTHEAST,SOUTHEAST))
-					next_move = world.time + MovementSpeed()*10
-					if(src.ai_hostility>=2)
-						src.FindTarget()
-						if(src.Target)
-							ai_state="combat"
-		if(ai_state_switch) ai_state = ai_state_switch
+		// 	if("wander")
+		// 		if(world.time >= next_move)
+		// 			step(src, pick(NORTH,SOUTH,EAST,WEST,NORTHWEST,SOUTHWEST,NORTHEAST,SOUTHEAST))
+		// 			next_move = world.time + MovementSpeed()*10
+		// 			if(src.ai_hostility>=2)
+		// 				src.FindTarget()
+		// 				if(src.Target)
+		// 					ai_state="combat"
+		// if(ai_state_switch) ai_state = ai_state_switch
 
 
 proc
@@ -1098,7 +1121,7 @@ mob/Player/AI
 									OrbCheck << output("[FinalCheck](hearing [E]):<font color=[src.Text_Color]>[src] says: [html_encode(T)]", "icchat")
 
 			for(var/obj/Items/Tech/Planted_Wiretap/WT in E)
-				for(var/mob/Players/M in world)
+				for(var/mob/Players/M in players)
 					for(var/obj/Items/Tech/Scouter/Q in M)
 						if(Q.Frequency==WT.Frequency)
 							if(!(M in hearers(12, src)))
@@ -1164,7 +1187,7 @@ mob/Player/AI
 						Z << output("<font color=green><b>([Y.name])</b> [src.name]: [html_encode(T)]", "output")
 						Z << output("<font color=green><b>([Y.name])</b> [src.name]: [html_encode(T)]", "icchat")
 			if(X.Intercom==1)
-				for(var/mob/Players/M in world)
+				for(var/mob/Players/M in players)
 					for(var/obj/Items/Tech/Scouter/Q in M)
 						if(X.Frequency==Q.Frequency)
 							M << output("<font color=green><b>([X.name])</b> [src.name]: [html_encode(T)]", "output")
@@ -1207,7 +1230,7 @@ mob/Player/AI
 		if(src.KO&&src.icon_state!="KO")
 			src.icon_state="KO"
 		if(src.KO && ko_death)
-			Death(null,"exausting their life force!")
+			Death(null,"exhausting their life force!")
 			return
 
 		if(ai_owner)
@@ -1219,7 +1242,7 @@ mob/Player/AI
 		TotalInjury=0
 		Energy+=2
 
-		if(world.time >= last_powercheck+100)
+		if(world.time >= last_powercheck+300)
 			AIAvailablePower()
 			last_powercheck=world.time
 		if(icon_state == "Meditate")
@@ -1283,393 +1306,323 @@ mob/Player/AI
 			OMsg(src, "<font color='green'>[src]'s nanites respond to their physical trauma, bolstering their cybernetic power!</font color>")
 			src.NanoAnnounce=1
 
-		if(src.Health>=75*(1-src.HealthCut)&&src.icon_state=="Meditate"&&src.Anger!=0&&!src.PureRPMode)
+		if(src.Health>=75*(1-src.HealthCut)&&src.icon_state=="Meditate"&&src.Anger!=0)
 			calmcounter-=1
 		else
 			calmcounter=5
 		if(calmcounter<=0)
 			calmcounter=5
-			if(Anger && !src.PureRPMode)
+			if(Anger)
 				src.Calm()
 		if(src.Grab)src.Grab_Update()
 
-		if(src.Base!=global.WorldBaseAmount)
-			src.Base=global.WorldBaseAmount
-		if(src.EnergyMax!=100)
-			src.EnergyMax=100
+		if(src.Stasis||src.StasisFrozen)
+			src.Stasis--
+			if(src.Stasis<=0)
+				src.Stasis=0
+				src.RemoveStasis()
 
-		if(!src.PureRPMode)
+		if(src.Dead)
+			src.Savable=0
+			animate(src,alpha=0,time=30)
+			sleep(30)
+			del(src)
 
-			if(src.HasVaizard()&&!src.VaizardType)
-				if(!src.VaizardType)
-					src.VaizardType=pick(list("Berserker", "Manipulator", "Hellion", "Phantasm"))
-				if(!src.VaizardIcon)
-					src.GetVaizardIcon()
-				for(var/obj/Skills/Buffs/SpecialBuffs/Cursed/Vaizard_Mask/vm in src)
-					vm.IconLock=src.VaizardIcon
-					vm.LockX=0
-					vm.LockY=0
-					switch(src.VaizardType)
-						if("Berserker")
-							vm.StrMult=1.5
-							vm.OffMult=1.5
-						if("Manipulator")
-							vm.ForMult=1.5
-							vm.OffMult=1.5
-						if("Hellion")
-							vm.StrMult=1.25
-							vm.ForMult=1.25
-							vm.DefMult=1.5
-						if("Phantasm")
-							vm.EndMult=1.5
-							vm.DefMult=1.5
-			if(src.HasJinchuuriki()&&!src.JinchuuType)
-				if(!src.JinchuuType)
-					src.JinchuuType=pick(list("Tyrant", "Catastrophe", "Dominator", "Juggernaut"))
-				for(var/obj/Skills/Buffs/SpecialBuffs/Cursed/Jinchuuriki/j in src.Buffs)
-					switch(src.JinchuuType)
-						if("Tyrant")
-							j.StrMult=2
-						if("Catastrophe")
-							j.ForMult=2
-						if("Dominator")
-							j.OffMult=2
-						if("Juggernaut")
-							j.EndMult=2
+		if(src.KOTimer)
+			src.KOTimer--
+			if(src.KOTimer<=0&&!src.MortallyWounded)
+				src.Conscious()
 
+		if(src.Beaming==1)
+			for(var/obj/Skills/Projectile/Beams/Z in src)
+				if(Z.Charging&&Z.ChargeRate)
+					if(src.BeamCharging>=0.5&&src.BeamCharging<=Z.ChargeRate)
+						src.BeamCharging+=src.GetRecov(0.2)
+						if(src.BeamCharging>Z.ChargeRate)
+							src.BeamCharging=Z.ChargeRate
 
-
-			if(src.Stasis||src.StasisFrozen)
-				src.Stasis--
-				if(src.Stasis<=0)
-					src.Stasis=0
-					src.RemoveStasis()
-
-			if(src.PowerControl>100)
-				if(!src.HasKiControl()&&!src.PoweringUp)
-					src.PowerControl=100
-
-			if(src.Dead)
-				src.Savable=0
-				animate(src,alpha=0,time=30)
-				sleep(30)
-				del(src)
-
-			if(src.KOTimer)
-				src.KOTimer--
-				if(src.KOTimer<=0&&!src.MortallyWounded)
-					src.Conscious()
-
-			if(src.Beaming==1)
-				for(var/obj/Skills/Projectile/Beams/Z in src)
-					if(Z.Charging&&Z.ChargeRate)
-						if(src.BeamCharging>=0.5&&src.BeamCharging<=Z.ChargeRate)
-							src.BeamCharging+=src.GetRecov(0.2)
-							if(src.BeamCharging>Z.ChargeRate)
-								src.BeamCharging=Z.ChargeRate
-
-							//aesthetics
-							if(src.BeamCharging>=(0.5*Z.ChargeRate))
-								if(Z.name=="Aurora Execution")
-									if(src.BeamCharging<Z.ChargeRate)
-										var/image/i=image('Aurora.dmi',icon_state="[rand(1,3)]", layer=EFFECTS_LAYER, loc=src)
-										i.blend_mode=BLEND_ADD
-										animate(i, alpha=0)
-										world << i
-										i.transform*=30
-										animate(i, alpha=200, time=5)
-										src.BeamCharging=Z.ChargeRate
-										spawn(150)
-											animate(i, alpha=0, time=5)
-											sleep(5)
-											del i
-								else
-									for(var/turf/t in Turf_Circle(src, 10))
-										if(prob(5))
-											spawn(rand(2,6))
-												var/icon/i = icon('RisingRocks.dmi')
-												if(Z.name=="Excalibur")
-													if(locate(/obj/Skills/Queue/Holy_Blade, usr))
-														i='SparkleGold.dmi'
-													else
-														i='DarkShockD.dmi'
-												t.overlays+=i
-												spawn(rand(10, 30))
-													t.overlays-=i
-									if(src.BeamCharging==Z.ChargeRate)
-										src.Quake((14+2*Z.DamageMult))
-
-			src.Debuffs()
-
-			if(src.StrTax)
-				src.SubStrTax(0.5/RawDays(1))
-			if(src.EndTax)
-				src.SubEndTax(0.5/RawDays(1))
-			if(src.SpdTax)
-				src.SubSpdTax(0.5/RawDays(1))
-			if(src.ForTax)
-				src.SubForTax(0.5/RawDays(1))
-			if(src.OffTax)
-				src.SubOffTax(0.5/RawDays(1))
-			if(src.DefTax)
-				src.SubDefTax(0.5/RawDays(1))
-			if(src.RecovTax)
-				src.SubRecovTax(0.5/RawDays(1))
-
-			if(src.Harden)
-				src.Harden--
-				if(src.Harden<=0)
-					src.Harden=0
-
-			if(src.CounterMasterTimer)
-				src.CounterMasterTimer = max(0, CounterMasterTimer-1)
-
-			if(src.SureHitTimerLimit)
-				if(!src.SureHit)
-					src.SureHitTimer--
-					if(src.SureHitTimer<=0)
-						src.SureHit=1
-						src.SureHitTimer=src.SureHitTimerLimit
-
-			if(src.SureDodgeTimerLimit)
-				if(!src.SureDodge)
-					src.SureDodgeTimer--
-					if(src.SureDodgeTimer<=0)
-						src.SureDodge=1
-						src.SureDodgeTimer=src.SureDodgeTimerLimit
-
-			if(src.UsingIaido())
-				src.IaidoCounter++
-			if(src.UsingKendo())
-				src.IaidoCounter++
-			if(src.UsingSpeedRave())
-				src.IaidoCounter++
-
-
-			if(src.Oozaru)
-				src.OozaruTimer--
-				if(src.OozaruTimer<=0)
-					src.Oozaru(0)
-
-
-			DRAINS_ACTIVE//Label
-			if(src.ActiveBuff)
-				if(src.ActiveBuff.HealthDrain)
-					src.DoDamage(src, TrueDamage(src.ActiveBuff.HealthDrain))
-				if(src.ActiveBuff.HealthThreshold&&!src.ActiveBuff.AllOutAttack)
-					if(src.Health<src.ActiveBuff.HealthThreshold*(1-src.HealthCut)||src.KO)
-						if(src.CheckActive("Eight Gates"))
-							src.ActiveBuff:Close_Gates()
-						else
-							src.ActiveBuff.Trigger(src)
-						goto DRAINS_ACTIVE
-
-				if(src.ActiveBuff.WoundDrain)
-					src.WoundSelf(src.ActiveBuff.WoundDrain)
-				if(src.ActiveBuff.WoundThreshold&&!src.ActiveBuff.AllOutAttack)
-					if(src.TotalInjury>=src.ActiveBuff.WoundThreshold)
-						src.ActiveBuff.Trigger(src)
-						goto DRAINS_ACTIVE
-
-				if(src.ActiveBuff.EnergyDrain)
-					src.LoseEnergy(src.ActiveBuff.EnergyDrain)
-				if(src.ActiveBuff.EnergyThreshold&&!src.ActiveBuff.AllOutAttack)
-					if(src.Energy<src.ActiveBuff.EnergyThreshold*(1-src.EnergyCut))
-						src.ActiveBuff.Trigger(src)
-						var/KiControl=src.GetKiControlMastery()
-						if(KiControl>0)
-							src<<"Your energy mastery allows you to recover stamina rapidly."
-							src.HealEnergy(10*KiControl)
-						goto DRAINS_ACTIVE
-
-				if(src.ActiveBuff.FatigueDrain)
-					src.GainFatigue(src.ActiveBuff.FatigueDrain)
-				if(src.ActiveBuff.FatigueThreshold&&!src.ActiveBuff.AllOutAttack)
-					if(src.TotalFatigue>=src.ActiveBuff.FatigueThreshold)
-						if(src.CheckActive("Eight Gates"))
-							src.ActiveBuff:Close_Gates()
-						else
-							src.ActiveBuff.Trigger(src)
-						goto DRAINS_ACTIVE
-
-				if(src.ActiveBuff.CapacityDrain)
-					src.LoseCapacity(src.ActiveBuff.CapacityDrain)
-				if(src.ActiveBuff.CapacityThreshold&&!src.ActiveBuff.AllOutAttack)
-					if(src.TotalCapacity>=src.ActiveBuff.CapacityThreshold)
-						src.ActiveBuff.Trigger(src)
-						goto DRAINS_ACTIVE
-
-				if(src.ActiveBuff.ManaDrain)
-					src.LoseMana(src.ActiveBuff.ManaDrain)
-				if(src.ActiveBuff.ManaThreshold&&!src.ActiveBuff.AllOutAttack)
-					if(src.ManaAmount<src.ActiveBuff.ManaThreshold)
-						src.ActiveBuff.Trigger(src)
-						goto DRAINS_ACTIVE
-
-				if(src.ActiveBuff.VaizardShatter)
-					if(src.VaizardHealth<=0)
-						src.ActiveBuff.Trigger(src)
-						goto DRAINS_ACTIVE
-
-				if(src.ActiveBuff.TimerLimit)
-					if(!isnum(src.ActiveBuff.Timer))//If the timer isn't a number...
-						src.ActiveBuff.Timer=0//Make it 0.
-					src.ActiveBuff.Timer+=1
-					if(src.ActiveBuff.Timer>=src.ActiveBuff.TimerLimit)//If the timer has filled up entirely...
-						if(src.CheckActive("Eight Gates"))
-							src.ActiveBuff:Close_Gates()
-						else
-							src.ActiveBuff.Trigger(src)//toggle it off.
-						goto DRAINS_ACTIVE
-
-				if(src.ActiveBuff.WaveringAngerLimit)
-					if(src.ActiveBuff.WaveringAnger<src.ActiveBuff.WaveringAngerLimit)
-						src.ActiveBuff.WaveringAnger++
-						if(src.ActiveBuff.WaveringAnger>=src.ActiveBuff.WaveringAngerLimit)
-							if(prob(33))
-								src.SetNoAnger(src.ActiveBuff, 1)
+						//aesthetics
+						if(src.BeamCharging>=(0.5*Z.ChargeRate))
+							if(Z.name=="Aurora Execution")
+								if(src.BeamCharging<Z.ChargeRate)
+									var/image/i=image('Aurora.dmi',icon_state="[rand(1,3)]", layer=EFFECTS_LAYER, loc=src)
+									i.blend_mode=BLEND_ADD
+									animate(i, alpha=0)
+									world << i
+									i.transform*=30
+									animate(i, alpha=200, time=5)
+									src.BeamCharging=Z.ChargeRate
+									spawn(150)
+										animate(i, alpha=0, time=5)
+										sleep(5)
+										del i
 							else
-								src.SetNoAnger(src.ActiveBuff, 0)
-							src.ActiveBuff.WaveringAnger=0
+								for(var/turf/t in Turf_Circle(src, 10))
+									if(prob(5))
+										spawn(rand(2,6))
+											var/icon/i = icon('RisingRocks.dmi')
+											if(Z.name=="Excalibur")
+												if(locate(/obj/Skills/Queue/Holy_Blade, usr))
+													i='SparkleGold.dmi'
+												else
+													i='DarkShockD.dmi'
+											t.overlays+=i
+											spawn(rand(10, 30))
+												t.overlays-=i
+								if(src.BeamCharging==Z.ChargeRate)
+									src.Quake((14+2*Z.DamageMult))
 
-				if(src.ActiveBuff.WoundHeal)
+		src.Debuffs()
+
+		if(src.Harden)
+			src.Harden--
+			if(src.Harden<=0)
+				src.Harden=0
+
+		if(src.CounterMasterTimer)
+			src.CounterMasterTimer = max(0, CounterMasterTimer-1) // bruh
+
+		if(src.SureHitTimerLimit)
+			if(!src.SureHit)
+				src.SureHitTimer--
+				if(src.SureHitTimer<=0)
+					src.SureHit=1
+					src.SureHitTimer=src.SureHitTimerLimit
+
+		if(src.SureDodgeTimerLimit)
+			if(!src.SureDodge)
+				src.SureDodgeTimer--
+				if(src.SureDodgeTimer<=0)
+					src.SureDodge=1
+					src.SureDodgeTimer=src.SureDodgeTimerLimit
+
+		if(src.UsingIaido())
+			src.IaidoCounter++
+		if(src.UsingKendo())
+			src.IaidoCounter++
+		if(src.UsingSpeedRave())
+			src.IaidoCounter++
+
+		DRAINS_ACTIVE//Label
+		if(src.ActiveBuff)
+			if(src.ActiveBuff.HealthDrain)
+				src.DoDamage(src, TrueDamage(src.ActiveBuff.HealthDrain))
+			if(src.ActiveBuff.HealthThreshold&&!src.ActiveBuff.AllOutAttack)
+				if(src.Health<src.ActiveBuff.HealthThreshold*(1-src.HealthCut)||src.KO)
+					if(src.CheckActive("Eight Gates"))
+						src.ActiveBuff:Stop_Cultivation()
+					else
+						src.ActiveBuff.Trigger(src)
+					goto DRAINS_ACTIVE
+
+			if(src.ActiveBuff.WoundDrain)
+				src.WoundSelf(src.ActiveBuff.WoundDrain)
+			if(src.ActiveBuff.WoundThreshold&&!src.ActiveBuff.AllOutAttack)
+				if(src.TotalInjury>=src.ActiveBuff.WoundThreshold)
+					src.ActiveBuff.Trigger(src)
+					goto DRAINS_ACTIVE
+
+			if(src.ActiveBuff.EnergyDrain)
+				src.LoseEnergy(src.ActiveBuff.EnergyDrain)
+			if(src.ActiveBuff.EnergyThreshold&&!src.ActiveBuff.AllOutAttack)
+				if(src.Energy<src.ActiveBuff.EnergyThreshold*(1-src.EnergyCut))
+					src.ActiveBuff.Trigger(src)
+					var/KiControl=src.GetKiControlMastery()
+					if(KiControl>0)
+						src<<"Your energy mastery allows you to recover stamina rapidly."
+						src.HealEnergy(10*KiControl)
+					goto DRAINS_ACTIVE
+
+			if(src.ActiveBuff.FatigueDrain)
+				src.GainFatigue(src.ActiveBuff.FatigueDrain)
+			if(src.ActiveBuff.FatigueThreshold&&!src.ActiveBuff.AllOutAttack)
+				if(src.TotalFatigue>=src.ActiveBuff.FatigueThreshold)
+					if(src.CheckActive("Eight Gates"))
+						src.ActiveBuff:Stop_Cultivation()
+					else
+						src.ActiveBuff.Trigger(src)
+					goto DRAINS_ACTIVE
+
+			if(src.ActiveBuff.CapacityDrain)
+				src.LoseCapacity(src.ActiveBuff.CapacityDrain)
+			if(src.ActiveBuff.CapacityThreshold&&!src.ActiveBuff.AllOutAttack)
+				if(src.TotalCapacity>=src.ActiveBuff.CapacityThreshold)
+					src.ActiveBuff.Trigger(src)
+					goto DRAINS_ACTIVE
+
+			if(src.ActiveBuff.ManaDrain)
+				src.LoseMana(src.ActiveBuff.ManaDrain)
+			if(src.ActiveBuff.ManaThreshold&&!src.ActiveBuff.AllOutAttack)
+				if(src.ManaAmount<src.ActiveBuff.ManaThreshold)
+					src.ActiveBuff.Trigger(src)
+					goto DRAINS_ACTIVE
+
+			if(src.ActiveBuff.VaizardShatter)
+				if(src.VaizardHealth<=0)
+					src.ActiveBuff.Trigger(src)
+					goto DRAINS_ACTIVE
+
+			if(src.ActiveBuff.TimerLimit)
+				if(!isnum(src.ActiveBuff.Timer))//If the timer isn't a number...
+					src.ActiveBuff.Timer=0//Make it 0.
+				src.ActiveBuff.Timer+=1
+				if(src.ActiveBuff.Timer>=src.ActiveBuff.TimerLimit)//If the timer has filled up entirely...
+					if(src.CheckActive("Eight Gates"))
+						src.ActiveBuff:Stop_Cultivation()
+					else
+						src.ActiveBuff.Trigger(src)//toggle it off.
+					goto DRAINS_ACTIVE
+
+			if(src.ActiveBuff.WaveringAngerLimit)
+				if(src.ActiveBuff.WaveringAnger<src.ActiveBuff.WaveringAngerLimit)
+					src.ActiveBuff.WaveringAnger++
+					if(src.ActiveBuff.WaveringAnger>=src.ActiveBuff.WaveringAngerLimit)
+						if(prob(33))
+							src.SetNoAnger(src.ActiveBuff, 1)
+						else
+							src.SetNoAnger(src.ActiveBuff, 0)
+						src.ActiveBuff.WaveringAnger=0
+
+			if(src.ActiveBuff.WoundHeal)
+				if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
+					src.HealWounds(src.GetRecov(src.ActiveBuff.WoundHeal))
+			if(src.ActiveBuff.FatigueHeal)
+				if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
+					if(src.ActiveBuff.StableHeal)
+						src.HealFatigue(src.ActiveBuff.FatigueHeal,1)
+					else
+						src.HealFatigue(src.GetRecov(src.ActiveBuff.FatigueHeal))
+			if(src.ActiveBuff.CapacityHeal)
+				if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
+					src.HealCapacity(src.ActiveBuff.CapacityHeal)
+			if(src.ActiveBuff.HealthHeal)
+				if((src.Health+src.TotalInjury)>=100||(src.TotalInjury&&src.icon_state=="Meditate"))
 					if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
-						src.HealWounds(src.GetRecov(src.ActiveBuff.WoundHeal))
-				if(src.ActiveBuff.FatigueHeal)
+						src.HealWounds(src.GetRecov(src.ActiveBuff.HealthHeal))
+				else
+					if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
+						src.HealHealth(src.GetRecov(src.ActiveBuff.HealthHeal))
+			if(src.ActiveBuff.EnergyHeal)
+				if((src.Energy+src.TotalFatigue)>=100||(src.TotalFatigue&&src.icon_state=="Meditate"))
 					if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
 						if(src.ActiveBuff.StableHeal)
-							src.HealFatigue(src.ActiveBuff.FatigueHeal,1)
+							src.HealFatigue(src.ActiveBuff.EnergyHeal,1)
 						else
-							src.HealFatigue(src.GetRecov(src.ActiveBuff.FatigueHeal))
-				if(src.ActiveBuff.CapacityHeal)
+							src.HealFatigue(src.GetRecov(src.ActiveBuff.EnergyHeal))
+				else
 					if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
-						src.HealCapacity(src.ActiveBuff.CapacityHeal)
-				if(src.ActiveBuff.HealthHeal)
-					if((src.Health+src.TotalInjury)>=100||(src.TotalInjury&&src.icon_state=="Meditate"))
-						if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
-							src.HealWounds(src.GetRecov(src.ActiveBuff.HealthHeal))
-					else
-						if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
-							src.HealHealth(src.GetRecov(src.ActiveBuff.HealthHeal))
-				if(src.ActiveBuff.EnergyHeal)
-					if((src.Energy+src.TotalFatigue)>=100||(src.TotalFatigue&&src.icon_state=="Meditate"))
-						if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
-							if(src.ActiveBuff.StableHeal)
-								src.HealFatigue(src.ActiveBuff.EnergyHeal,1)
-							else
-								src.HealFatigue(src.GetRecov(src.ActiveBuff.EnergyHeal))
-					else
-						if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
-							if(src.ActiveBuff.StableHeal)
-								src.HealEnergy(src.ActiveBuff.EnergyHeal,1)
-							else
-								src.HealEnergy(src.GetRecov(src.ActiveBuff.EnergyHeal))
-				if(src.ActiveBuff.ManaHeal)
-					if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
-						src.HealMana(src.ActiveBuff.ManaHeal)
-
-
-			DRAINS_SPECIAL//Label
-			if(src.SpecialBuff)
-				if(src.SpecialBuff.HealthDrain)
-					src.DoDamage(src, TrueDamage(src.SpecialBuff.HealthDrain))
-				if(src.SpecialBuff.HealthThreshold&&!src.SpecialBuff.AllOutAttack)
-					if(src.Health<src.SpecialBuff.HealthThreshold*(1-src.HealthCut)||src.KO)
-						src.SpecialBuff.Trigger(src)
-						goto DRAINS_SPECIAL
-
-				if(src.SpecialBuff.WoundDrain)
-					src.WoundSelf(src.SpecialBuff.WoundDrain)
-				if(src.SpecialBuff.WoundThreshold&&!src.SpecialBuff.AllOutAttack)
-					if(src.TotalInjury>=src.SpecialBuff.WoundThreshold)
-						src.SpecialBuff.Trigger(src)
-						goto DRAINS_SPECIAL
-
-				if(src.SpecialBuff.EnergyDrain)
-					src.LoseEnergy(src.SpecialBuff.EnergyDrain)
-				if(src.SpecialBuff.EnergyThreshold&&!src.SpecialBuff.AllOutAttack)
-					if(src.Energy<src.SpecialBuff.EnergyThreshold*(1-src.EnergyCut))
-						src.SpecialBuff.Trigger(src)
-						goto DRAINS_SPECIAL
-
-				if(src.SpecialBuff.FatigueDrain)
-					src.GainFatigue(src.SpecialBuff.FatigueDrain)
-				if(src.SpecialBuff.FatigueThreshold&&!src.SpecialBuff.AllOutAttack)
-					if(src.TotalFatigue>=src.SpecialBuff.FatigueThreshold)
-						src.SpecialBuff.Trigger(src)
-						goto DRAINS_SPECIAL
-
-				if(src.SpecialBuff.CapacityDrain)
-					src.LoseCapacity(src.SpecialBuff.CapacityDrain)
-				if(src.SpecialBuff.CapacityThreshold&&!src.SpecialBuff.AllOutAttack)
-					if(src.TotalCapacity>=src.SpecialBuff.CapacityThreshold)
-						src.SpecialBuff.Trigger(src)
-						goto DRAINS_SPECIAL
-
-				if(src.SpecialBuff.ManaDrain)
-					src.LoseMana(src.SpecialBuff.ManaDrain)
-				if(src.SpecialBuff.ManaThreshold&&!src.SpecialBuff.AllOutAttack)
-					if(src.ManaAmount<src.SpecialBuff.ManaThreshold)
-						src.SpecialBuff.Trigger(src)
-						goto DRAINS_SPECIAL
-
-				if(src.SpecialBuff.VaizardShatter)
-					if(src.VaizardHealth<=0)
-						src.SpecialBuff.Trigger(src)
-						goto DRAINS_SPECIAL
-
-				if(src.SpecialBuff.TimerLimit)
-					if(!isnum(src.SpecialBuff.Timer))
-						src.SpecialBuff.Timer=0
-					src.SpecialBuff.Timer+=1
-					if(src.SpecialBuff.Timer>=src.SpecialBuff.TimerLimit)
-						src.SpecialBuff.Trigger(src)
-						goto DRAINS_SPECIAL
-
-				if(src.SpecialBuff.WaveringAngerLimit)
-					if(src.SpecialBuff.WaveringAnger<src.SpecialBuff.WaveringAngerLimit)
-						src.SpecialBuff.WaveringAnger++
-						if(src.SpecialBuff.WaveringAnger>=src.SpecialBuff.WaveringAngerLimit)
-							if(prob(33))
-								src.SetNoAnger(src.SpecialBuff, 1)
-							else
-								src.SetNoAnger(src.SpecialBuff, 0)
-							src.SpecialBuff.WaveringAnger=0
-
-				if(src.SpecialBuff.WoundHeal)
-					src.HealWounds(src.GetRecov(src.SpecialBuff.WoundHeal))
-				if(src.SpecialBuff.FatigueHeal)
-					src.HealFatigue(src.GetRecov(src.SpecialBuff.FatigueHeal))
-				if(src.SpecialBuff.CapacityHeal)
-					src.HealCapacity(src.SpecialBuff.CapacityHeal)
-				if(src.SpecialBuff.HealthHeal)
-					if((src.Health+src.TotalInjury)>=100||(src.TotalInjury&&src.icon_state=="Meditate"))
-						if(src.SpecialBuff.StableHeal)
-							src.HealWounds(src.SpecialBuff.HealthHeal)
-						else
-							src.HealWounds(src.GetRecov(src.SpecialBuff.HealthHeal))
-					else
-						if(src.SpecialBuff.StableHeal)
-							src.HealHealth(src.SpecialBuff.HealthHeal)
-						else
-							src.HealHealth(src.GetRecov(src.SpecialBuff.HealthHeal))
-				if(src.SpecialBuff.EnergyHeal)
-					if((src.Energy+src.TotalFatigue)>=100||(src.TotalFatigue&&src.icon_state=="Meditate"))
-						if(src.SpecialBuff.StableHeal)
-							src.HealFatigue(src.SpecialBuff.EnergyHeal)
-						else
-							src.HealFatigue(src.GetRecov(src.SpecialBuff.EnergyHeal))
-					else
-						if(src.SpecialBuff.StableHeal)
-							src.HealEnergy(src.SpecialBuff.EnergyHeal)
+						if(src.ActiveBuff.StableHeal)
+							src.HealEnergy(src.ActiveBuff.EnergyHeal,1)
 						else
 							src.HealEnergy(src.GetRecov(src.ActiveBuff.EnergyHeal))
-				if(src.SpecialBuff.ManaHeal)
-					src.HealMana(src.SpecialBuff.ManaHeal)
+			if(src.ActiveBuff.ManaHeal)
+				if((src.ActiveBuff.InstantAffect&&!src.ActiveBuff.InstantAffected)||!src.ActiveBuff.InstantAffect)
+					src.HealMana(src.ActiveBuff.ManaHeal)
 
 
-			if(src.SlotlessBuffs.len>0)
-				for(var/obj/Skills/Buffs/b in src.SlotlessBuffs)
+		DRAINS_SPECIAL//Label
+		if(src.SpecialBuff)
+			if(src.SpecialBuff.HealthDrain)
+				src.DoDamage(src, TrueDamage(src.SpecialBuff.HealthDrain))
+			if(src.SpecialBuff.HealthThreshold&&!src.SpecialBuff.AllOutAttack)
+				if(src.Health<src.SpecialBuff.HealthThreshold*(1-src.HealthCut)||src.KO)
+					src.SpecialBuff.Trigger(src)
+					goto DRAINS_SPECIAL
+
+			if(src.SpecialBuff.WoundDrain)
+				src.WoundSelf(src.SpecialBuff.WoundDrain)
+			if(src.SpecialBuff.WoundThreshold&&!src.SpecialBuff.AllOutAttack)
+				if(src.TotalInjury>=src.SpecialBuff.WoundThreshold)
+					src.SpecialBuff.Trigger(src)
+					goto DRAINS_SPECIAL
+
+			if(src.SpecialBuff.EnergyDrain)
+				src.LoseEnergy(src.SpecialBuff.EnergyDrain)
+			if(src.SpecialBuff.EnergyThreshold&&!src.SpecialBuff.AllOutAttack)
+				if(src.Energy<src.SpecialBuff.EnergyThreshold*(1-src.EnergyCut))
+					src.SpecialBuff.Trigger(src)
+					goto DRAINS_SPECIAL
+
+			if(src.SpecialBuff.FatigueDrain)
+				src.GainFatigue(src.SpecialBuff.FatigueDrain)
+			if(src.SpecialBuff.FatigueThreshold&&!src.SpecialBuff.AllOutAttack)
+				if(src.TotalFatigue>=src.SpecialBuff.FatigueThreshold)
+					src.SpecialBuff.Trigger(src)
+					goto DRAINS_SPECIAL
+
+			if(src.SpecialBuff.CapacityDrain)
+				src.LoseCapacity(src.SpecialBuff.CapacityDrain)
+			if(src.SpecialBuff.CapacityThreshold&&!src.SpecialBuff.AllOutAttack)
+				if(src.TotalCapacity>=src.SpecialBuff.CapacityThreshold)
+					src.SpecialBuff.Trigger(src)
+					goto DRAINS_SPECIAL
+
+			if(src.SpecialBuff.ManaDrain)
+				src.LoseMana(src.SpecialBuff.ManaDrain)
+			if(src.SpecialBuff.ManaThreshold&&!src.SpecialBuff.AllOutAttack)
+				if(src.ManaAmount<src.SpecialBuff.ManaThreshold)
+					src.SpecialBuff.Trigger(src)
+					goto DRAINS_SPECIAL
+
+			if(src.SpecialBuff.VaizardShatter)
+				if(src.VaizardHealth<=0)
+					src.SpecialBuff.Trigger(src)
+					goto DRAINS_SPECIAL
+
+			if(src.SpecialBuff.TimerLimit)
+				if(!isnum(src.SpecialBuff.Timer))
+					src.SpecialBuff.Timer=0
+				src.SpecialBuff.Timer+=1
+				if(src.SpecialBuff.Timer>=src.SpecialBuff.TimerLimit)
+					src.SpecialBuff.Trigger(src)
+					goto DRAINS_SPECIAL
+
+			if(src.SpecialBuff.WaveringAngerLimit)
+				if(src.SpecialBuff.WaveringAnger<src.SpecialBuff.WaveringAngerLimit)
+					src.SpecialBuff.WaveringAnger++
+					if(src.SpecialBuff.WaveringAnger>=src.SpecialBuff.WaveringAngerLimit)
+						if(prob(33))
+							src.SetNoAnger(src.SpecialBuff, 1)
+						else
+							src.SetNoAnger(src.SpecialBuff, 0)
+						src.SpecialBuff.WaveringAnger=0
+
+			if(src.SpecialBuff.WoundHeal)
+				src.HealWounds(src.GetRecov(src.SpecialBuff.WoundHeal))
+			if(src.SpecialBuff.FatigueHeal)
+				src.HealFatigue(src.GetRecov(src.SpecialBuff.FatigueHeal))
+			if(src.SpecialBuff.CapacityHeal)
+				src.HealCapacity(src.SpecialBuff.CapacityHeal)
+			if(src.SpecialBuff.HealthHeal)
+				if((src.Health+src.TotalInjury)>=100||(src.TotalInjury&&src.icon_state=="Meditate"))
+					if(src.SpecialBuff.StableHeal)
+						src.HealWounds(src.SpecialBuff.HealthHeal)
+					else
+						src.HealWounds(src.GetRecov(src.SpecialBuff.HealthHeal))
+				else
+					if(src.SpecialBuff.StableHeal)
+						src.HealHealth(src.SpecialBuff.HealthHeal)
+					else
+						src.HealHealth(src.GetRecov(src.SpecialBuff.HealthHeal))
+			if(src.SpecialBuff.EnergyHeal)
+				if((src.Energy+src.TotalFatigue)>=100||(src.TotalFatigue&&src.icon_state=="Meditate"))
+					if(src.SpecialBuff.StableHeal)
+						src.HealFatigue(src.SpecialBuff.EnergyHeal)
+					else
+						src.HealFatigue(src.GetRecov(src.SpecialBuff.EnergyHeal))
+				else
+					if(src.SpecialBuff.StableHeal)
+						src.HealEnergy(src.SpecialBuff.EnergyHeal)
+					else
+						src.HealEnergy(src.GetRecov(src.ActiveBuff.EnergyHeal))
+			if(src.SpecialBuff.ManaHeal)
+				src.HealMana(src.SpecialBuff.ManaHeal)
+
+
+		if(src.SlotlessBuffs.len>0)
+			for(var/sb in src.SlotlessBuffs)
+				var/obj/Skills/Buffs/b = SlotlessBuffs[sb]
+				if(b)
 					if(istype(b, /obj/Skills/Buffs/SlotlessBuffs/Autonomous))
 						continue
 					if(b.HealthDrain)
@@ -1764,66 +1717,66 @@ mob/Player/AI
 							b.Trigger(src)
 
 
-			for(var/obj/Skills/Buffs/SlotlessBuffs/Autonomous/A in src)
-				//Activations
-				if(!A.SlotlessOn)
-					if(A.ABuffNeeded)
-						if(!src.ActiveBuff)
-							continue
-						if(!(src.ActiveBuff.BuffName in A.ABuffNeeded))
-							continue
-					if(A.SBuffNeeded)
-						if(!src.SpecialBuff)
-							continue
-						if(src.SpecialBuff.BuffName!=A.SBuffNeeded)
-							continue
-					if(A.NeedsHealth&&!A.SlotlessOn&&!A.Using&&!src.KO)
-						if(src.Health<=A.NeedsHealth*(1-src.HealthCut))
-							A.Trigger(src)
-					if(A.ManaThreshold&&!A.SlotlessOn&&!A.Using&&!src.KO)
-						if(src.ManaAmount>=A.ManaThreshold)
-							A.Trigger(src)
-					if(A.NeedsAnger&&!A.SlotlessOn&&!A.Using&&!src.KO)
-						if(src.Anger)
-							A.Trigger(src)
-					if(A.AlwaysOn)
-						if(!A.Using&&!A.SlotlessOn)
-							A.Trigger(src)
+		for(var/obj/Skills/Buffs/SlotlessBuffs/Autonomous/A in src)
+			//Activations
+			if(!A.SlotlessOn)
+				if(A.ABuffNeeded)
+					if(!src.ActiveBuff)
+						continue
+					if(!(src.ActiveBuff.BuffName in A.ABuffNeeded))
+						continue
+				if(A.SBuffNeeded)
+					if(!src.SpecialBuff)
+						continue
+					if(src.SpecialBuff.BuffName!=A.SBuffNeeded)
+						continue
+				if(A.NeedsHealth&&!A.SlotlessOn&&!A.Using&&!src.KO)
+					if(src.Health<=A.NeedsHealth*(1-src.HealthCut))
+						A.Trigger(src)
+				if(A.ManaThreshold&&!A.SlotlessOn&&!A.Using&&!src.KO)
+					if(src.ManaAmount>=A.ManaThreshold)
+						A.Trigger(src)
+				if(A.NeedsAnger&&!A.SlotlessOn&&!A.Using&&!src.KO)
+					if(src.Anger)
+						A.Trigger(src)
+				if(A.AlwaysOn)
+					if(!A.Using&&!A.SlotlessOn)
+						A.Trigger(src)
 
-				//Deactivations
-				if(A.SlotlessOn)
-					if(A.ABuffNeeded)
-						if(A.ABuffNeeded.len>0)
-							if(!src.ActiveBuff)
-								A.Trigger(src,Override=1)
-							if(!(src.ActiveBuff.BuffName in A.ABuffNeeded))
-								A.Trigger(src,Override=1)
-					if(A.SBuffNeeded)
-						if(!src.SpecialBuff)
+			//Deactivations
+			if(A.SlotlessOn)
+				if(A.ABuffNeeded)
+					if(A.ABuffNeeded.len>0)
+						if(!src.ActiveBuff)
 							A.Trigger(src,Override=1)
-						if(src.SpecialBuff.BuffName!=A.SBuffNeeded)
+						if(!(src.ActiveBuff.BuffName in A.ABuffNeeded))
 							A.Trigger(src,Override=1)
-					if(A.TimerLimit&&A.SlotlessOn)
-						if(A.Timer>=A.TimerLimit)
-							A.Trigger(src,Override=1)
-					if(A.NeedsAnger&&A.SlotlessOn)
-						if(!src.Anger)
-							A.Trigger(src,Override=1)
-					if(src.KO)
+				if(A.SBuffNeeded)
+					if(!src.SpecialBuff)
+						A.Trigger(src,Override=1)
+					if(src.SpecialBuff.BuffName!=A.SBuffNeeded)
+						A.Trigger(src,Override=1)
+				if(A.TimerLimit&&A.SlotlessOn)
+					if(A.Timer>=A.TimerLimit)
+						A.Trigger(src,Override=1)
+				if(A.NeedsAnger&&A.SlotlessOn)
+					if(!src.Anger)
+						A.Trigger(src,Override=1)
+				if(src.KO)
+					if(A.SlotlessOn)
+						A.Trigger(src,Override=1)
+				if(A?.TooMuchHealth)
+					if(src.Health>=A.TooMuchHealth)
 						if(A.SlotlessOn)
 							A.Trigger(src,Override=1)
-					if(A.TooMuchHealth)
-						if(src.Health>=A.TooMuchHealth)
-							if(A.SlotlessOn)
-								A.Trigger(src,Override=1)
-					if(A.TooLittleMana)
-						if(src.ManaAmount<=A.TooLittleMana)
-							if(A.SlotlessOn)
-								A.Trigger(src,Override=1)
+				if(A.TooLittleMana)
+					if(src.ManaAmount<=A.TooLittleMana)
+						if(A.SlotlessOn)
+							A.Trigger(src,Override=1)
 
-				if(A.AlwaysOn)//This only gets run if it has been deactivated
-					if(A.Using)
-						del A
+			if(A.AlwaysOn)//This only gets run if it has been deactivated
+				if(A.Using)
+					del A
 
 
 		if(src.BindingTimer>=1)
@@ -1833,153 +1786,36 @@ mob/Player/AI
 				if(src.Binding>=1)
 					src.TriggerBinding()
 
-		if(src.BPPoisonTimer)
-			src.BPPoisonTimer--
-			if(src.BPPoisonTimer<=0)
-				if(src.BPPoison==0.5)
-					src.BPPoisonTimer=RawHours(12)
-					src.BPPoison=0.7
-				else if(src.BPPoison==0.7)
-					src.BPPoisonTimer=RawHours(12)
-					src.BPPoison=0.9
-				else
-					src.BPPoison=1
-					src.BPPoisonTimer=0
-
-		if(src.GatesNerfPerc)
-			if(src.GatesNerf>0)
-				src.GatesNerf--
-				if(src.GatesNerf<=0)
-					src.GatesNerfPerc=0
-					src.GatesNerf=0
-					src << "You've recovered from the strain of your ability!"
-
 		src.MaxHealth()
 		src.MaxEnergy()
 		src.MaxMana()
 		src.MaxOxygen()
-		if(src.MortallyWounded)
-			if(src.KO||src.MortallyWounded>3)
-				if(prob(30/src.RecovOriginal))
-					src.Health--
-					if(src.Health<=-300)
-						if(prob(30/src.RecovOriginal)&&!src.StabilizeModule&&!src.NoDeath)
-							src.Death(null,"internal injuries!")
 
-
-//Okay, stuff past here may be sources of lag. This is just a comment to note this.
 		var/turf/Q=src.loc
 		if(!src.loc)
 			EndLife(0)
 			return
 		if(isturf(Q))
-			if(!src.StaticWalk)
-				if(istype(Q,/turf/Special/Static))
-					src.Health-=0.05
-				if(istype(Q,/turf/Dirt99))
-					src.Health-=0.05
-			if(istype(Q,/turf/Special/Stars)||istype(Q,/turf/Special/EventStars))
-				var/eqip=0
-				for(var/obj/Items/Tech/SpaceMask/SM in src)
-					if(SM.suffix)
-						eqip=1
-				if(eqip==0)
-					if(!src.SpaceWalk&&src.Race!="Changeling"&&src.Race!="Android"&&src.Race!="Dragon"&&src.Race!="Djinn")
-						src.Oxygen-=rand(2,4)
-						if(src.Oxygen<0)
-							src.Oxygen=0
-					if(src.Oxygen<10)
-						src.LoseEnergy(5)
-						if(src.TotalFatigue>=95)
-							src.DamageSelf(TrueDamage(1))
-							if(src.Health<-300)
-								if(prob(20)&&!src.StabilizeModule)
-									src.Death(null,"oxygen deprivation!")
-				else if(eqip==1)
-					if(src.Oxygen<(src.OxygenMax/max(src.SenseRobbed,1)))
-						src.Oxygen+=rand(1,3)
-					if(src.icon_state=="Train"&&src.Secret=="Ripple")
-						src.Oxygen+=(src.OxygenMax/max(src.SenseRobbed,1))*0.05
-						if(src.Oxygen>=(src.OxygenMax/max(src.SenseRobbed,1))*2)
-							src.Oxygen=(src.OxygenMax/max(src.SenseRobbed,1))*2
-					if(src.Oxygen<10)
-						src.LoseEnergy(5)
-						if(src.TotalFatigue>=95)
-							src.DamageSelf(TrueDamage(1))
-							if(src.Health<-300)
-								if(prob(20)&&!src.StabilizeModule)
-									src.Death(null,"oxygen deprivation!")
-			else
-				if(src.Oxygen<(src.OxygenMax/max(src.SenseRobbed,1)))
-					src.Oxygen=min(src.Oxygen+(rand(1,3)),(src.OxygenMax/max(src.SenseRobbed,1)))
-				if(src.icon_state=="Train"&&src.Secret=="Ripple")
-					src.Oxygen+=(src.OxygenMax/max(src.SenseRobbed,1))*0.05
-					if(src.Oxygen>=(src.OxygenMax/max(src.SenseRobbed,1))*2)
-						src.Oxygen=(src.OxygenMax/max(src.SenseRobbed,1))*2
-				if(src.Oxygen<10)
-					src.LoseEnergy(5)
-					if(src.TotalFatigue>=95)
-						src.DamageSelf(TrueDamage(1))
-						if(src.Health<-300)
-							if(prob(20)&&!src.StabilizeModule)
-								src.Death(null,"oxygen deprivation!")
 
 			if(!Flying)
 				var/hahalol
 				var/eqip=0
-				for(var/obj/Items/Tech/SpaceMask/SM in src)
-					if(SM.suffix)
-						eqip=1
 				for(var/mob/P in range(1,src))
 					if(P.Grab==src)
 						hahalol=1
-				if(src.HasPassive("Skimming", BuffsOnly=1) || is_dashing || src.Flying || src.HasWaterWalk() || src.HasGodspeed() >= 2)
+				if(passive_handler.Get("Skimming") || is_dashing || src.Flying || src.HasWaterWalk() || src.HasGodspeed() >= 2)
 					hahalol=1
 					if(src.Swim)
 						src.Swim=0
 						src.RemoveWaterOverlay()
-						//do easiest conditions first
-						if((src.PoseEnhancement&&src.Secret=="Ripple"&&!src.Flying&&!src.HasPassive("Skimming", BuffsOnly=1)) && (Q.Deluged||istype(Q,/turf/Waters)||istype(Q,/turf/Special/Ichor_Water)||istype(Q,/turf/Special/Midgar_Ichor)))
-							src.underlays+=image('The Ripple.dmi', pixel_x=-32, pixel_y=-32)
-					else if(src.Secret=="Ripple")
-						src.RemoveWaterOverlay()
-						if((src.PoseEnhancement&&!src.Flying&&!src.HasPassive("Skimming", BuffsOnly=1)) && (Q.Deluged||istype(Q,/turf/Waters)||istype(Q,/turf/Special/Ichor_Water)||istype(Q,/turf/Special/Midgar_Ichor)))
-							src.underlays+=image('The Ripple.dmi', pixel_x=-32, pixel_y=-32)
 
 				if(!hahalol)
 					if(Q.Deluged||istype(Q,/turf/Waters)||istype(Q,/turf/Special/Ichor_Water)||istype(Q,/turf/Special/Midgar_Ichor))
-						if(istype(Q,/turf/Waters/Water7))
-							if(!src.HasWalkThroughHell())
-								if(src.Race!="Demon"&&!src.HasHellPower())
-									src.AddBurn(10)
-						else
-							if(src.Burn)
-								src.Burn-=(src.Burn/20)
-								if(src.Burn<0)
-									src.Burn=0
-						if(istype(Q,/turf/Special/Ichor_Water) && !src.HasVenomImmune())
-							src.AddPoison(2)
-						if(istype(Q,/turf/Waters/WaterD) && !src.HasVenomImmune())
-							src.AddPoison(2)
-						if(istype(Q,/turf/Special/Midgar_Ichor) && !src.HasVenomImmune())
-							src.AddPoison(1)
-						if(istype(Q,/turf/Special/Midgar_IchorWall) && !src.HasVenomImmune())
-							src.AddPoison(1)
-						if(istype(Q,/turf/Special/MidgarIchorW) && !src.HasVenomImmune())
-							src.AddPoison(1)
-						if(istype(Q,/turf/Special/MidgarIchorE) && !src.HasVenomImmune())
-							src.AddPoison(1)
-						if(istype(Q,/turf/Special/MidgarIchorN) && !src.HasVenomImmune())
-							src.AddPoison(1)
-						if(istype(Q,/turf/Special/MidgarIchorS) && !src.HasVenomImmune())
-							src.AddPoison(1)
 						if(Swim==0)
 							src.RemoveWaterOverlay()
 							spawn()
 								if(Q.Deluged)
 									src.overlays+=image('WaterOverlay.dmi',"Deluged")
-								else if(src.PoseEnhancement&&src.Secret=="Ripple")
-									src.underlays+=image('The Ripple.dmi', pixel_x=-32, pixel_y=-32)
 								else if(Q.type==/turf/Waters/Water7/LavaTile)
 									src.overlays+=image('LavaTileOverlay.dmi')
 								else
@@ -1991,13 +1827,11 @@ mob/Player/AI
 								amounttaken=0
 							if(Q.Shallow==1)
 								amounttaken=0
-							if(src.PoseEnhancement&&src.Secret=="Ripple")
-								amounttaken=0
 							if(eqip!=0)
 								amounttaken=0
 							if(Q.Deluged==1)
 								amounttaken=4
-							if(src.Race in list("Android","Changeling","Djinn","Dragon")||src.Fishman||src.SpaceWalk||src.FusionPowered)
+							if(src.Race in list("Android","Changeling","Majin","Dragon")||src.Fishman||src.SpaceWalk||src.FusionPowered)
 								amounttaken=0
 							src.Oxygen-=amounttaken
 							if(src.Oxygen<0)
@@ -2006,31 +1840,15 @@ mob/Player/AI
 								src.LoseEnergy(5)
 								if(src.TotalFatigue>=95)
 									src.Unconscious(null,"fatigue due to swimming! They will drown if not rescued!")
-						else
-							if(!(src.Race in list("Android","Changeling","Djinn","Dragon")))
-								if(eqip==0)
-									src.Oxygen=0
-									src.DamageSelf(TrueDamage(1))
-									if(src.Health<-300)
-										if(prob(20)&&!src.StabilizeModule)
-											src.Death(null,"oxygen deprivation!")
-								else
-									if(src.Oxygen<(src.OxygenMax/max(src.SenseRobbed,1)))
-										src.Oxygen=min(src.Oxygen+(rand(1,3)),(src.OxygenMax/max(src.SenseRobbed,1)))
-					else
-						if(Swim==1)
-							src.RemoveWaterOverlay()
+				else
+					if(Swim==1)
+						src.RemoveWaterOverlay()
 						Swim=0
-			else
-				if(Swim==1)
-					src.RemoveWaterOverlay()
-					Swim=0
 
-		if(!src.PureRPMode)
-			if(src.AngerCD>0)
-				src.AngerCD--
-			if(src.PotionCD>0)
-				src.PotionCD--
+		if(src.AngerCD>0)
+			src.AngerCD--
+		if(src.PotionCD>0)
+			src.PotionCD--
 
 
 	proc/AIAvailablePower()
@@ -2080,13 +1898,14 @@ mob/Player/AI
 		Ratio*=EPM
 		if(src.HasLegendaryPower())
 			Ratio*=1.5
+		potential_last_checked=-1
 		Ratio*=src.Base()
 		potential_power(src)//get them potential powers
 		Ratio*=src.potential_power_mult
 
 
 		//BODY CONDITION INFLUENCES
-		if(!src.HasPiloting())
+		if(!passive_handler.Get("Piloting"))
 			if(!src.HasPossessive())
 				if(!src.Timeless&&!src.Dead)
 					if((src.EraBody=="Child"||src.EraBody=="Youth")&&src.Aged)
@@ -2178,7 +1997,7 @@ mob/Player/AI
 			Ratio*=1+(0.1*src.ContractPowered)
 		else if(locate(/obj/Skills/Soul_Contract, src)&&src.ContractPowered<=0)
 			Ratio*=0.5
-		if((src.Dead||(src.z==global.DeadZ&&!src.CheckActive("Cancer Cloth")))&&src.SenseUnlocked<8)
+		if((src.Dead||(src.z==glob.DEATH_LOCATION[3]&&!src.CheckActive("Cancer Cloth")))&&src.SenseUnlocked<8)
 			Ratio*=0.5
 
 		if(src.RPPower)
@@ -2345,9 +2164,9 @@ mob/Player/AI
 					PowerDrain*=0
 				if(!PureRPMode)
 					if(!src.PUUnlimited)
-						if(src.HasManaPU())
-							src.LoseMana(1*PowerDrain*WorldPUDrain)
+						if(passive_handler.Get("ManaPU"))
+							src.LoseMana(1*PowerDrain*glob.WorldPUDrain)
 						else if(src.HasHealthPU())
-							src.DoDamage(src, TrueDamage(1*PowerDrain*WorldPUDrain))
+							src.DoDamage(src, TrueDamage(1*PowerDrain*glob.WorldPUDrain))
 						else
-							src.LoseEnergy(2*PowerDrain*WorldPUDrain)
+							src.LoseEnergy(2*PowerDrain*glob.WorldPUDrain)

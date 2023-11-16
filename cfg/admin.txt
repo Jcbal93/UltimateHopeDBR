@@ -1,8 +1,8 @@
-KKT role=admin
-Glutton For Punishment role=admin
-Kokutou role=admin
-GalionKnight role=admin
-KokoroWatari role=admin
  
+GalionKnight role=admin
+Gogeto25 role=admin
+Barc0deTaker role=admin
+StardustRebellion role=admin
+Taco938 role=admin
 Galion role=admin
-Shelpies no Akuma role=admin
+Zamas2 role=admin

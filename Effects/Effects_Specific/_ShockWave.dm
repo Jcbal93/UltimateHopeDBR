@@ -60,9 +60,8 @@ shockwave/New(
  StopAtDenseTurf=0,
  StopAtOpacTurf=1,
  mob/Source=null)
-	var
-		dirstep=180/Amount*2
-		lastdir=0
+	var/dirstep=180/Amount*2
+	var/lastdir=0
 	if(isarea(Loc)) return
 	while(!isturf(Loc))
 		Loc = Loc.loc
@@ -100,12 +99,11 @@ obj/shockwave
 		icon=Icon
 		if(Source) usr=Source
 		else usr=src
-		var
-			vel_x = 0
-			vel_y = 0
-			pos_x = pixel_x
-			pos_y = pixel_y
-			list/Called = new
+		var/vel_x = 0
+		var/vel_y = 0
+		var/pos_x = pixel_x
+		var/pos_y = pixel_y
+		var/list/Called = new
 		vel_x = cos(Direction) * Speed
 		vel_y = sin(Direction) * Speed
 		spawn

@@ -49,7 +49,7 @@ mob
 					var/obj/Effects/HE=new(icon, iconx, icony, turns, size, life)
 					HE.appearance_flags = KEEP_APART | RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM
 					HE.dir=src.dir
-					HE.pixel_z=m.pixel_z
+					HE?.pixel_z=m?.pixel_z
 					if(istype(m, /mob))
 						HE.Target=m
 					else
@@ -90,34 +90,36 @@ mob
 					Hit_Effect(m)
 proc
 	Slash(atom/movable/M, var/obj/Items/Sword/S, var/DisperseX=rand(-8,8), var/DisperseY=rand(-8,8))
-		var/obj/Effects/Slash/P = new
-		P.appearance_flags = KEEP_APART | RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM
-		if(S)
-			if(S.HitSparkIcon)
-				P.icon=S.HitSparkIcon
-				if(S.HitSparkX)
-					P.pixel_x=S.HitSparkX
-				else
-					P.pixel_x=0
-				if(S.HitSparkY)
-					P.pixel_y=S.HitSparkY
-				else
-					P.pixel_y=0
-			P.transform*=S.HitSparkSize
-		P.Target=M
-		M.vis_contents += P
-		P.pixel_z=M.pixel_z
-		P.pixel_x+=DisperseX
-		P.pixel_y+=DisperseY
+		if(M)
+			var/obj/Effects/Slash/P = new
+			P.appearance_flags = KEEP_APART | RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM
+			if(S)
+				if(S.HitSparkIcon)
+					P.icon=S.HitSparkIcon
+					if(S.HitSparkX)
+						P.pixel_x=S.HitSparkX
+					else
+						P.pixel_x=0
+					if(S.HitSparkY)
+						P.pixel_y=S.HitSparkY
+					else
+						P.pixel_y=0
+				P.transform*=S.HitSparkSize
+			P.Target=M
+			M.vis_contents += P
+			P.pixel_z=M.pixel_z
+			P.pixel_x+=DisperseX
+			P.pixel_y+=DisperseY
 	Hit_Effect(atom/movable/M, var/Size=1, var/DisperseX=rand(-8,8), var/DisperseY=rand(-8,8))
-		var/obj/Effects/HitEffect/P = new
-		P.appearance_flags = KEEP_APART | RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM
-		P.transform*=Size
-		P.Target=M
-		M.vis_contents += P
-		P.pixel_z=M.pixel_z
-		P.pixel_x+=DisperseX
-		P.pixel_y+=DisperseY
+		if(M)
+			var/obj/Effects/HitEffect/P = new
+			P.appearance_flags = KEEP_APART | RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM
+			P.transform*=Size
+			P.Target=M
+			M.vis_contents += P
+			P.pixel_z=M.pixel_z
+			P.pixel_x+=DisperseX
+			P.pixel_y+=DisperseY
 	Scratch(atom/movable/M,Direc, var/DisperseX=rand(-8,8), var/DisperseY=rand(-8,8))
 		var/obj/Effects/Scratch/P = new
 		P.appearance_flags = KEEP_APART | RESET_COLOR | RESET_ALPHA | RESET_TRANSFORM

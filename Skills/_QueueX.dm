@@ -26,7 +26,7 @@ obj
 			var/DelayerTime//+1 every second queue is queued. Mult this by Delayer when the attack finally gets thrown.
 			var/Counter//guess
 			var/CounterTemp//from coutnermaster
-			var/NoWhiff//guess
+			var/NoWhiff //guess
 			var/PrecisionStrike//attack only what you want to
 			var/SpeedStrike/*Passive that multiplies damage by speed mod.  1 = 0.5 speed, 2 = full speed.*/
 			var/SweepStrike/*Passive that multiplies damage by enemy's speed.  Reverse Speed Strike!*/
@@ -40,7 +40,7 @@ obj
 			var/ComboPerformed=0//Tracks number of hits done.
 			var/list/ComboHitMessages=list()//X="message to be displayed"
 			var/Rapid//Make Combos happen sooner
-			var/InstantStrikes//the fasses of fass attacks
+			var/InstantStrikes //the fasses of fass attacks
 			var/InstantStrikesPerformed=0
 			var/InstantStrikesDelay//when fass is too fass
 			var/Warp//If this is ticked, it homes onto people.
@@ -110,7 +110,7 @@ obj
 
 
 			var/RipplePower=1//used to make ripple go higher
-
+			var/DrainBlood=0// This is used for vampire grab + toss, makes them gain bloodpower
 //Autoqueues
 
 ////General
@@ -188,19 +188,19 @@ obj
 				//t2 signature styles
 				Tetsuzankou
 					DamageMult=3
-					SoftStyle=4
+					SoftStyle=2
 					FollowUp="/obj/Skills/AutoHit/Drunken_Crash"
 					BuffSelf="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Finisher/Drunken_Mastery"
 					HitMessage="slides in with unnatural grace, delivering a bone crushing shoulder check!"
 				Galactica_Phantom
 					DamageMult=3
-					HardStyle=4
+					HardStyle=2
 					HitMessage="launches an earth-shattering, explosive clothesline!"
 					FollowUp="/obj/Skills/AutoHit/Galaxy_Clothesline"
 					BuffSelf="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Finisher/Strength_Mastery"
 				Spiral_Fang
 					DamageMult=2.5
-					HardStyle=3
+					HardStyle=1.5
 					HitMessage="drives their opponent into the ground with a twisting slam attack!"
 					BuffSelf="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Finisher/Dire_Empowerment"
 				Astral_Shot
@@ -317,6 +317,7 @@ obj
 					DamageMult=2
 					Warp=10
 					Crippling=10
+					SpeedStrike=1
 					BuffAffected="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Dual_Break"
 					HitMessage="flies forward in a whirlwind of piercing blades!"
 					FollowUp="/obj/Skills/Queue/Finisher/Dual_Flurry"
@@ -355,19 +356,20 @@ obj
 
 				//t2 sig style
 				Ogre_Cutter
-					DamageMult=3
+					DamageMult=5
 					Warp=10
 					Crippling=20
 					HitMessage="carves out with all three blades, leaving devastation in their wake!"
 					BuffAffected="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Tri_Break"
 					FollowUp="/obj/Skills/Projectile/Oni_Giri"
-					BuffSelf=0
+					BuffSelf="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Finisher/Trinity_Mastery"
 				Crimson_Fountain
-					DamageMult=3
+					DamageMult=5
 					KBMult=2
 					Shearing=20
 					FollowUp="/obj/Skills/Projectile/Devil_Divide"
 					HitMessage="drives their bare fist into the enemy's chest, then hurls them away like trash!"
+					BuffAffected="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Impaled"
 					BuffSelf="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Finisher/Maim_Mastery"
 				Sacred_Edge
 					DamageMult=3
@@ -581,19 +583,19 @@ obj
 
 				//Hiten Finisher
 				Flash_Strike
-					DamageMult=2
+					DamageMult=4
 					Counter=1
 					Warp=10
 					SpeedStrike=2
-					SlayerMod=5
+					SlayerMod=2
 					FollowUp="/obj/Skills/AutoHit/Shunshin_Massacre"
 					BuffSelf="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Finisher/Shunshin"
 				True_Flash_Strike
-					DamageMult=3
+					DamageMult=6
 					Counter=1
 					Warp=10
 					SpeedStrike=4
-					SlayerMod=10
+					SlayerMod=3
 					FollowUp="/obj/Skills/AutoHit/Shunshin_Massacre"
 					BuffAffected="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Godspeed_Assaulted"
 					BuffSelf="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Finisher/Shunshin_Shin"
@@ -741,7 +743,7 @@ obj
 				//No verb since it is set from melee.
 ////Ripple
 			Rebuff_Overdrive
-				DamageMult=2
+				DamageMult=2.5
 				AccuracyMult=1
 				KBAdd=5
 				Quaking=5
@@ -752,7 +754,7 @@ obj
 				ActiveMessage="rushes in with an elbow counter assault: <b>Rebuff Overdrive!!</b>"
 				//set manually so no verb
 			Zoom_Punch
-				DamageMult=2
+				DamageMult=2.5
 				AccuracyMult=2
 				Warp=3
 				KBAdd=5
@@ -793,29 +795,44 @@ obj
 				HitSparkSize=1.5
 				Duration=5
 				ActiveMessage="lets loose a dreaded battlecry as they leap forth!  WRYYYY!!"
+				proc/adjust(mob/p)
+					var/secretLevel = p.getSecretLevel()
+					LifeSteal = min(25 * secretLevel,100)
+					Crippling = secretLevel
+
+
 				//set manually so no verb
 			Vampire_Rage
-				DamageMult=0.3
+				DamageMult=2
 				AccuracyMult=2
 				Warp=5
 				KBAdd=1
 				KBMult=0.00001
 				LifeSteal=100
 				Instinct=4
-				InstantStrikes=10
-				InstantStrikesDelay=1
+				Combo=10
 				HitSparkIcon='Slash - Vampire.dmi'
 				HitSparkX=-32
 				HitSparkY=-32
 				HitSparkTurns=1
 				Duration=5
 				ActiveMessage="transforms their body into a storm of shadow blades!"
+				// this is literally ora ora
+				proc/adjust(mob/p)
+					var/secretLevel = p.getSecretLevel()
+					LifeSteal = min(50 * secretLevel,100)
+					Crippling = secretLevel * 1.5
 
 
 //Basic
 
 			Heavy_Strike
 				Duration=5
+				DamageMult=2
+				AccuracyMult=1
+				KBAdd=5
+				KBMult=3
+				Cooldown=15
 				verb/Heavy_Strike()
 					set category="Skills"
 					if(usr.Tension>=100)
@@ -837,7 +854,7 @@ obj
 					else
 						if(usr.AttackQueue)
 							return // prevent heavy strike from overriding
-						if(!usr.Secret||usr.Secret=="Necromancy"||usr.Secret=="Ripple"&&!usr.HasRipple()||usr.Secret=="Senjutsu"&&!usr.CheckSlotless("Senjutsu Focus"))//Just default Heavy Strike
+						if(!usr.Secret|| usr.Secret == "Jagan" ||usr.Secret=="Necromancy"||usr.Secret=="Ripple"&&!usr.HasRipple()||usr.Secret=="Senjutsu"&&!usr.CheckSlotless("Senjutsu Focus"))//Just default Heavy Strike
 							src.name="Heavy Strike"
 							src.DamageMult=2
 							src.AccuracyMult=1
@@ -906,7 +923,7 @@ obj
 									H.Trigger(usr)
 							if(usr.HakiSpecialization=="Armament")
 								src.name="Buso: Koka"
-								src.DamageMult=3
+								src.DamageMult = 1 + usr.secretDatum.currentTier
 								src.AccuracyMult=3
 								src.KBAdd=10
 								src.KBMult=3
@@ -1251,7 +1268,7 @@ obj
 						if(usr.Secret=="Zombie")
 							src.name="Death Grasp"
 							src.DamageMult=1
-							src.AccuracyMult=2
+							src.AccuracyMult=3
 							src.KBAdd=0
 							src.KBMult=1
 							src.Cooldown=20
@@ -1259,13 +1276,14 @@ obj
 							src.Scorching=0
 							src.Freezing=0
 							src.Paralyzing=0
-							src.Toxic=0.5
+							src.Toxic= 10
+							src.Shearing = 15
 							src.CursedWounds=1
 							src.Combo=0
 							src.Warp=0
 							src.Rapid=0
 							src.LifeSteal=0
-							src.Crippling=0
+							src.Crippling=5
 							src.Grapple=1
 							src.NoForcedWhiff=0
 							src.IconLock='BLANK.dmi'
@@ -1466,13 +1484,13 @@ obj
 				SkillCost=40
 				Copyable=1
 				HitMessage="delivers a vicious uppercut!!"
-				DamageMult=1.5
-				AccuracyMult=1.5
+				DamageMult=2
+				AccuracyMult=2
 				Duration=5
 				KBMult=0.00001
 				Cooldown=30
 				UnarmedOnly=1
-				Launcher=1
+				Launcher=2
 				EnergyCost=1.5
 				name="Uppercut"
 				verb/Uppercut()
@@ -1485,7 +1503,7 @@ obj
 				PreRequisite=list("/obj/Skills/Queue/Uppercut")
 				LockOut=list("/obj/Skills/Queue/Showstopper", "/obj/Skills/Queue/Dempsey_Roll", "/obj/Skills/Queue/Corkscrew_Blow")
 				HitMessage="delivers a destructive one handed strike!!"
-				DamageMult=2
+				DamageMult=2.8
 				AccuracyMult=2
 				Dominator=1
 				Duration=5
@@ -1505,7 +1523,7 @@ obj
 				PreRequisite=list("/obj/Skills/Queue/Uppercut")
 				LockOut=list("/obj/Skills/Queue/Ikkotsu", "/obj/Skills/Queue/Dempsey_Roll", "/obj/Skills/Queue/Corkscrew_Blow")
 				HitMessage="delivers a vicious uppercut!!"
-				DamageMult=2.5
+				DamageMult=3
 				AccuracyMult=2.5
 				Stunner=2
 				Launcher=2
@@ -1526,15 +1544,15 @@ obj
 				LockOut=list("/obj/Skills/Queue/Ikkotsu", "/obj/Skills/Queue/Showstopper", "/obj/Skills/Queue/Corkscrew_Blow")
 				ActiveMessage="punches with precisely articulated strikes to create whirlwind-like pull!"
 				name="Dempsey Roll"
-				DamageMult=0.5
-				AccuracyMult=2.5
+				DamageMult=0.6
+				AccuracyMult=3
 				KBMult=0.00001
 				KBAdd=1
-				Duration=5
+				Duration=8
 				Cooldown=30
 				UnarmedOnly=1
-				Combo=5
-				Warp=2
+				Combo=4
+				Warp=3
 				Stunner=2
 				IconLock='dempsey.dmi'
 				LockX=-16
@@ -1553,10 +1571,10 @@ obj
 				LockOut=list("/obj/Skills/Queue/Ikkotsu", "/obj/Skills/Queue/Showstopper", "/obj/Skills/Queue/Dempsey_Roll")
 				ActiveMessage="strikes with cyclone power!"
 				name="Corkscrew Blow"
-				DamageMult=0.75
+				DamageMult=1.2
 				AccuracyMult=3
-				KBAdd=5
-				Duration=20
+				KBAdd=3
+				Duration=10
 				Cooldown=30
 				UnarmedOnly=1
 				IconLock='Corkscrew.dmi'
@@ -1565,7 +1583,7 @@ obj
 				EnergyCost=1
 				verb/Corkscrew_Blow()
 					set category="Skills"
-					set name="Cockscrew Blow"
+					set name="Corkscrew Blow"
 					usr.SetQueue(src)
 
 			Axe_Kick
@@ -1573,10 +1591,10 @@ obj
 				Copyable=1
 				name="Axe Kick"//Skill name displayed in message.
 				HitMessage="brings their heel down in a mighty axe kick!!"
-				DamageMult=1.5
+				DamageMult=2
 				AccuracyMult=2
 				Duration=5
-				SpeedStrike=1
+				SpeedStrike=2
 				Cooldown=30
 				UnarmedOnly=1
 				EnergyCost=1.5
@@ -1591,11 +1609,12 @@ obj
 				LockOut=list("/obj/Skills/Queue/Piston_Kick", "/obj/Skills/Queue/Pin", "/obj/Skills/Queue/Cripple")
 				name="Kinshasa"//Skill name displayed in message.
 				HitMessage="builds up speed and knees their target in the face!!"
-				DamageMult=2.5
+				DamageMult=2.8
 				AccuracyMult=3
 				Duration=5
-				SpeedStrike=2
+				SpeedStrike=4
 				Cooldown=30
+				KBAdd = 6
 				UnarmedOnly=1
 				EnergyCost=2.5
 				verb/Kinshasa()
@@ -1609,9 +1628,9 @@ obj
 				LockOut=list("/obj/Skills/Queue/Kinshasa", "/obj/Skills/Queue/Pin", "/obj/Skills/Queue/Cripple")
 				name="Piston Kick"//Skill name displayed in message.
 				HitMessage="launches a shattering front kick with their heel!"
-				DamageMult=2
+				DamageMult=2.2
 				AccuracyMult=2
-				SpeedStrike=1
+				SpeedStrike=2
 				Opener=1
 				Duration=5
 				Cooldown=30
@@ -1626,12 +1645,12 @@ obj
 				Copyable=2
 				PreRequisite=list("/obj/Skills/Queue/Axe_Kick")
 				LockOut=list("/obj/Skills/Queue/Pin", "/obj/Skills/Queue/Kinshasa", "/obj/Skills/Queue/Piston_Kick")
-				DamageMult=1.5
+				DamageMult=2.8
 				AccuracyMult=3
 				Duration=5
 				Cooldown=30
 				Crippling=4
-				SpeedStrike=1
+				SpeedStrike=2
 				SweepStrike=1
 				UnarmedOnly=1
 				EnergyCost=2.5
@@ -1644,12 +1663,12 @@ obj
 				Copyable=2
 				PreRequisite=list("/obj/Skills/Queue/Axe_Kick")
 				LockOut=list("/obj/Skills/Queue/Cripple", "/obj/Skills/Queue/Kinshasa", "/obj/Skills/Queue/Piston_Kick")
-				DamageMult=1.5
+				DamageMult=4
 				AccuracyMult=3
 				Instinct=2
 				Grapple=1
 				KBMult=0.001
-				Warp=2
+				Warp=3
 				SpeedStrike=1
 				UnarmedOnly=1
 				Duration=5
@@ -1669,16 +1688,16 @@ obj
 				SkillCost=160
 				Copyable=4
 				name="GET DUNKED"
-				DamageMult=4
+				DamageMult=6
 				AccuracyMult=5
 				Duration=5
 				KBMult=0.00001
 				PushOut=3
 				PushOutWaves=2
 				Finisher=1
-				Dunker=2
-				Warp=1
-				Stunner=2
+				Dunker=1
+				Warp=2
+				Stunner=3
 				UnarmedOnly=1
 				EnergyCost=4
 				Quaking=1
@@ -1693,7 +1712,7 @@ obj
 				PreRequisite=list("/obj/Skills/Queue/GET_DUNKED")
 				LockOut=list("/obj/Skills/Queue/Curbstomp", "/obj/Skills/Queue/Six_Grand_Openings", "/obj/Skills/Queue/Skullcrusher")
 				name="Soukotsu"
-				DamageMult=4
+				DamageMult=2.5
 				AccuracyMult=2
 				Duration=5
 				KBAdd=10
@@ -1703,7 +1722,7 @@ obj
 				InstantStrikesDelay=1.5
 				Finisher=1
 				Warp=3
-				Dunker=2
+				Dunker=1
 				Stunner=2
 				Instinct=1
 				UnarmedOnly=1
@@ -1720,7 +1739,7 @@ obj
 				PreRequisite=list("/obj/Skills/Queue/GET_DUNKED")
 				LockOut=list("/obj/Skills/Queue/Soukotsu", "/obj/Skills/Queue/Six_Grand_Openings", "/obj/Skills/Queue/Skullcrusher")
 				name="Curbstomp"
-				DamageMult=4
+				DamageMult=8
 				AccuracyMult=2
 				Duration=5
 				KBMult=0.0001
@@ -1730,7 +1749,6 @@ obj
 				Warp=1
 				Dunker=2
 				Stunner=2
-				Dominator=1
 				UnarmedOnly=1
 				EnergyCost=4
 				Quaking=4
@@ -1746,14 +1764,14 @@ obj
 				LockOut=list("/obj/Skills/Queue/Skullcrusher", "/obj/Skills/Queue/Soukotsu", "/obj/Skills/Queue/Curbstomp")
 				name="Six Grand Openings"
 				HitMessage="delivers a graceful and crippling blow with their elbow!"
-				DamageMult=4
+				DamageMult=7.5
 				AccuracyMult=6
 				Duration=5
 				Counter=1
 				NoWhiff=1
 				Crippling=5
 				Stunner=2
-				Dunker=2
+				Dunker=1
 				Decider=1
 				KBMult=0.0001
 				Cooldown=120
@@ -1769,7 +1787,9 @@ obj
 				LockOut=list("/obj/Skills/Queue/Six_Grand_Openings", "/obj/Skills/Queue/Soukotsu", "/obj/Skills/Queue/Curbstomp")
 				name="Skullcrusher"
 				HitMessage="brings their elbow down with crushing might!"
-				DamageMult=6
+				DamageMult=7
+				InstantStrikes=2
+				InstantStrikesDelay=1.5
 				AccuracyMult=2
 				Duration=5
 				Stunner=4
@@ -1786,12 +1806,12 @@ obj
 				SignatureTechnique=1
 				ActiveMessage="begins concentrating power..."
 				HitMessage="unleashes a devasatating punch!"
-				DamageMult=2.5
+				DamageMult=12
 				AccuracyMult=5
 				KBMult=5
-				Duration=5
+				Duration=6
 				Instinct=2
-				Delayer=1//add 1 damage mult every second that this is queued but hasnt been punched yet
+				Delayer=0.25//add 1 damage mult every second that this is queued but hasnt been punched yet
 				Warp=5
 				Cooldown=150
 				EnergyCost=5
@@ -1803,7 +1823,7 @@ obj
 				SignatureTechnique=1
 				name="Claw Grip"
 				HitMessage="grabs the opponent's face in a crushing grip!"
-				DamageMult=5
+				DamageMult=11
 				AccuracyMult=5
 				KBMult=0.00001
 				Duration=5
@@ -1819,11 +1839,11 @@ obj
 					usr.SetQueue(src)
 			Nerve_Shot
 				SignatureTechnique=1
-				DamageMult=1
+				DamageMult=2
 				AccuracyMult=10
 				Duration=5
 				Stunner=2
-				Crippling=4
+				Crippling=412
 				Combo=5
 				Rapid=1
 				Cooldown=150
@@ -1836,22 +1856,22 @@ obj
 					usr.SetQueue(src)
 			Gale_Strike
 				SignatureTechnique=1
-				DamageMult=2.5//there is 0.5 damage mult 10 multihit on the gale itself
+				DamageMult=1.8//there is 0.5 damage mult 10 multihit on the gale itself
 				AccuracyMult=5
 				KBMult=0.00001
 				Duration=5
 				Projectile="/obj/Skills/Projectile/GaleStrikeProjectile"
 				Cooldown=150
 				Instinct=2
-				EnergyCost=5
+				EnergyCost=10
 				verb/Gale_Strike()
 					set category="Skills"
 					usr.SetQueue(src)
 			Volleyball_Fist
 				SignatureTechnique=1
 				UnarmedOnly=1
-				DamageMult=1.5
-				AccuracyMult=10
+				DamageMult=3
+				AccuracyMult=15
 				KBMult=0.00001
 				Stunner=1
 				Instinct=2
@@ -1868,7 +1888,7 @@ obj
 					usr.SetQueue(src)
 			Volleyball_Fist2
 				UnarmedOnly=1
-				DamageMult=2
+				DamageMult=4
 				AccuracyMult=5
 				KBMult=0.00001
 				HitStep=/obj/Skills/Queue/Volleyball_Fist3
@@ -1881,7 +1901,7 @@ obj
 				HitMessage="launches their opponent in the air like a volleyball!"
 			Volleyball_Fist3
 				UnarmedOnly=1
-				DamageMult=2
+				DamageMult=4
 				Instinct=5
 				AccuracyMult=5
 				KBAdd=5
@@ -1897,7 +1917,7 @@ obj
 
 			Meteor_Combination
 				SignatureTechnique=2
-				DamageMult=2.5
+				DamageMult=6
 				AccuracyMult=10
 				Duration=5
 				KBMult=0.00001
@@ -1916,7 +1936,7 @@ obj
 					usr.SetQueue(src)
 			Meteor_Combination2
 				HitMessage="follows up with a storm of kicks!"
-				DamageMult=0.25
+				DamageMult=0.5
 				AccuracyMult=5
 				Duration=5
 				KBMult=0.00001
@@ -1928,7 +1948,7 @@ obj
 				HitStep=/obj/Skills/Queue/Meteor_Combination3
 			Meteor_Combination3
 				HitMessage="finishes with a murderous uppercut!"
-				DamageMult=5
+				DamageMult=6
 				AccuracyMult=10
 				Duration=5
 				KBAdd=10
@@ -1942,7 +1962,7 @@ obj
 			Defiance
 				SignatureTechnique=2
 				HitMessage="defiantly slams their head into the opponent!!"
-				DamageMult=5
+				DamageMult=15
 				AccuracyMult=5
 				Instinct=3
 				Duration=5
@@ -1959,7 +1979,7 @@ obj
 
 			Void_Tiger_Fist
 				SignatureTechnique=2
-				DamageMult=1.5
+				DamageMult=3.6
 				AccuracyMult=5
 				Warp=2
 				Shearing=5
@@ -1981,7 +2001,7 @@ obj
 
 			Final_Revenger
 				SignatureTechnique=2
-				DamageMult=7.5
+				DamageMult=15
 				AccuracyMult=5
 				Determinator=1
 				Duration=5
@@ -2006,7 +2026,7 @@ obj
 				Warp=5
 				KBAdd=1
 				KBMult=0.00001
-				Combo=10
+				Combo=25
 				Rapid=1
 				Instinct=2
 				IconLock='Flaming_fists.dmi'
@@ -2026,7 +2046,7 @@ obj
 				PreRequisite=list("/obj/Skills/Projectile/Beams/Big/Super_Kamehameha")
 				SignatureTechnique=2
 				UnarmedOnly=1
-				DamageMult=2.5
+				DamageMult=12
 				AccuracyMult=5
 				Instinct=5
 				HitStep=/obj/Skills/Queue/True_Kamehameha2
@@ -2044,7 +2064,7 @@ obj
 					usr.SetQueue(src)
 			True_Kamehameha2
 				UnarmedOnly=1
-				DamageMult=2.5
+				DamageMult=5
 				AccuracyMult=25
 				Instinct=5
 				Duration=3
@@ -2057,7 +2077,7 @@ obj
 				PreRequisite=list("/obj/Skills/Projectile/Beams/Big/Final_Flash")
 				SignatureTechnique=2
 				UnarmedOnly=1
-				DamageMult=2.5
+				DamageMult=12
 				AccuracyMult=5
 				Instinct=5
 				HitStep=/obj/Skills/Queue/Final_Shine2
@@ -2074,7 +2094,7 @@ obj
 					usr.SetQueue(src)
 			Final_Shine2
 				UnarmedOnly=1
-				DamageMult=2.5
+				DamageMult=5
 				AccuracyMult=25
 				Instinct=5
 				Duration=3
@@ -2084,7 +2104,7 @@ obj
 
 			Super_Dragon_Fist
 				UnarmedOnly=1
-				DamageMult=2.5
+				DamageMult=18
 				AccuracyMult=10
 				Duration=10
 				KBMult=0.0001
@@ -2108,7 +2128,7 @@ obj
 			Dancing_Lights
 				SkillCost=80
 				Copyable=2
-				DamageMult=0.25
+				DamageMult=1.2
 				AccuracyMult=3
 				Duration=5
 				Projectile="/obj/Skills/Projectile/DancingBlast"
@@ -2127,7 +2147,7 @@ obj
 				Copyable=3
 				PreRequisite=list("/obj/Skills/Queue/Dancing_Lights")
 				LockOut=list("/obj/Skills/Queue/Burst_Combination")
-				DamageMult=0.25
+				DamageMult=1.2
 				AccuracyMult=5
 				Duration=5
 				Combo=4
@@ -2143,7 +2163,7 @@ obj
 					set category="Skills"
 					usr.SetQueue(src)
 			Light_Rush2
-				DamageMult=1
+				DamageMult=0.5
 				AccuracyMult=25
 				Duration=3
 				Warp=10
@@ -2154,8 +2174,9 @@ obj
 				Copyable=3
 				PreRequisite=list("/obj/Skills/Queue/Dancing_Lights")
 				LockOut=list("/obj/Skills/Queue/Light_Rush")
-				DamageMult=0.1
+				DamageMult=0.8
 				AccuracyMult=5
+				Stunner=2
 				Duration=5
 				Combo=10
 				Projectile="/obj/Skills/Projectile/BurstBlast"
@@ -2213,13 +2234,12 @@ obj
 			//todo: remove
 			SwallowReversal//dedname
 			InfinityTrap//dedname
-			ZeroReversal//dedname
 
 			Swallow_Reversal
 				SkillCost=80
 				Copyable=2
 				ActiveMessage="enters a graceful stance!"
-				DamageMult=1
+				DamageMult=1.4
 				AccuracyMult=3
 				KBMult=0.00001
 				SpeedStrike=1
@@ -2239,7 +2259,7 @@ obj
 				PreRequisite=list("/obj/Skills/Queue/Swallow_Reversal")
 				LockOut=list("/obj/Skills/Queue/Willow_Dance", "/obj/Skills/Queue/Zero_Reversal", "/obj/Skills/Queue/Larch_Dance")
 				ActiveMessage="enters a thoughtful stance!"
-				DamageMult=1
+				DamageMult=1.1
 				AccuracyMult=3
 				KBMult=0.00001
 				Stunner=3
@@ -2266,11 +2286,11 @@ obj
 				PreRequisite=list("/obj/Skills/Queue/Swallow_Reversal")
 				LockOut=list("/obj/Skills/Queue/Willow_Dance", "/obj/Skills/Queue/Larch_Dance", "/obj/Skills/Queue/Infinity_Trap")
 				ActiveMessage="enters a low stance!"
-				DamageMult=2.5
+				DamageMult=3
 				AccuracyMult=3
 				KBMult=0.00001
-				SpeedStrike=4
-				SweepStrike=4
+				SpeedStrike=1
+				SweepStrike=1
 				Counter=1
 				Warp=2
 				Duration=5
@@ -2290,7 +2310,7 @@ obj
 				LockOut=list("/obj/Skills/Queue/Larch_Dance", "/obj/Skills/Queue/Zero_Reversal", "/obj/Skills/Queue/Infinity_Trap")
 				Copyable=3
 				ActiveMessage="begins to move fluidly, countering incoming blows!"
-				DamageMult=1
+				DamageMult=0.9
 				AccuracyMult=3
 				Duration=8
 				Cooldown=60
@@ -2309,7 +2329,7 @@ obj
 				LockOut=list("/obj/Skills/Queue/Willow_Dance", "/obj/Skills/Queue/Zero_Reversal", "/obj/Skills/Queue/Infinity_Trap")
 				Copyable=3
 				ActiveMessage="prepares a murderous chain of counterattacks!"
-				DamageMult=1
+				DamageMult=1.1
 				AccuracyMult=2
 				Duration=5
 				Cooldown=60
@@ -2331,8 +2351,8 @@ obj
 				Copyable=3
 				ActiveMessage="grips their weapon strongly!"
 				HitMessage="runs the opponent through with their weapon!"
-				DamageMult=1
-				AccuracyMult=5
+				DamageMult=1.5
+				AccuracyMult=2.5
 				Duration=5
 				Warp=2
 				KBMult=0.001
@@ -2340,6 +2360,7 @@ obj
 				GrabTrigger="/obj/Skills/Grapple/Sword/Blade_Drive"
 				EnergyCost=1
 				Cooldown=120
+				SpeedStrike = 2
 				verb/Run_Through()
 					set category="Skills"
 					usr.SetQueue(src)
@@ -2361,7 +2382,7 @@ obj
 
 			Ragna_Blade
 				NoTransplant=1
-				DamageMult=10
+				DamageMult=20
 				AccuracyMult=10
 				WeaponBreaker=100
 				Shearing=10
@@ -2392,7 +2413,7 @@ obj
 			Blade_Dance
 				SignatureTechnique=1
 				NeedsSword=1
-				DamageMult=3
+				DamageMult=7
 				AccuracyMult=5
 				HitStep=/obj/Skills/Queue/Blade_Dance2
 				Duration=5
@@ -2427,7 +2448,7 @@ obj
 				NeedsSword=1
 				ActiveMessage="fulfils their existence in their blade."
 				HitMessage="slashes at the opponent's body with their enlightened blade!"
-				DamageMult=5
+				DamageMult=11
 				AccuracyMult=10
 				SpiritSword=1
 				KBAdd=10
@@ -2447,7 +2468,7 @@ obj
 			Bad_Luck
 				name="Bad Luck"
 				HybridStrike=1
-				DamageMult=3
+				DamageMult=4
 				AccuracyMult=2
 				Duration=5
 				Cooldown=30
@@ -2460,12 +2481,13 @@ obj
 				SignatureTechnique=1
 				name="Soul Tear Storm"
 				ActiveMessage="begins to glow with ethereal darkness!"
-				DamageMult=1
+				DamageMult=2.25
 				AccuracyMult=5
 				KBMult=0.00001
 				Combo=5
-				Warp=3
-				SpiritHand=1
+				Warp=5
+				SpiritHand=0.5
+				SpiritSword=0.5
 				Duration=5
 				Cooldown=150
 				NeedsSword=1
@@ -2483,7 +2505,7 @@ obj
 				SignatureTechnique=2
 				name="Omnislash"
 				ActiveMessage="begins to glow with limitless bravery!"
-				DamageMult=1
+				DamageMult=2
 				AccuracyMult=10
 				KBMult=0.00001
 				KBAdd=2
@@ -2506,7 +2528,7 @@ obj
 					usr.SetQueue(src)
 			Omnislash2
 				ActiveMessage="goes for the finishing blow!"
-				DamageMult=2.5
+				DamageMult=12
 				AccuracyMult=10
 				KBMult=10
 				Warp=5
@@ -2532,7 +2554,7 @@ obj
 			Pegasus_Rolling_Crash//t1
 				UnarmedOnly=1
 				CosmoPowered=1
-				DamageMult=5
+				DamageMult=9
 				AccuracyMult=5
 				Instinct=4
 				Duration=5
@@ -2550,7 +2572,7 @@ obj
 			Rising_Dragon_Fist//t5
 				UnarmedOnly=1
 				CosmoPowered=1
-				DamageMult=5
+				DamageMult=11
 				AccuracyMult=5
 				Instinct=4
 				KBAdd=10
@@ -2565,14 +2587,14 @@ obj
 					set name="Rozan Shoryu Ha"
 					usr.SetQueue(src)
 			Thunder_Wave
-				DamageMult=0.5
+				DamageMult=2
 				Instinct=3
 				Launcher=1
-				Paralyzing=2
+				Paralyzing=10
 				AccuracyMult=10
 				KBAdd=3
 				InstantStrikes=10
-				InstantStrikesDelay=3
+				InstantStrikesDelay=1.5
 				PrecisionStrike=500
 				Duration=5
 				IconLock=1
@@ -2589,12 +2611,13 @@ obj
 			Phoenix_Demon_Illusion_Strike
 				UnarmedOnly=1
 				CosmoPowered=1
-				DamageMult=0.1
+				DamageMult=4.5
 				AccuracyMult=10
 				Instinct=4
 				Duration=5
 				Warp=10
 				Stunner=6
+				Crippling=5
 				BuffAffected="/obj/Skills/Buffs/SlotlessBuffs/Autonomous/Demon_Illusion"
 				Cooldown=-1
 				IconLock=1
@@ -2613,7 +2636,7 @@ obj
 			Demon_Emperor_Fist
 				UnarmedOnly=1
 				CosmoPowered=1
-				DamageMult=0.1
+				DamageMult=4.5
 				AccuracyMult=10
 				Instinct=4
 				Duration=5
@@ -2633,7 +2656,7 @@ obj
 			Acubens
 				UnarmedOnly=1
 				CosmoPowered=1
-				DamageMult=5
+				DamageMult=9
 				AccuracyMult=10
 				Instinct=5
 				Duration=3
@@ -2653,14 +2676,14 @@ obj
 				UnarmedOnly=1
 				CosmoPowered=1
 				GodPowered=0.25
-				DamageMult=0.25
+				DamageMult=0.75
 				InstantStrikes=20
 				InstantStrikesDelay=1
 				AccuracyMult=10
 				Instinct=5
 				Duration=5
 				PrecisionStrike=10
-				Cooldown=150
+				Cooldown=-1
 				HybridStrike=1
 				KBAdd=1
 				IconLock=1
@@ -2682,7 +2705,7 @@ obj
 			Six_Transmigrations
 				UnarmedOnly=1
 				CosmoPowered=1
-				DamageMult=10
+				DamageMult=15
 				AccuracyMult=10
 				Instinct=4
 				Duration=5
@@ -2704,7 +2727,7 @@ obj
 			Rising_Dragon_Lord
 				UnarmedOnly=1
 				CosmoPowered=1
-				DamageMult=7.5
+				DamageMult=11
 				AccuracyMult=10
 				Instinct=4
 				KBAdd=20
@@ -2725,7 +2748,7 @@ obj
 				UnarmedOnly=1
 				CosmoPowered=1
 				Warp=5
-				DamageMult=5
+				DamageMult=13
 				AccuracyMult=5
 				Instinct=4
 				Duration=5
@@ -2746,7 +2769,7 @@ obj
 			Jumping_Stone
 				UnarmedOnly=1
 				CosmoPowered=1
-				DamageMult=5
+				DamageMult=11
 				AccuracyMult=10
 				Instinct=5
 				Duration=3
@@ -2764,7 +2787,7 @@ obj
 			Piranhan_Rose
 				UnarmedOnly=1
 				CosmoPowered=1
-				DamageMult=0.5
+				DamageMult=0.85
 				KBAdd=1
 				AccuracyMult=10
 				Instinct=4
@@ -2788,7 +2811,7 @@ obj
 				ActiveMessage="forms a drill around their knee!"
 				HitMessage="drives the drill into their opponent!"
 				SBuffNeeded="Broken Brave"
-				DamageMult=5
+				DamageMult=12
 				AccuracyMult=5
 				Instinct=1
 				Duration=5
@@ -2812,53 +2835,67 @@ obj
 			Shoryuken
 				StyleNeeded="Ansatsuken"
 				AccuracyMult=10
-				KBAdd=3
-				Counter=1
+				Launcher=3
 				Duration=5
-				Cooldown=30
+				Shattering = 2
+				Cooldown=40
+				proc/resetVars()
+					Launcher=initial(Launcher)
+					Duration=initial(Duration)
+					Cooldown=initial(Cooldown)
+					ManaCost=initial(ManaCost)
+					ShoryukenEffect=initial(ShoryukenEffect)
+				proc/activate(mob/player)
+					ManaCost = 0
+					Launcher=2
+					var/sagaLevel = player.SagaLevel
+					var/damage = clamp(1.8*(sagaLevel/2), 1.8, 7)
+					var/path = player.AnsatsukenPath == "Shoryuken" ? 1 : 0
+					var/manaCost = 35 // how much u need for ex
+					var/cooldown = 40
+					var/hitMessage = "strikes their opponent into the air with a fearsome uppercut!!"
+					ShoryukenEffect=1
+					Shattering = 1.5 * sagaLevel
+					if(path)
+						manaCost -= 10
+						cooldown -= 15
+						damage =  clamp(2*(sagaLevel/2), 2, 8)
+						hitMessage = "strikes their opponent into the air with a fearsome uppercut!!"
+					if(player.AnsatsukenAscension=="Satsui")
+						Shattering *= 1.25
+						GoshoryukenEffect=1
+					if(player.ManaAmount>=manaCost && sagaLevel >= 2)
+						ManaCost = manaCost
+						ShoryukenEffect=2
+						Launcher=6
+						hitMessage = "unleashes the power of the Dragon with an overpowering uppercut!"
+						if(path)
+							damage =  clamp(4*(sagaLevel/2), 4, 16)
+						else
+							damage = clamp(3*(sagaLevel/2), 3, 12)
+
+					DamageMult = damage
+					HitMessage = hitMessage
+					Cooldown = cooldown
 				verb/Shoryuken()
 					set category="Skills"
-					src.HitMessage="strikes their opponent into the air with a fearsome uppercut!!"
-					src.DamageMult=min(0.2*usr.SagaLevel, 1)
-					src.ShoryukenEffect=1
-					src.ManaCost=0
-					if(usr.AnsatsukenPath=="Shoryuken")
-						src.Cooldown=30
-						src.DamageMult=min(0.3*usr.SagaLevel, 2)
-					if(usr.AnsatsukenAscension=="Satsui")
-						src.ShoryukenEffect=0
-						src.GoshoryukenEffect=1
+					resetVars()
+					activate(usr)
 					usr.SetQueue(src)
-				verb/EX_Shoryuken()
-					set category="Skills"
-					set name="EX-Shoryuken"
-					if(usr.SagaLevel<2)
-						usr << "You are not yet proficient enough with Shoryuken to utilize this technique!"
-						return
-					src.HitMessage="strikes their opponent high into the sky with an astounding uppercut!!"
-					src.DamageMult=min(0.5*usr.SagaLevel, 2)
-					src.ShoryukenEffect=2
-					src.ManaCost=25
-					if(usr.AnsatsukenPath=="Shoryuken")
-						src.Cooldown=30
-						src.DamageMult=min(1*usr.SagaLevel, 3)
-					if(usr.AnsatsukenAscension=="Satsui")
-						src.ShoryukenEffect=0
-						src.GoshoryukenEffect=1
-					usr.SetQueue(src)
+
 			Shin_Shoryuken
 				StyleNeeded="Ansatsuken"
 				HitMessage="shouts '<b>SHIN...</b>' as they strike their opponent with a rising blow!!!"
-				DamageMult=2.5
+				DamageMult=16
 				AccuracyMult=10
 				KBMult=0.00001
 				Duration=5
 				Cooldown=180
 				PushOut=3
+				AllOutAttack=1
 				ManaCost=100
 				Instinct=4
-				Counter=1
-				Stunner=1
+				Stunner=3
 				Rapid=1
 				HitStep=/obj/Skills/Queue/Shin_Shoryuken2
 				verb/Shin_Shoryuken()
@@ -2890,12 +2927,11 @@ obj
 				GoshoryukenEffect=2
 
 			Messatsu_Goshoryu
-				DamageMult=2
 				GoshoryukenEffect=0.75
 				Duration=5
 				Warp=5
 				Instinct=4
-				DamageMult=2.5
+				DamageMult=7.5
 				AccuracyMult=10
 				KBMult=0.00001
 				KBAdd=1
@@ -2912,19 +2948,18 @@ obj
 					set category="Skills"
 					usr.SetQueue(src)
 			Messatsu_Goshoryu2
-				DamageMult=3
 				GoshoryukenEffect=1
 				Duration=5
 				Warp=5
 				Instinct=4
-				DamageMult=5
+				DamageMult=3
 				AccuracyMult=10
 				KBMult=0.00001
 				KBAdd=1
 				Rapid=1
 				HitStep=/obj/Skills/Queue/Messatsu_Goshoryu3
 			Messatsu_Goshoryu3
-				DamageMult=10
+				DamageMult=7.5
 				GoshoryukenEffect=2
 				Duration=5
 				Warp=5
@@ -2937,7 +2972,7 @@ obj
 			Front_Lotus
 				GateNeeded=1
 				UnarmedOnly=1
-				DamageMult=5
+				DamageMult=9
 				AccuracyMult=10
 				Stunner=3
 				Instinct=4
@@ -2954,7 +2989,7 @@ obj
 			Reverse_Lotus
 				GateNeeded=3
 				UnarmedOnly=1
-				DamageMult=5
+				DamageMult=7
 				AccuracyMult=10
 				Stunner=3
 				Instinct=4
@@ -2969,7 +3004,7 @@ obj
 			Reverse_Lotus2
 				GateNeeded=4
 				UnarmedOnly=1
-				DamageMult=1
+				DamageMult=3
 				AccuracyMult=1
 				Combo=3
 				KBAdd=3
@@ -2983,7 +3018,7 @@ obj
 			Reverse_Lotus3
 				GateNeeded=5
 				UnarmedOnly=1
-				DamageMult=5
+				DamageMult=3
 				Instinct=4
 				AccuracyMult=5
 				Duration=5
@@ -2996,13 +3031,13 @@ obj
 				UnarmedOnly=1
 				ActiveMessage="radiates burning vigor!"
 				HitMessage="expresses their youth with a firestorm of strikes!!!!"
-				DamageMult=1
+				DamageMult=0.6
 				AccuracyMult=10
 				KBMult=0.00001
 				Launcher=3
 				Duration=5
 				Instinct=2
-				Combo=25
+				Combo=20
 				Finisher=1
 				HitStep=/obj/Skills/Queue/GET_DUNKED
 				Projectile="/obj/Skills/Projectile/AsaKujaku"
@@ -3023,17 +3058,15 @@ obj
 			JawStrike//t1
 				name="Ryushosen"
 				StyleNeeded="Hiten Mitsurugi"
-				DamageMult=1
+				DamageMult=3.8
 				AccuracyMult=5
 				SpeedStrike=2
 				KBMult=0.0001
-				Launcher=1
+				Launcher=3
 				Rapid=1
 				Duration=5
 				Cooldown=30
-				CooldownScaling=1
 				EnergyCost=2
-				FatigueCost=2
 				HitMessage="strikes their opponent in the jaw with the flat of their sword!"
 				verb/Ryushosen()
 					set category="Skills"
@@ -3041,16 +3074,14 @@ obj
 			FallingBlade//t1
 				name="Ryutsuisen"
 				StyleNeeded="Hiten Mitsurugi"
-				DamageMult=1
+				DamageMult=3.4
 				AccuracyMult=5
 				SpeedStrike=2
 				Dunker=2
 				Rapid=1
 				Duration=5
 				Cooldown=30
-				CooldownScaling=1
 				EnergyCost=2
-				FatigueCost=2
 				HitMessage="jumps up and brings their blade down to add momentum to their strike!"
 				verb/Ryutsuisen()
 					set category="Skills"
@@ -3058,17 +3089,15 @@ obj
 			Twin_Dragon_Slash
 				name="Souryusen"
 				StyleNeeded="Hiten Mitsurugi"
-				DamageMult=3.5
+				DamageMult=7
 				AccuracyMult=7
 				KBMult=0.0001
 				SpeedStrike=2
 				Duration=5
 				Instinct=3
 				Cooldown=120
-				CooldownScaling=1
 				Rapid=1
 				EnergyCost=5
-				FatigueCost=5
 				HitMessage="strikes with their blade faster than the eye can see!"
 				HitStep=/obj/Skills/Queue/Sheath_Strike
 				MissStep=/obj/Skills/Queue/Sheath_Strike
@@ -3077,7 +3106,7 @@ obj
 					usr.SetQueue(src)
 			Sheath_Strike
 				HitMessage="whips their sheath to follow up with their blade!"
-				DamageMult=3.5
+				DamageMult=6
 				AccuracyMult=7
 				KBMult=2
 				SpeedStrike=2
@@ -3095,10 +3124,10 @@ obj
 			Nine_Dragons_Strike
 				name="Kuzuryusen"
 				StyleNeeded="Hiten Mitsurugi"
-				DamageMult=2
+				DamageMult=1.5
 				AccuracyMult=10
 				KBMult=0.00001
-				SpeedStrike=4
+				SpeedStrike=6
 				InstantStrikes=9
 				InstantStrikesDelay=1
 				//do the combo message thing
@@ -3116,16 +3145,15 @@ obj
 				PushOutIcon='BLANK.dmi'
 				Instinct=4
 				EnergyCost=5
-				FatigueCost=5
 				verb/Kuzuryusen()
 					set category="Skills"
 					usr.SetQueue(src)
 			Heavenly_Dragon_Flash
 				name="Amakakeru Ryuu no Hirameki"
 				StyleNeeded="Hiten Mitsurugi"
-				Duration=5
-				DamageMult=10
-				SpeedStrike=8
+				Duration=8
+				DamageMult=8
+				SpeedStrike=10
 				AccuracyMult=1
 				KBMult=0.00001
 				Warp=10
@@ -3136,15 +3164,15 @@ obj
 				Rapid=1
 				Counter=1
 				NoWhiff=1
-				Cooldown=10800
+				Cooldown=-1
 				HitSparkIcon='Slash - Power.dmi'
 				HitSparkX=-32
 				HitSparkY=-32
 				HitSparkSize=2
 				PushOut=5
-				FatigueCost=25
 				AllOutAttack=1
 				PushOutIcon='BLANK.dmi'
+				HitStep=/obj/Skills/Queue/Heavenly_Dragon_Claw
 				MissStep=/obj/Skills/Queue/Heavenly_Dragon_Claw
 				ActiveMessage="grips the handle of their blade tightly!"
 				HitMessage="utilizes a stutter-step to surpass godspeed with a single blow!"
@@ -3155,8 +3183,8 @@ obj
 			Heavenly_Dragon_Claw
 				StyleNeeded="Hiten Mitsurugi"
 				Duration=10
-				DamageMult=10
-				SpeedStrike=20
+				DamageMult=8 // but gimp damage since u will be doing 3x
+				SpeedStrike=10 // p much get all ur speed
 				AccuracyMult=20
 				KBAdd=10
 				Warp=10
@@ -3188,7 +3216,7 @@ obj
 				HitMessage="lets out a shout as they unleash a peerless slash!!"
 				AccuracyMult=5
 				Instinct=4
-				DamageMult=5
+				DamageMult=8
 				KBMult=0.00001
 				Cooldown=150
 				Projectile="/obj/Skills/Projectile/Weapon_Soul/Holy_Slash"
@@ -3203,7 +3231,7 @@ obj
 				HitMessage="lets out a shout as they unleash a destructive slash!!"
 				AccuracyMult=5
 				Instinct=4
-				DamageMult=3
+				DamageMult=8
 				KBMult=0.00001
 				Cooldown=150
 				Projectile="/obj/Skills/Projectile/Weapon_Soul/Darkness_Slash"
@@ -3214,10 +3242,79 @@ obj
 					set category="Skills"
 					usr.SetQueue(src)
 
+// NEW QUEUES
+//* * */
+// Aura_Punch
+// 				SignatureTechnique=1
+// 				ActiveMessage="begins concentrating power..."
+// 				HitMessage="unleashes a devasatating punch!"
+// 				DamageMult=2.5
+// 				AccuracyMult=5
+// 				KBMult=5
+// 				Duration=5
+// 				Instinct=2
+// 				Delayer=1//add 1 damage mult every second that this is queued but hasnt been punched yet
+// 				Warp=5
+// 				Cooldown=150
+// 				EnergyCost=5
+// 				IconLock='CommandSparks.dmi'
+// 				verb/Aura_Punch()
+// 					set category="Skills"
+// 					usr.SetQueue(src)
+			Rasengan
+				ActiveMessage="forms a ball of chakra in their hand!"
+				HitMessage="slams their opponent with a ball of chakra!"
+				AccuracyMult=5
+				SignatureTechnique=1
+				Paralyzing=1
+				KBAdd = 2
+				Dunker = 1
+				InstantStrikes = 5
+				EnergyCost = 6
+				Cooldown = 60
+				DamageMult = 1.5
+				Duration = 5
+				KBMult = 1.15
+				Shearing=1
+				IconLock = 'Rasengan_DBR.dmi'
+				HitSparkIcon = 'Hit Effect Oath.dmi'
+				HitSparkX = -32
+				HitSparkY = -32
+				HitSparkSize = 1.5
+				verb/Rasengan()
+					set category="Skills"
+					usr.SetQueue(src)
+			Oodama_Rasengan
+				ActiveMessage="forms a massive ball of chakra in their hand!"
+				HitMessage="slams their opponent with a massive ball of chakra!"
+				AccuracyMult=5
+				SignatureTechnique=1
+				Paralyzing=1
+				KBAdd = 4
+				Dunker = 1
+				InstantStrikes = 5
+				EnergyCost = 6
+				ManaCost = 15
+				Cooldown = 120
+				DamageMult = 2.5
+				Delayer=0.5
+				Duration = 6
+				KBMult = 1.5
+				Shearing=3
+				IconLock = 'Rasengan_DBR.dmi'
+				HitSparkIcon = 'Hit Effect Oath.dmi'
+				HitSparkX = -32
+				HitSparkY = -32
+				HitSparkSize = 1.5
+				verb/Oodama_Rasengan()
+					set category="Skills"
+					usr.SetQueue(src)
+
+
 //Cybernetics and enchantment
 			Gear
 				Pile_Bunker
-					DamageMult=4
+					DamageMult=9
 					AccuracyMult=5
 					HybridStrike=0.5
 					SpiritHand=1
@@ -3241,10 +3338,7 @@ obj
 						usr.SetQueue(src)
 				Power_Fist
 					NoSword=1
-					SpiritHand=1
-					HybridStrike=0.5
-					Steady=5
-					DamageMult=5
+					DamageMult=8
 					AccuracyMult=5
 					Duration=10
 					PushOut=4
@@ -3254,15 +3348,14 @@ obj
 					HitSparkSize=1.25
 					KBAdd=10
 					KBMult=2
-					PureDamage=5
-					Cooldown=180
+					Cooldown=60
 					ActiveMessage="activates their Power Fist; everyone's in for some pain!"
 					HitMessage="discharges the round in their Power Fist!!"
 					verb/Power_Fist()
 						set category="Skills"
 						usr.SetQueue(src)
 				Power_Claw
-					DamageMult=2
+					DamageMult=1.25
 					HybridStrike=0.5
 					AccuracyMult=2
 					Cooldown=20
@@ -3277,7 +3370,7 @@ obj
 						set category="Skills"
 						usr.SetQueue(src)
 				Hook_Grip_Claw
-					DamageMult=3
+					DamageMult=5
 					HybridStrike=0.5
 					AccuracyMult=1
 					Cooldown=120
@@ -3294,7 +3387,7 @@ obj
 				Integrated
 					Integrated=1
 					Integrated_Pile_Bunker
-						DamageMult=5
+						DamageMult=9
 						AccuracyMult=4
 						HybridStrike=0.5
 						SpiritHand=1
@@ -3321,7 +3414,7 @@ obj
 						SpiritHand=1
 						HybridStrike=0.5
 						Steady=5
-						DamageMult=5
+						DamageMult=3.5
 						AccuracyMult=5
 						Duration=10
 						PushOut=4
@@ -3339,7 +3432,7 @@ obj
 							set category="Skills"
 							usr.SetQueue(src)
 					Integrated_Power_Claw
-						DamageMult=2
+						DamageMult=1.25
 						HybridStrike=0.5
 						AccuracyMult=2
 						Cooldown=20
@@ -3354,7 +3447,7 @@ obj
 							set category="Skills"
 							usr.SetQueue(src)
 					Integrated_Hook_Grip_Claw
-						DamageMult=3
+						DamageMult=5
 						HybridStrike=0.5
 						AccuracyMult=1
 						Cooldown=20
@@ -3372,13 +3465,13 @@ obj
 			Cyberize
 				Taser_Strike
 					name="Taser Strike"
-					DamageMult=3
+					DamageMult=4
 					AccuracyMult=5
-					Duration=5
-					Stunner=2
+					Duration=6
+					Stunner=4
 					KBMult=0.1
-					Cooldown=180
-					ManaCost=10
+					Cooldown=60
+					ManaCost=2
 					ActiveMessage="builds up a stunning charge..."
 					HitMessage="delivers an electrified strike!!"
 					verb/Taser_Strike()
@@ -3390,7 +3483,7 @@ obj
 				HitMessage="lets out a scream as a meteor falls from the heavens towards their enemy!!"
 				KBMult=0.00001
 				AccuracyMult=10
-				DamageMult=5
+				DamageMult=8
 				Instinct=4
 				Cooldown=300
 				Projectile="/obj/Skills/Projectile/MegiddoMeteor"
@@ -3407,7 +3500,7 @@ obj
 				name="Void Formation: Snow Wind"
 				ActiveMessage="enters a peerless stance!"
 				HitMessage="rends the opponent apart with <b>Kokujin: YUKIKAZE</b>!"
-				DamageMult=2.5
+				DamageMult=4.5
 				AccuracyMult=5
 				Counter=1
 				Warp=2
@@ -3426,7 +3519,7 @@ obj
 				NoTransplant=1
 				name="Chain Revolver"
 				ActiveMessage="begins to dance around their opponents in a display of graceful gun kata!"
-				DamageMult=2
+				DamageMult=2.5
 				AccuracyMult=2
 				Duration=10
 				Cooldown=60
@@ -3471,24 +3564,10 @@ mob
 					src << "You need to open your Eight Gates to use [Q]!"
 					return
 				if(src.GatesActive<Q.GateNeeded)
-					if(src.SagaLevel>=Q.GateNeeded&&Q.GateNeeded!=8)
-						for(var/obj/Skills/Buffs/ActiveBuffs/Eight_Gates/eg in src)
-							if(eg.)
-								switch(Q.GateNeeded)
-									if(1)
-										eg.Gate_One()
-									if(2)
-										eg.Gate_Two()
-									if(3)
-										eg.Gate_Three()
-									if(4)
-										eg.Gate_Four()
-									if(5)
-										eg.Gate_Five()
-									if(6)
-										eg.Gate_Six()
-									if(7)
-										eg.Gate_Seven()
+					if(SagaLevel>=Q.GateNeeded&&Q.GateNeeded!=8)
+						var/difference = Q.GateNeeded-src.GatesActive
+						for(var/x in 1 to difference)
+							ActiveBuff:handleGates(usr, TRUE)
 					else
 						src << "You have to open at least Gate [Q.GateNeeded] to use this skill!"
 						return
@@ -3507,11 +3586,11 @@ mob
 			if(Q.NeedsSword||Q.UnarmedOnly)
 				var/obj/Items/Sword/s=src.EquippedSword()
 				if(Q.NeedsSword)
-					if((!s && src.NotUsingLiving()) && !src.UsingBattleMage())
+					if((!s && !HasSwordPunching()) && !src.UsingBattleMage())
 						src << "You must have a sword equipped to use this technique."
 						return
 				if(Q.UnarmedOnly)//Has Sword AND UnarmedOnly.
-					if(src.NotUsingChamploo() && s)
+					if(!HasSwordPunching() && s)
 						src << "You can't have a sword equipped to use this technique."
 						return
 					if(src.UsingBattleMage())
@@ -3522,19 +3601,22 @@ mob
 						src << "You need a [Q.ClassNeeded]-class weapon to use this technique."
 						return
 			if(Q.HealthCost)
-				if(src.Health<Q.HealthCost*global.WorldDamageMult&&!Q.AllOutAttack)
+				if(src.Health<Q.HealthCost*glob.WorldDamageMult&&!Q.AllOutAttack)
 					return
 			if(Q.EnergyCost)
 				if(src.Energy<Q.EnergyCost&&!Q.AllOutAttack)
 					if(!src.CheckSpecial("One Hundred Percent Power")&&!src.CheckSpecial("Fifth Form")&&!CheckActive("Eight Gates"))
 						return
 			if(Q.ManaCost && !src.HasDrainlessMana() && !Q.AllOutAttack)
+				var/drain = src.passive_handler.Get("MasterfulCasting") ? Q.ManaCost - (Q.ManaCost * (passive_handler.Get("MasterfulCasting") * 0.3)) : Q.ManaCost
+				if(drain <= 0)
+					drain = 0.5
 				if(!src.TomeSpell(Q))
-					if(src.ManaAmount<Q.ManaCost)
+					if(src.ManaAmount<drain)
 						src << "You don't have enough mana to activate [Q]."
 						return
 				else
-					if(src.ManaAmount<Q.ManaCost*(1-(0.45*src.TomeSpell(Q))))
+					if(src.ManaAmount<drain*(1-(0.45*src.TomeSpell(Q))))
 						src << "You don't have enough mana to activate [Q]."
 						return
 			if(Q.AssociatedGear)
@@ -3565,27 +3647,27 @@ mob
 				src.QueueOverlayRemove()
 				src.ClearQueue()
 			if(src.HasRipple())
-				var/BreathCost=10*Q.DamageMult
+				var/BreathCost=1*Q.DamageMult
 				if(Q.InstantStrikes)
 					BreathCost*=Q.InstantStrikes
 				if(src.Oxygen>=BreathCost)
 					Q.RipplePower*=(1+(0.25*src.GetRipple()*max(1,src.PoseEnhancement*2)))
 					Q.DamageMult*=Q.RipplePower
 					Q.AccuracyMult*=Q.RipplePower
-					src.Oxygen-=BreathCost
+					src.Oxygen-=BreathCost/4
 				else if(src.Oxygen>=src.OxygenMax*0.3)
 					Q.RipplePower*=(1+(0.125*src.GetRipple()*max(1,src.PoseEnhancement*2)))
 					Q.DamageMult*=Q.RipplePower
 					Q.AccuracyMult*=Q.RipplePower
-					src.Oxygen-=BreathCost
+					src.Oxygen-=BreathCost/6
 				else
-					src.Oxygen-=BreathCost
+					src.Oxygen-=BreathCost/8
 				if(src.Oxygen<=0)
 					src.Oxygen=0
 			if(Q.Copyable)
 				spawn() for(var/mob/m in view(10, src))
 					if(m.CheckSpecial("Sharingan"))
-						if(m.SagaLevel/2<Q.Copyable)
+						if(m.SagaLevel<=Q.Copyable)
 							continue
 						if(m.client&&m.client.address==src.client.address)
 							continue
@@ -3603,7 +3685,7 @@ mob
 			if(Q.Counter)
 				KenShockwave(src,icon='KenShockwaveBloodlust.dmi',Size=0.4, Blend=2, Time=2)
 			if(!Q.Combo && src.HasCounterMaster() && CounterMasterTimer <= 0)
-				Q.CounterTemp=1
+				Q.CounterTemp = 0.25 * src.GetCounterMaster()
 				KenShockwave(src,icon='KenShockwaveBloodlust.dmi',Size=0.3, Blend=2, Time=2)
 				CounterMasterTimer = max(1, 25 - (src.HasCounterMaster()*5))
 			src.AttackQueue=Q
@@ -3635,66 +3717,60 @@ mob
 							src << "<font color=#ff0000>You drop [Q.name]!</font>"
 		QueuedDamage(var/mob/P)
 			var/Damage=1
-			if(src.AttackQueue.DamageMult>=0)
-				Damage*=src.AttackQueue.DamageMult
-			if(Damage>=1)
-				Damage=TrueDamage(Damage)
-			//otherwise just leave it as it is.
+			// this acts as a multiplier, so something like a 5 damage mult will result in insane numbers
 
-			//Max src.target.healths are so that nothing is ever divided by zero.
-			if(src.AttackQueue.Finisher)//Higher damage near ending of fight.
-				Damage*=min((50/max(P.Health,1)), 2)//Up to x2 mult.
-
-			if(src.AttackQueue.Opener)//Higher Damage near beginning of fight.
-				Damage*=min((max(P.Health,1)/50), 2)//Up to x2 mult.
+			if(AttackQueue.Finisher)
+				var/ratio = (clamp((100-P.Health) / 50, 1, AttackQueue.Finisher+1) / glob.Q_DIVISOR)
+				if(ratio > 0)
+					Damage+=ratio
+			if(AttackQueue.Opener)
+				var/ratio = (clamp(P.Health / 50, 1, AttackQueue.Opener+1) / glob.Q_DIVISOR)
+				if(ratio > 0)
+					Damage+=ratio
 
 			if(src.AttackQueue.Decider)
-				if(P.Health >= (src.Health-5) && P.Health <= (src.Health+5))
-					Damage*=2.5
-				else if(P.Health >= (src.Health-10) && P.Health <= (src.Health+10))
-					Damage*=2
-				else if(P.Health >= (src.Health-20) && P.Health <= (src.Health+20))
-					Damage*=1.5
-				else if(P.Health >= (src.Health-30) && P.Health <= (src.Health+30))
-					Damage*=1.25
-				else
-					Damage*=1
+				var/DeciderDmg = getDeciderDamage(Health, P.Health)
+				if(DeciderDmg > 0)
+					Damage+=DeciderDmg
 
-			if(src.AttackQueue.Dominator)
-				if(src.Health>P.Health&&P.Health!=0)
-					Damage*=min(src.Health/P.Health, 2)
-					if(src.Health-P.Health>=50&&P.Health!=0)
-						Damage*=min(src.Health/P.Health, 2.5)
-			if(src.AttackQueue.Determinator)
-				if(src.Health<P.Health&&src.Health!=0)
-					Damage*=min(P.Health/src.Health, 2)
-					if(P.Health-src.Health>=25&&P.Health!=0)
-						Damage*=min(P.Health/src.Health, 2)
-					if(P.Health-src.Health>=50&&P.Health!=0)
-						Damage*=min(P.Health/src.Health, 2.5)
+			if(AttackQueue.Dominator)
+				if(Health>P.Health)
+					var/ratio = (clamp(P.Health / Health, 1, 4) / glob.Q_DIVISOR)
+					if(ratio > 0)
+						Damage+=ratio
+			if(AttackQueue.Determinator)
+				if(Health<P.Health&&Health!=0)
+					var/ratio = clamp(Health / P.Health, 1, 4) / glob.Q_DIVISOR
+					if(ratio > 0)
+						Damage+=ratio
 
 			if(src.AttackQueue.Delayer)
-				Damage+=(src.AttackQueue.Delayer*src.AttackQueue.DelayerTime)
+				var/addDamage = 1 + (clamp(src.AttackQueue.Delayer*src.AttackQueue.DelayerTime, 0.1, 3)/ glob.Q_DIVISOR)
+				Damage+=(addDamage)
 
 			if(src.AttackQueue.SpeedStrike>0)
-				Damage *= 1 + (min(2.5, src.GetSpd(src.AttackQueue.SpeedStrike*0.1)))
-				if(src.AttackQueue.NeedsSword)
-					if(src.EquippedSword())
-						var/obj/Items/Sword/s = src.EquippedSword()
-						Damage/=s.DamageEffectiveness
+				Damage *= clamp(1,sqrt(((src.GetSpd())*(src.AttackQueue.SpeedStrike/10))),3)
+
 			if(src.AttackQueue.SweepStrike>0)
-				Damage *= 1 + (min(2.5, P.GetSpd(src.AttackQueue.SweepStrike*0.1)))
-				if(src.AttackQueue.NeedsSword)
-					if(src.EquippedSword())
-						var/obj/Items/Sword/s = src.EquippedSword()
-						Damage/=s.DamageEffectiveness
+				Damage *= clamp(1,sqrt(((P.GetSpd())*(src.AttackQueue.SweepStrike/10))),3)
 
 			if(src.AttackQueue.GodPowered)
 				src.transcend(src.AttackQueue.GodPowered)
 			if(src.AttackQueue.CosmoPowered)
 				if(!src.SpecialBuff)
-					Damage*=(1+(src.SenseUnlocked-5))
-
+					Damage+=(0.5+(src.SenseUnlocked-4))
+			if(Damage<0)
+				Damage = 0.1
+			if(src.AttackQueue.DamageMult>=0)
+				var/dmgMult = src.AttackQueue.DamageMult
+				Damage*=dmgMult
+			if(Damage>0 && GLOBAL_QUEUE_DAMAGE > 0)
+				Damage *= GLOBAL_QUEUE_DAMAGE
+			
+			Damage = clamp(Damage,0.01, 10) // fuck it
+			if(Damage>=5)
+				src<<"please report this still to the admins [AttackQueue]"
+				world.log<<"[src] hit for over 5x dmg mult using [AttackQueue]"
 			return Damage
 		QueuedAccuracy()
 			var/Accuracy=1
@@ -3730,6 +3806,7 @@ mob
 			if(src.AttackQueue.Combo)
 				src.AttackQueue.ComboPerformed=0
 		QueuedHitMessage(var/mob/P)
+			if(!AttackQueue) return
 			src.AttackQueue.Hit=1
 			src.AttackQueue.Missed=0
 			src.AttackQueue.RanOut=0
@@ -3852,7 +3929,6 @@ mob
 				src.ClearQueue()
 
 		ClearQueue()
-
 			src.QueueOverlayRemove()
 			src.AttackQueue.CounterTemp=0
 			src.AttackQueue.DelayerTime=0
@@ -3870,18 +3946,21 @@ mob
 				src.AttackQueue.AccuracyMult/=src.AttackQueue.RipplePower
 				src.AttackQueue.RipplePower=1
 			if(src.AttackQueue.HealthCost)
-				src.DoDamage(src, TrueDamage(src.AttackQueue.HealthCost*global.WorldDamageMult))
+				src.DoDamage(src, TrueDamage(src.AttackQueue.HealthCost*glob.WorldDamageMult))
 			if(src.AttackQueue.WoundCost)
-				src.WoundSelf(src.AttackQueue.WoundCost*global.WorldDamageMult)
+				src.WoundSelf(src.AttackQueue.WoundCost*glob.WorldDamageMult)
 			if(src.AttackQueue.EnergyCost)
 				src.LoseEnergy(src.AttackQueue.EnergyCost)
 			if(src.AttackQueue.FatigueCost)
 				src.GainFatigue(src.AttackQueue.FatigueCost)
 			if(src.AttackQueue.ManaCost)
+				var/drain = src.passive_handler.Get("MasterfulCasting") ? AttackQueue.ManaCost - (AttackQueue.ManaCost * (passive_handler.Get("MasterfulCasting") * 0.3)) : AttackQueue.ManaCost
+				if(drain <= 0)
+					drain = 0.5
 				if(src.TomeSpell(src.AttackQueue))
-					src.LoseMana(src.AttackQueue.ManaCost*(1-(0.45*src.TomeSpell(src.AttackQueue))))
+					src.LoseMana(drain*(1-(0.45*src.TomeSpell(src.AttackQueue))))
 				else
-					src.LoseMana(src.AttackQueue.ManaCost)
+					src.LoseMana(drain)
 			if(src.AttackQueue.AssociatedGear)
 				if(!src.AttackQueue.AssociatedGear.InfiniteUses)
 					if(src.AttackQueue.Integrated)
@@ -3936,18 +4015,15 @@ mob
 						for(var/x in SFound.vars)
 							if(x in DenyVars)
 								continue
-							S.vars[x]=SFound.vars[x]
+							S.vars[x]=SFound.vars  [x]
 					if(!SFound)
 						src.AddSkill(new path)
 					S.Password=src.name
 					src.AddSkill(S)//trigger buff on self
 				if(S.type==/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Finisher/What_Must_Be_Done)
-					for(var/obj/Skills/Buffs/SlotlessBuffs/Autonomous/QueueBuff/Finisher/What_Must_Be_Done/wmbd in src.Buffs)
-						if(wmbd.Password)
-							wmbd.Mastery++
-						else
-							wmbd.Mastery=0
-
+					if(SlotlessBuffs["What Must Be Done"])
+						SlotlessBuffs["What Must Be Done"].Mastery++
+						SlotlessBuffs["What Must Be Done"].TimerLimit+=300
 			if(!src.AttackQueue.Step&&!src.AttackQueue.MissStep&&!src.AttackQueue.HitStep)
 				src.AttackQueue=null
 			else

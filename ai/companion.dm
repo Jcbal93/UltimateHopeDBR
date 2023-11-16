@@ -74,6 +74,7 @@ obj/Skills/Companion
 
 			for(var/x = 1 to ai_count)
 				var/mob/Player/AI/a = new
+				ticking_ai.Remove(a)
 				a.alpha=0
 				a.loc = locate(usr.x,usr.y,usr.z)
 				animate(a, alpha=255, time=10)
@@ -137,7 +138,7 @@ obj/Skills/Companion
 					var/obj/Skills/o =new path
 					if(!locate(o, a))
 						a.contents+=o
-				a.AIGain()
+				a.aiGain()
 			last_use = world.time
 			Using=0
 
@@ -160,7 +161,7 @@ obj/Skills/Companion
 			if(Using) return
 			for(var/mob/Player/AI/a in usr.ai_followers)
 				a.Target = null
-				a.ai_state = "idle"
+				a.ai_state = "Idle"
 				usr << "You order [a] stop fighting!"
 		Companion_Follow()
 			set src in usr
@@ -168,7 +169,7 @@ obj/Skills/Companion
 			if(Using) return
 			for(var/mob/Player/AI/a in usr.ai_followers)
 				a.ai_follow = !a.ai_follow
-				a.ai_state = "idle"
+				a.ai_state = "Idle"
 				usr << "You order [a.ai_follow ? "follow you!" : "hold position!"]"
 
 		Companion_Focus_Target()
@@ -452,6 +453,8 @@ obj/Skills/Companion/Pet
 
 		for(var/x = 1 to ai_count)
 			var/mob/Player/AI/Pet/a = new
+			ticking_ai.Remove(a)
+			companion_ais += a
 			a.alpha=0
 			a.loc = locate(usr.x,usr.y,usr.z)
 			animate(a, alpha=255, time=10)
@@ -495,10 +498,10 @@ mob/Player/AI/Pet //Pets get their own subtype because we strip away a lot of th
 		if(!ai_owner)
 			EndLife(0)
 			return
-		ai_state = "idle"
+		ai_state = "Idle"
 		Health=100
 		switch(ai_state)
-			if("idle")
+			if("Idle")
 				//If the pet is told to hold position.
 				if(return_position || (hold_position && get_dist(src, hold_position <= max_hold_distance)))
 					if(hold_position) return_position = null
@@ -542,12 +545,12 @@ mob/Player/AI/Pet //Pets get their own subtype because we strip away a lot of th
 							ai_stall = 10
 
 			if("combat")
-				ai_state = "idle"
+				ai_state = "Idle"
 			if("wander")
-				ai_state = "idle"
+				ai_state = "Idle"
 
 
-		ai_state = "idle"
+		ai_state = "Idle"
 
 	AIGain()
 		set waitfor=0

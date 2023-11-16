@@ -57,7 +57,7 @@ mob/Player
 
 				if(!Attacked)
 					if(Target in get_step(src,src.dir))
-						Melee()
+						Melee1()
 						if(OneHitWonder)
 							del src
 

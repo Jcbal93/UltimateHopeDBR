@@ -105,8 +105,8 @@ window "AdminHelpWindow"
 		type = MAIN
 		pos = 281,0
 		size = 548x273
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #000000
 		is-visible = false
 		saved-params = "pos;size;is-minimized;is-maximized"
@@ -115,8 +115,8 @@ window "AdminHelpWindow"
 		type = LABEL
 		pos = 248,1
 		size = 296x16
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ffffff
 		background-color = #000000
 		saved-params = ""
@@ -125,8 +125,8 @@ window "AdminHelpWindow"
 		type = LABEL
 		pos = 248,33
 		size = 296x16
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ffffff
 		background-color = #000000
 		saved-params = ""
@@ -135,8 +135,8 @@ window "AdminHelpWindow"
 		type = LABEL
 		pos = 248,65
 		size = 296x16
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ffffff
 		background-color = #000000
 		saved-params = ""
@@ -145,8 +145,8 @@ window "AdminHelpWindow"
 		type = LABEL
 		pos = 120,65
 		size = 112x16
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #e0e0e0
 		background-color = #400080
 		saved-params = ""
@@ -155,8 +155,8 @@ window "AdminHelpWindow"
 		type = LABEL
 		pos = 120,33
 		size = 112x16
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #e0e0e0
 		background-color = #400080
 		saved-params = ""
@@ -165,8 +165,8 @@ window "AdminHelpWindow"
 		type = BUTTON
 		pos = 270,216
 		size = 128x56
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ffffff
 		background-color = #4f4f4f
 		border = line
@@ -177,8 +177,8 @@ window "AdminHelpWindow"
 		type = BUTTON
 		pos = 419,216
 		size = 128x56
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ffffff
 		background-color = #4f4f4f
 		border = line
@@ -189,8 +189,8 @@ window "AdminHelpWindow"
 		type = BUTTON
 		pos = 121,216
 		size = 128x56
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ffffff
 		background-color = #4f4f4f
 		border = line
@@ -201,8 +201,8 @@ window "AdminHelpWindow"
 		type = LABEL
 		pos = 120,96
 		size = 428x24
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #e0e0e0
 		background-color = #400080
 		saved-params = ""
@@ -211,16 +211,16 @@ window "AdminHelpWindow"
 		type = OUTPUT
 		pos = 120,120
 		size = 428x96
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #dddddd
 		saved-params = "max-lines"
 	elem "Help_OutPutMessages"
 		type = GRID
 		pos = 0,0
 		size = 120x272
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ffffff
 		background-color = #5b5b5b
 		saved-params = ""
@@ -233,8 +233,8 @@ window "AdminHelpWindow"
 		type = LABEL
 		pos = 120,1
 		size = 112x16
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #e0e0e0
 		background-color = #400080
 		saved-params = ""
@@ -245,8 +245,8 @@ window "AllChatTab"
 		type = MAIN
 		pos = 281,0
 		size = 640x480
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #1b1b1b
 		saved-params = "pos;size;is-minimized;is-maximized"
 		title = "All"
@@ -273,10 +273,10 @@ window "AllChatTab"
 window "Baby"
 	elem "Baby"
 		type = MAIN
-		pos = 281,0
+		pos = 372,0
 		size = 247x327
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #1f1f1f
 		is-visible = false
 		saved-params = "pos;size;is-minimized;is-maximized"
@@ -315,8 +315,8 @@ window "ICChatTab"
 		type = MAIN
 		pos = 281,0
 		size = 640x480
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #1b1b1b
 		saved-params = "pos;size;is-minimized;is-maximized"
 		title = "IC"
@@ -344,8 +344,8 @@ window "LOOCChatTab"
 		type = MAIN
 		pos = 281,0
 		size = 640x480
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #1b1b1b
 		saved-params = "pos;size;is-minimized;is-maximized"
 		title = "LOOC"
@@ -373,8 +373,8 @@ window "OOCChatTab"
 		type = MAIN
 		pos = 281,0
 		size = 640x480
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #1b1b1b
 		saved-params = "pos;size;is-minimized;is-maximized"
 		title = "OOC"
@@ -397,13 +397,43 @@ window "OOCChatTab"
 		visited-color = #00cccc
 		style = ".system {color:#ff0000;}"
 
+window "gridAG"
+	elem "gridAG"
+		type = MAIN
+		pos = 291,0
+		size = 640x480
+		anchor1 = -1,-1
+		anchor2 = -1,-1
+		background-color = #1c1c1c
+		is-visible = false
+		is-transparent = true
+		saved-params = "pos;size;is-minimized;is-maximized"
+		statusbar = false
+		can-minimize = false
+		can-resize = false
+		can-scroll = both
+	elem "grid"
+		type = GRID
+		pos = 5,2
+		size = 624x476
+		anchor1 = 1,0
+		anchor2 = 98,100
+		font-size = 9
+		text-color = #ffffff
+		background-color = #1c1c1c
+		border = line
+		saved-params = ""
+		cells = 1x1
+		current-cell = 1,1
+		highlight-color = #000000
+
 window "knowtree"
 	elem "knowtree"
 		type = MAIN
-		pos = 281,0
+		pos = 372,0
 		size = 900x600
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #464646
 		is-visible = false
 		saved-params = "pos;size;is-minimized;is-maximized"
@@ -413,10 +443,10 @@ window "knowtree"
 		macro = "macro"
 	elem "button113"
 		type = BUTTON
-		pos = 675,240
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 455,240
+		size = 445x45
+		anchor1 = 51,40
+		anchor2 = 100,48
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
@@ -425,10 +455,10 @@ window "knowtree"
 		command = "knowtreez \"TimeMagic\""
 	elem "button112"
 		type = BUTTON
-		pos = 675,195
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 454,195
+		size = 446x45
+		anchor1 = 50,33
+		anchor2 = 100,40
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
@@ -437,10 +467,10 @@ window "knowtree"
 		command = "knowtreez \"SealingMagic\""
 	elem "button111"
 		type = BUTTON
-		pos = 673,149
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 453,149
+		size = 445x45
+		anchor1 = 50,25
+		anchor2 = 100,32
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
@@ -449,10 +479,10 @@ window "knowtree"
 		command = "knowtreez \"CrestCreation\""
 	elem "button110"
 		type = BUTTON
-		pos = 675,105
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 454,105
+		size = 446x45
+		anchor1 = 50,18
+		anchor2 = 100,25
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
@@ -461,10 +491,10 @@ window "knowtree"
 		command = "knowtreez \"ArmamentEnchantment\""
 	elem "button109"
 		type = BUTTON
-		pos = 675,60
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 453,60
+		size = 447x45
+		anchor1 = 50,10
+		anchor2 = 100,18
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
@@ -473,10 +503,10 @@ window "knowtree"
 		command = "knowtreez \"ImprovedAlchemy\""
 	elem "button108"
 		type = BUTTON
-		pos = 450,240
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 1,240
+		size = 455x45
+		anchor1 = 0,40
+		anchor2 = 51,48
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
@@ -485,10 +515,10 @@ window "knowtree"
 		command = "knowtreez \"SpaceMagic\""
 	elem "button107"
 		type = BUTTON
-		pos = 450,195
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 0,195
+		size = 455x45
+		anchor1 = 0,33
+		anchor2 = 51,40
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
@@ -497,10 +527,10 @@ window "knowtree"
 		command = "knowtreez \"SummoningMagic\""
 	elem "button106"
 		type = BUTTON
-		pos = 450,150
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 0,150
+		size = 454x45
+		anchor1 = 0,25
+		anchor2 = 50,33
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
@@ -509,10 +539,10 @@ window "knowtree"
 		command = "knowtreez \"TomeCreation\""
 	elem "button105"
 		type = BUTTON
-		pos = 450,105
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 0,105
+		size = 454x45
+		anchor1 = 0,18
+		anchor2 = 50,25
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
@@ -521,142 +551,22 @@ window "knowtree"
 		command = "knowtreez \"ToolEnchantment\""
 	elem "button104"
 		type = BUTTON
-		pos = 450,60
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
+		pos = 0,60
+		size = 453x45
+		anchor1 = 0,10
+		anchor2 = 50,18
 		text-color = #8080ff
 		background-color = #000000
 		border = sunken
 		saved-params = "is-checked"
 		text = "Alchemy"
 		command = "knowtreez \"Alchemy\""
-	elem "button103"
-		type = BUTTON
-		pos = 225,240
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Military Engineering"
-		command = "knowtreez \"MilitaryEngineering\""
-	elem "button102"
-		type = BUTTON
-		pos = 225,195
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Cyber-Engineering"
-		command = "knowtreez \"CyberEngineering\""
-	elem "button101"
-		type = BUTTON
-		pos = 225,150
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Advanced Transmission Technology"
-		command = "knowtreez \"AdvancedTransmissionTechnology\""
-	elem "button100"
-		type = BUTTON
-		pos = 225,105
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Improved Medical Technology"
-		command = "knowtreez \"ImprovedMedicalTechnology\""
-	elem "button99"
-		type = BUTTON
-		pos = 225,60
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Repair and Conversion"
-		command = "knowtreez \"RepairAndConversion\""
-	elem "button98"
-		type = BUTTON
-		pos = 0,240
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Military Technology"
-		command = "knowtreez \"MilitaryTechnology\""
-	elem "button88"
-		type = BUTTON
-		pos = 0,195
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Engineering"
-		command = "knowtreez \"Engineering\""
-	elem "button85"
-		type = BUTTON
-		pos = 0,150
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Telecommunications"
-		command = "knowtreez \"Telecommunications\""
-	elem "button82"
-		type = BUTTON
-		pos = 0,105
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Medicine"
-		command = "knowtreez \"Medicine\""
-	elem "button62"
-		type = BUTTON
-		pos = 0,60
-		size = 225x45
-		anchor1 = none
-		anchor2 = none
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = "is-checked"
-		text = "Forging"
-		command = "knowtreez \"Forging\""
 	elem "label25"
 		type = LABEL
-		pos = 450,30
-		size = 450x30
-		anchor1 = none
-		anchor2 = none
+		pos = 0,30
+		size = 900x30
+		anchor1 = 0,5
+		anchor2 = 100,10
 		font-family = "Angsana New"
 		font-size = 15
 		text-color = #8080ff
@@ -664,25 +574,12 @@ window "knowtree"
 		border = sunken
 		saved-params = ""
 		text = "Enchantment"
-	elem "label24"
-		type = LABEL
-		pos = 0,30
-		size = 450x30
-		anchor1 = none
-		anchor2 = none
-		font-family = "Angsana New"
-		font-size = 15
-		text-color = #ff8080
-		background-color = #000000
-		border = sunken
-		saved-params = ""
-		text = "Technology"
 	elem "knowinfolabel"
 		type = LABEL
 		pos = 0,335
 		size = 900x265
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ffffff
 		background-color = #000000
 		border = line
@@ -694,8 +591,8 @@ window "knowtree"
 		type = GRID
 		pos = 0,285
 		size = 900x50
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ffff00
 		background-color = #1d1d1d
 		is-default = true
@@ -710,8 +607,8 @@ window "knowtree"
 		type = LABEL
 		pos = 0,0
 		size = 900x30
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		font-family = "Angsana New"
 		font-size = 15
 		text-color = #ffff80
@@ -723,23 +620,26 @@ window "knowtree"
 window "mainwindow"
 	elem "mainwindow"
 		type = MAIN
-		pos = 281,0
+		pos = 384,0
 		size = 640x500
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #000000
 		is-default = true
 		saved-params = "pos;size;is-maximized"
-		title = "Roleplay Rebirth: Whisk Biscuit"
+		title = "Roleplay Rebirth: Giga Tower"
 		statusbar = false
 		macro = "macro"
 		menu = "menu"
+		outer-size = 658x572
+		inner-size = 640x500
 	elem "mainvsplit"
 		type = CHILD
 		pos = 0,0
 		size = 640x480
 		anchor1 = 0,0
 		anchor2 = 100,100
+		background-color = none
 		saved-params = "splitter"
 		right = "rpane"
 		is-vert = true
@@ -811,10 +711,11 @@ window "mainwindow"
 window "mapwindow"
 	elem "mapwindow"
 		type = MAIN
-		pos = 281,0
+		pos = 384,0
 		size = 680x460
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
+		background-color = none
 		saved-params = "pos;size;is-minimized;is-maximized"
 		titlebar = false
 		statusbar = false
@@ -823,6 +724,8 @@ window "mapwindow"
 		can-resize = false
 		is-pane = true
 		keep-aspect = true
+		outer-size = 696x476
+		inner-size = 680x460
 	elem "map"
 		type = MAP
 		pos = 0,0
@@ -834,12 +737,68 @@ window "mapwindow"
 		saved-params = "icon-size"
 		on-show = ".winset\"mainwindow.mainvsplit.left=mapwindow\""
 		on-hide = ".winset\"mainwindow.mainvsplit.left=\""
+	elem "StorageLabel"
+		type = LABEL
+		pos = 560,371
+		size = 113x20
+		anchor1 = 100,100
+		anchor2 = -1,-1
+		font-family = "@Microsoft JhengHei Light"
+		font-size = 9
+		font-style = "bold"
+		text-color = #cc3300
+		background-color = #000000
+		is-visible = false
+		border = sunken
+		saved-params = ""
+		text = "STORAGE"
+	elem "Storage"
+		type = BAR
+		pos = 561,392
+		size = 113x20
+		anchor1 = 100,100
+		anchor2 = -1,-1
+		background-color = #1f1f1f
+		is-visible = false
+		saved-params = ""
+		bar-color = #cc3300
+		is-slider = false
+		width = 0
+		dir = east
+	elem "HungerLabel"
+		type = LABEL
+		pos = 560,371
+		size = 113x20
+		anchor1 = 100,100
+		anchor2 = -1,-1
+		font-family = "@Microsoft JhengHei Light"
+		font-size = 9
+		font-style = "bold"
+		text-color = #cc3300
+		background-color = #000000
+		is-visible = false
+		border = sunken
+		saved-params = ""
+		text = "HUNGER"
+	elem "Hunger"
+		type = BAR
+		pos = 561,392
+		size = 113x20
+		anchor1 = 100,100
+		anchor2 = -1,-1
+		background-color = #1f1f1f
+		is-visible = false
+		saved-params = ""
+		bar-color = #cc3300
+		is-slider = false
+		width = 0
+		dir = east
 	elem "MovementLabel"
 		type = LABEL
 		pos = 9,379
 		size = 30x30
 		anchor1 = 0,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 9
 		font-style = "bold"
@@ -854,7 +813,7 @@ window "mapwindow"
 		pos = 9,412
 		size = 113x20
 		anchor1 = 0,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 9
 		font-style = "bold"
@@ -869,7 +828,7 @@ window "mapwindow"
 		pos = 42,394
 		size = 83x15
 		anchor1 = 0,100
-		anchor2 = none
+		anchor2 = -1,-1
 		background-color = #000000
 		is-visible = false
 		saved-params = ""
@@ -882,7 +841,7 @@ window "mapwindow"
 		pos = 9,29
 		size = 113x20
 		anchor1 = 0,0
-		anchor2 = none
+		anchor2 = -1,-1
 		background-color = #1f1f1f
 		is-visible = false
 		saved-params = ""
@@ -895,7 +854,7 @@ window "mapwindow"
 		pos = 9,9
 		size = 113x20
 		anchor1 = 0,0
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 9
 		font-style = "bold"
@@ -910,7 +869,7 @@ window "mapwindow"
 		pos = 236,435
 		size = 55x20
 		anchor1 = 50,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 7
 		font-style = "bold"
@@ -925,7 +884,7 @@ window "mapwindow"
 		pos = 561,412
 		size = 113x20
 		anchor1 = 100,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 12
 		font-style = "bold"
@@ -940,7 +899,7 @@ window "mapwindow"
 		pos = 561,4
 		size = 113x20
 		anchor1 = 100,0
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 9
 		font-style = "bold"
@@ -950,27 +909,12 @@ window "mapwindow"
 		border = sunken
 		saved-params = ""
 		text = "WATCHERS ON"
-	elem "StanceLabel"
-		type = LABEL
-		pos = 9,435
-		size = 113x20
-		anchor1 = 0,100
-		anchor2 = none
-		font-family = "@Microsoft JhengHei Light"
-		font-size = 9
-		font-style = "bold"
-		text-color = #008080
-		background-color = #000000
-		is-visible = false
-		border = sunken
-		saved-params = ""
-		text = "STANCE"
 	elem "BarPotion"
 		type = LABEL
 		pos = 410,412
 		size = 55x20
 		anchor1 = 50,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 7
 		font-style = "bold"
@@ -985,7 +929,7 @@ window "mapwindow"
 		pos = 294,435
 		size = 55x20
 		anchor1 = 50,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 7
 		font-style = "bold"
@@ -1000,7 +944,7 @@ window "mapwindow"
 		pos = 561,435
 		size = 113x20
 		anchor1 = 100,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 9
 		font-style = "bold"
@@ -1015,7 +959,7 @@ window "mapwindow"
 		pos = 294,412
 		size = 55x20
 		anchor1 = 50,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 7
 		font-style = "bold"
@@ -1030,7 +974,7 @@ window "mapwindow"
 		pos = 236,412
 		size = 55x20
 		anchor1 = 50,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 7
 		font-style = "bold"
@@ -1045,7 +989,7 @@ window "mapwindow"
 		pos = 410,435
 		size = 55x20
 		anchor1 = 50,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 7
 		font-style = "bold"
@@ -1060,7 +1004,7 @@ window "mapwindow"
 		pos = 352,435
 		size = 55x20
 		anchor1 = 50,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 7
 		font-style = "bold"
@@ -1075,7 +1019,7 @@ window "mapwindow"
 		pos = 352,412
 		size = 55x20
 		anchor1 = 50,100
-		anchor2 = none
+		anchor2 = -1,-1
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 7
 		font-style = "bold"
@@ -1089,10 +1033,10 @@ window "mapwindow"
 window "outputwindow"
 	elem "outputwindow"
 		type = MAIN
-		pos = 281,0
+		pos = 384,0
 		size = 640x480
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #1b1b1b
 		saved-params = "pos;size;is-minimized;is-maximized"
 		titlebar = false
@@ -1101,6 +1045,7 @@ window "outputwindow"
 		can-minimize = false
 		can-resize = false
 		is-pane = true
+		outer-size = 656x496
 	elem "chattabs"
 		type = TAB
 		pos = 0,0
@@ -1116,10 +1061,10 @@ window "outputwindow"
 window "rpane"
 	elem "rpane"
 		type = MAIN
-		pos = 281,0
+		pos = 291,0
 		size = 640x480
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #1b1b1b
 		saved-params = "pos;size;is-minimized;is-maximized"
 		titlebar = false
@@ -1136,26 +1081,15 @@ window "rpane"
 		anchor2 = 100,100
 		background-color = #000000
 		saved-params = "splitter"
+		left = "infowindow"
 		right = "outputwindow"
 		is-vert = false
-	elem "butt5"
-		type = BUTTON
-		pos = 270,0
-		size = 90x20
-		anchor1 = none
-		anchor2 = none
-		font-family = "Calibri"
-		text-color = #ffff80
-		background-color = #000000
-		saved-params = "is-checked"
-		text = "Studies"
-		command = "Acquire-Knowledge"
 	elem "butt4"
 		type = BUTTON
 		pos = 180,0
 		size = 90x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		font-family = "Calibri"
 		text-color = #ffff80
 		background-color = #000000
@@ -1166,134 +1100,23 @@ window "rpane"
 		type = BUTTON
 		pos = 90,0
 		size = 90x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		font-family = "Calibri"
 		text-color = #ffff80
 		background-color = #000000
 		saved-params = "is-checked"
 		text = "Verbs"
 		command = ".winset \"rpanewindow.left=infowindow\""
-	elem "butt1"
-		type = BUTTON
-		pos = 0,0
-		size = 90x20
-		anchor1 = none
-		anchor2 = none
-		font-family = "Calibri"
-		text-color = #ffff80
-		background-color = #000000
-		saved-params = "is-checked"
-		text = "Browsers"
-		command = ".winset \"rpanewindow.left=browserwindow\""
-
-window "browserwindow"
-	elem "browserwindow"
-		type = MAIN
-		pos = 281,0
-		size = 640x480
-		anchor1 = none
-		anchor2 = none
-		background-color = #090909
-		saved-params = "pos;size;is-minimized;is-maximized"
-		title = "Browser"
-		titlebar = false
-		statusbar = false
-		can-close = false
-		can-minimize = false
-		can-resize = false
-		is-pane = true
-	elem "button78"
-		type = BUTTON
-		pos = 300,0
-		size = 60x24
-		anchor1 = none
-		anchor2 = none
-		font-family = "Calibri"
-		text-color = #0080c0
-		background-color = #090909
-		saved-params = "is-checked"
-		text = "Credits"
-		command = ".togglebrowser \"Credits\""
-	elem "button77"
-		type = BUTTON
-		pos = 240,0
-		size = 60x24
-		anchor1 = none
-		anchor2 = none
-		font-family = "Calibri"
-		text-color = #0080c0
-		background-color = #090909
-		saved-params = "is-checked"
-		text = "Guide"
-		command = ".togglebrowser \"Guide\""
-	elem "button76"
-		type = BUTTON
-		pos = 180,0
-		size = 60x24
-		anchor1 = none
-		anchor2 = none
-		font-family = "Calibri"
-		text-color = #0080c0
-		background-color = #090909
-		saved-params = "is-checked"
-		text = "Ranks"
-		command = ".togglebrowser \"Ranks\""
-	elem "button75"
-		type = BUTTON
-		pos = 120,0
-		size = 60x24
-		anchor1 = none
-		anchor2 = none
-		font-family = "Calibri"
-		text-color = #0080c0
-		background-color = #090909
-		saved-params = "is-checked"
-		text = "Story"
-		command = ".togglebrowser \"Story\""
-	elem "button74"
-		type = BUTTON
-		pos = 60,0
-		size = 60x24
-		anchor1 = none
-		anchor2 = none
-		font-family = "Calibri"
-		text-color = #0080c0
-		background-color = #090909
-		saved-params = "is-checked"
-		text = "Updates"
-		command = ".togglebrowser \"Updates\""
-	elem "button73"
-		type = BUTTON
-		pos = 0,0
-		size = 60x24
-		anchor1 = none
-		anchor2 = none
-		font-family = "Calibri"
-		text-color = #0080c0
-		background-color = #090909
-		saved-params = "is-checked"
-		text = "Rules"
-		command = ".togglebrowser \"Rules\""
-	elem "browser"
-		type = BROWSER
-		pos = 0,24
-		size = 638x450
-		anchor1 = 0,0
-		anchor2 = 100,100
-		background-color = #000000
-		is-default = true
-		saved-params = ""
-		on-show = ".winset\"rpane.rpanewindow.pos=0,30;rpane.rpanewindow.size=0x0;rpane.rpanewindow.left=browserwindow\""
-		on-hide = ".winset\"rpane.rpanewindow.left=infowindow:rpane.rpanewindow.left=textwindow rpane.rpanewindow.pos=0,0 rpane.rpanewindow.size=0x0\""
 
 window "infowindow"
 	elem "infowindow"
 		type = MAIN
-		pos = 281,0
+		pos = 384,0
 		size = 640x480
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
+		background-color = none
 		saved-params = "pos;size;is-minimized;is-maximized"
 		title = "Info"
 		titlebar = false
@@ -1302,6 +1125,7 @@ window "infowindow"
 		can-minimize = false
 		can-resize = false
 		is-pane = true
+		outer-size = 656x496
 	elem "info"
 		type = INFO
 		pos = 0,0
@@ -1321,10 +1145,10 @@ window "infowindow"
 window "Race_Screen"
 	elem "Race_Screen"
 		type = MAIN
-		pos = 281,0
-		size = 337x292
-		anchor1 = none
-		anchor2 = none
+		pos = 372,0
+		size = 900x601
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #000000
 		is-visible = false
 		saved-params = "pos;size;is-minimized;is-maximized"
@@ -1336,10 +1160,10 @@ window "Race_Screen"
 		image-mode = tile
 	elem "raceblurb"
 		type = LABEL
-		pos = 0,127
-		size = 337x130
-		anchor1 = none
-		anchor2 = none
+		pos = 0,340
+		size = 899x224
+		anchor1 = 0,57
+		anchor2 = 100,94
 		font-size = 10
 		text-color = #6ac0ff
 		background-color = #000000
@@ -1349,10 +1173,10 @@ window "Race_Screen"
 		text-wrap = true
 	elem "BabyButton"
 		type = BUTTON
-		pos = 0,256
+		pos = 0,527
 		size = 68x36
-		anchor1 = none
-		anchor2 = none
+		anchor1 = 0,88
+		anchor2 = 8,94
 		font-family = "@Kozuka Mincho Pro R"
 		text-color = #ffff80
 		background-color = #400040
@@ -1362,10 +1186,10 @@ window "Race_Screen"
 		command = ".Baby"
 	elem "button20"
 		type = BUTTON
-		pos = 310,32
+		pos = 871,150
 		size = 27x96
-		anchor1 = none
-		anchor2 = none
+		anchor1 = 97,25
+		anchor2 = 100,41
 		font-family = "@Adobe Fan Heiti Std B"
 		font-size = 15
 		text-color = #ffffff
@@ -1377,10 +1201,10 @@ window "Race_Screen"
 		is-flat = true
 	elem "Iconz"
 		type = LABEL
-		pos = 157,32
-		size = 153x96
-		anchor1 = none
-		anchor2 = none
+		pos = 478,31
+		size = 394x310
+		anchor1 = 53,5
+		anchor2 = 97,57
 		text-color = #ffffff
 		background-color = #000000
 		border = line
@@ -1389,10 +1213,10 @@ window "Race_Screen"
 		keep-aspect = true
 	elem "button3"
 		type = BUTTON
-		pos = 66,256
-		size = 271x36
-		anchor1 = none
-		anchor2 = none
+		pos = 0,564
+		size = 899x36
+		anchor1 = 0,94
+		anchor2 = 100,100
 		font-family = "Maiandra GD"
 		font-size = 15
 		text-color = #ffffff
@@ -1402,10 +1226,10 @@ window "Race_Screen"
 		command = ".Next_Step"
 	elem "RaceName"
 		type = LABEL
-		pos = 130,0
-		size = 207x32
-		anchor1 = none
-		anchor2 = none
+		pos = 449,0
+		size = 452x32
+		anchor1 = 50,0
+		anchor2 = 100,5
 		font-family = "Papyrus"
 		font-size = 13
 		font-style = "bold"
@@ -1418,9 +1242,9 @@ window "Race_Screen"
 	elem "PlanetName"
 		type = LABEL
 		pos = 0,0
-		size = 130x32
-		anchor1 = none
-		anchor2 = none
+		size = 450x32
+		anchor1 = 0,0
+		anchor2 = 50,5
 		font-family = "Papyrus"
 		font-size = 15
 		font-style = "bold"
@@ -1431,10 +1255,10 @@ window "Race_Screen"
 		text = "Earth"
 	elem "Button3"
 		type = BUTTON
-		pos = 130,32
+		pos = 452,150
 		size = 27x96
-		anchor1 = none
-		anchor2 = none
+		anchor1 = 50,25
+		anchor2 = 53,41
 		font-family = "@Adobe Fan Heiti Std B"
 		font-size = 15
 		text-color = #ffffff
@@ -1446,10 +1270,10 @@ window "Race_Screen"
 		is-flat = true
 	elem "button1"
 		type = BUTTON
-		pos = 112,32
-		size = 18x96
-		anchor1 = none
-		anchor2 = none
+		pos = 419,150
+		size = 27x96
+		anchor1 = 47,25
+		anchor2 = 50,41
 		font-family = "@Adobe Fan Heiti Std B"
 		font-size = 15
 		font-style = "bold"
@@ -1462,10 +1286,10 @@ window "Race_Screen"
 		is-flat = true
 	elem "Button1"
 		type = BUTTON
-		pos = 0,32
-		size = 18x96
-		anchor1 = none
-		anchor2 = none
+		pos = 0,150
+		size = 27x96
+		anchor1 = 0,25
+		anchor2 = 3,41
 		font-family = "@Adobe Fan Heiti Std B"
 		font-size = 15
 		font-style = "bold"
@@ -1478,10 +1302,10 @@ window "Race_Screen"
 		is-flat = true
 	elem "Planet1"
 		type = LABEL
-		pos = 17,32
-		size = 96x96
-		anchor1 = none
-		anchor2 = none
+		pos = 26,31
+		size = 394x310
+		anchor1 = 3,5
+		anchor2 = 47,57
 		background-color = #000000
 		border = line
 		saved-params = ""
@@ -1492,8 +1316,8 @@ window "Steal"
 		type = MAIN
 		pos = 281,0
 		size = 247x327
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #003d59
 		is-visible = false
 		saved-params = "pos;size;is-minimized;is-maximized"
@@ -1520,8 +1344,8 @@ window "Grid1"
 		type = MAIN
 		pos = 281,0
 		size = 314x341
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #000000
 		is-visible = false
 		is-default = true
@@ -1565,8 +1389,8 @@ window "Grid2"
 		type = MAIN
 		pos = 281,0
 		size = 314x341
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #000000
 		is-visible = false
 		is-default = true
@@ -1622,8 +1446,8 @@ window "Finalize_Screen"
 		type = MAIN
 		pos = 281,0
 		size = 613x245
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #000000
 		is-visible = false
 		saved-params = "pos;size;is-minimized;is-maximized"
@@ -1633,8 +1457,6 @@ window "Finalize_Screen"
 		can-minimize = false
 		can-resize = false
 		image-mode = tile
-		outer-size = 629x284
-		inner-size = 613x245
 	elem "button51"
 		type = BUTTON
 		pos = 196,213
@@ -2699,8 +2521,8 @@ window "report"
 		type = MAIN
 		pos = 281,0
 		size = 425x471
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #000000
 		is-visible = false
 		saved-params = "pos;size;is-minimized;is-maximized"
@@ -2712,8 +2534,8 @@ window "report"
 		type = INPUT
 		pos = 50,124
 		size = 325x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		border = sunken
 		saved-params = ""
 		no-command = true
@@ -2721,8 +2543,8 @@ window "report"
 		type = LABEL
 		pos = 78,16
 		size = 269x65
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		font-family = "Arial Black"
 		font-size = 10
 		font-style = "bold"
@@ -2735,8 +2557,8 @@ window "report"
 		type = BUTTON
 		pos = 168,187
 		size = 89x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #80b3ff
 		background-color = #000000
 		border = line
@@ -2750,8 +2572,8 @@ window "report"
 		type = LABEL
 		pos = 148,100
 		size = 128x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		font-family = "Arial Black"
 		font-size = 10
 		font-style = "bold"
@@ -2763,8 +2585,8 @@ window "report"
 		type = LABEL
 		pos = 185,164
 		size = 54x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		font-family = "Arial Black"
 		font-size = 10
 		font-style = "bold"
@@ -2776,8 +2598,8 @@ window "report"
 		type = BUTTON
 		pos = 168,206
 		size = 89x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #80b3ff
 		background-color = #000000
 		border = line
@@ -2790,8 +2612,8 @@ window "report"
 		type = BUTTON
 		pos = 168,225
 		size = 89x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #80b3ff
 		background-color = #000000
 		border = line
@@ -2804,8 +2626,8 @@ window "report"
 		type = INPUT
 		pos = 50,288
 		size = 325x91
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		border = sunken
 		saved-params = ""
 		multi-line = true
@@ -2814,8 +2636,8 @@ window "report"
 		type = LABEL
 		pos = 133,264
 		size = 159x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		font-family = "Arial Black"
 		font-size = 10
 		font-style = "bold"
@@ -2827,8 +2649,8 @@ window "report"
 		type = LABEL
 		pos = 72,428
 		size = 94x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #80b3ff
 		background-color = #000000
 		border = line
@@ -2839,8 +2661,8 @@ window "report"
 		type = LABEL
 		pos = 165,428
 		size = 94x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #80b3ff
 		background-color = #000000
 		border = line
@@ -2850,8 +2672,8 @@ window "report"
 		type = LABEL
 		pos = 258,428
 		size = 94x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #80b3ff
 		background-color = #000000
 		border = line
@@ -2861,8 +2683,8 @@ window "report"
 		type = BUTTON
 		pos = 152,385
 		size = 60x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #80b3ff
 		background-color = #000000
 		saved-params = "is-checked"
@@ -2872,8 +2694,8 @@ window "report"
 		type = LABEL
 		pos = 101,450
 		size = 223x13
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #80b3ff
 		background-color = #000000
 		saved-params = ""
@@ -2882,8 +2704,8 @@ window "report"
 		type = LABEL
 		pos = 266,206
 		size = 60x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #000000
 		is-visible = false
 		border = line
@@ -2893,8 +2715,8 @@ window "report"
 		type = LABEL
 		pos = 72,406
 		size = 280x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ff0000
 		background-color = #000000
 		border = line
@@ -2904,8 +2726,8 @@ window "report"
 		type = BUTTON
 		pos = 214,385
 		size = 60x20
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #80b3ff
 		background-color = #000000
 		saved-params = "is-checked"
@@ -2917,8 +2739,8 @@ window "reportview"
 		type = MAIN
 		pos = 281,0
 		size = 425x471
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #000000
 		is-visible = false
 		saved-params = "pos;size;is-minimized;is-maximized"
@@ -2977,8 +2799,8 @@ window "reportview"
 		type = BROWSER
 		pos = 14,150
 		size = 397x311
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		saved-params = ""
 	elem "label1"
 		type = LABEL
@@ -2998,8 +2820,8 @@ window "reportview"
 		type = LABEL
 		pos = 77,125
 		size = 270x22
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		text-color = #ff0000
 		background-color = #000000
 		saved-params = ""
@@ -3008,10 +2830,10 @@ window "reportview"
 window "skilltree"
 	elem "skilltree"
 		type = MAIN
-		pos = 281,0
+		pos = 291,0
 		size = 408x420
-		anchor1 = none
-		anchor2 = none
+		anchor1 = -1,-1
+		anchor2 = -1,-1
 		background-color = #464646
 		is-visible = false
 		saved-params = "pos;size;is-minimized;is-maximized"
@@ -3021,7 +2843,7 @@ window "skilltree"
 		macro = "macro"
 	elem "button6"
 		type = BUTTON
-		pos = 103,80
+		pos = 103,32
 		size = 102x42
 		anchor1 = 60,8
 		anchor2 = 80,12
@@ -3034,7 +2856,7 @@ window "skilltree"
 		command = "skilltreez \"SpiritStyles\""
 	elem "button61"
 		type = BUTTON
-		pos = 205,80
+		pos = 203,32
 		size = 102x42
 		anchor1 = 60,8
 		anchor2 = 80,12
@@ -3045,23 +2867,9 @@ window "skilltree"
 		saved-params = "is-checked"
 		text = "MYSTIC"
 		command = "skilltreez \"ElementalStyles\""
-	elem "button92"
-		type = BUTTON
-		pos = 0,32
-		size = 408x48
-		anchor1 = 40,32
-		anchor2 = 60,37
-		font-family = "@Microsoft JhengHei Light"
-		font-size = 13
-		font-style = "bold"
-		text-color = #dddddd
-		background-color = #0a0a0a
-		saved-params = "is-checked"
-		text = "SAGA INVEST"
-		command = "Saga-Invest"
 	elem "button91"
 		type = BUTTON
-		pos = 0,80
+		pos = 0,32
 		size = 102x42
 		anchor1 = 60,8
 		anchor2 = 80,12
@@ -3072,22 +2880,9 @@ window "skilltree"
 		saved-params = "is-checked"
 		text = "MARTIAL"
 		command = "skilltreez \"UnarmedStyles\""
-	elem "button90"
-		type = BUTTON
-		pos = 205,195
-		size = 102x24
-		anchor1 = 80,27
-		anchor2 = 100,32
-		font-family = "@Microsoft JhengHei Light"
-		font-size = 9
-		text-color = #640000
-		background-color = #0a0a0a
-		saved-params = "is-checked"
-		text = "TIER 4"
-		command = "skilltreez \"MagicT4\""
 	elem "button89"
 		type = BUTTON
-		pos = 307,195
+		pos = 306,144
 		size = 102x24
 		anchor1 = 60,27
 		anchor2 = 80,32
@@ -3100,7 +2895,7 @@ window "skilltree"
 		command = "skilltreez \"SwordT4\""
 	elem "button87"
 		type = BUTTON
-		pos = 0,195
+		pos = 0,144
 		size = 102x24
 		anchor1 = 40,27
 		anchor2 = 60,32
@@ -3113,7 +2908,7 @@ window "skilltree"
 		command = "skilltreez \"UnarmedT4\""
 	elem "button86"
 		type = BUTTON
-		pos = 307,171
+		pos = 306,120
 		size = 102x24
 		anchor1 = 60,22
 		anchor2 = 80,27
@@ -3126,7 +2921,7 @@ window "skilltree"
 		command = "skilltreez \"SwordT3\""
 	elem "button83"
 		type = BUTTON
-		pos = 0,171
+		pos = 0,120
 		size = 102x24
 		anchor1 = 40,22
 		anchor2 = 60,27
@@ -3137,22 +2932,9 @@ window "skilltree"
 		saved-params = "is-checked"
 		text = "TIER 3"
 		command = "skilltreez \"UnarmedT3\""
-	elem "button87"
-		type = BUTTON
-		pos = 205,171
-		size = 102x24
-		anchor1 = 80,22
-		anchor2 = 100,27
-		font-family = "@Microsoft JhengHei Light"
-		font-size = 9
-		text-color = #800000
-		background-color = #0a0a0a
-		saved-params = "is-checked"
-		text = "TIER 3"
-		command = "skilltreez \"MagicT3\""
 	elem "button81"
 		type = BUTTON
-		pos = 307,147
+		pos = 306,96
 		size = 102x24
 		anchor1 = 60,17
 		anchor2 = 80,22
@@ -3165,7 +2947,7 @@ window "skilltree"
 		command = "skilltreez \"SwordT2\""
 	elem "button80"
 		type = BUTTON
-		pos = 0,147
+		pos = 0,96
 		size = 102x24
 		anchor1 = 40,17
 		anchor2 = 60,22
@@ -3178,7 +2960,7 @@ window "skilltree"
 		command = "skilltreez \"UnarmedT2\""
 	elem "button70"
 		type = BUTTON
-		pos = 307,80
+		pos = 306,32
 		size = 101x42
 		anchor1 = 40,8
 		anchor2 = 60,12
@@ -3189,23 +2971,22 @@ window "skilltree"
 		saved-params = "is-checked"
 		text = "ARMED"
 		command = "skilltreez \"SwordStyles\""
-	elem "button69"
+	elem "button65"
 		type = BUTTON
-		pos = 0,219
-		size = 408x32
-		anchor1 = 20,8
-		anchor2 = 40,12
+		pos = 103,96
+		size = 102x24
+		anchor1 = 0,17
+		anchor2 = 20,22
 		font-family = "@Microsoft JhengHei Light"
-		font-size = 12
-		font-style = "bold"
-		text-color = #ff8080
+		font-size = 9
+		text-color = #0080c0
 		background-color = #0a0a0a
 		saved-params = "is-checked"
-		text = "STANCES"
-		command = "Buy-Stances"
+		text = "TIER 2"
+		command = "skilltreez \"BlastT2\""
 	elem "button68"
 		type = BUTTON
-		pos = 103,195
+		pos = 103,144
 		size = 102x24
 		anchor1 = 0,27
 		anchor2 = 20,32
@@ -3218,7 +2999,7 @@ window "skilltree"
 		command = "skilltreez \"BlastT4\""
 	elem "button67"
 		type = BUTTON
-		pos = 103,171
+		pos = 103,120
 		size = 102x24
 		anchor1 = 0,22
 		anchor2 = 20,27
@@ -3229,22 +3010,22 @@ window "skilltree"
 		saved-params = "is-checked"
 		text = "TIER 3"
 		command = "skilltreez \"BlastT3\""
-	elem "button65"
+	elem "button90"
 		type = BUTTON
-		pos = 103,147
+		pos = 203,144
 		size = 102x24
-		anchor1 = 0,17
-		anchor2 = 20,22
+		anchor1 = 80,27
+		anchor2 = 100,32
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 9
-		text-color = #0080c0
+		text-color = #640000
 		background-color = #0a0a0a
 		saved-params = "is-checked"
-		text = "TIER 2"
-		command = "skilltreez \"BlastT2\""
+		text = "TIER 4"
+		command = "skilltreez \"MagicT4\""
 	elem "button64"
 		type = BUTTON
-		pos = 205,147
+		pos = 203,96
 		size = 102x24
 		anchor1 = 80,17
 		anchor2 = 100,22
@@ -3255,22 +3036,22 @@ window "skilltree"
 		saved-params = "is-checked"
 		text = "TIER 2"
 		command = "skilltreez \"MagicT2\""
-	elem "button63"
+	elem "button87"
 		type = BUTTON
-		pos = 205,123
+		pos = 203,120
 		size = 102x24
-		anchor1 = 80,13
-		anchor2 = 100,18
+		anchor1 = 80,22
+		anchor2 = 100,27
 		font-family = "@Microsoft JhengHei Light"
 		font-size = 9
-		text-color = #ff2828
+		text-color = #800000
 		background-color = #0a0a0a
 		saved-params = "is-checked"
-		text = "TIER 1"
-		command = "skilltreez \"MagicT1\""
+		text = "TIER 3"
+		command = "skilltreez \"MagicT3\""
 	elem "button60"
 		type = BUTTON
-		pos = 307,123
+		pos = 306,72
 		size = 102x24
 		anchor1 = 60,12
 		anchor2 = 80,17
@@ -3283,7 +3064,7 @@ window "skilltree"
 		command = "skilltreez \"SwordT1\""
 	elem "button59"
 		type = BUTTON
-		pos = 0,123
+		pos = 0,72
 		size = 102x24
 		anchor1 = 40,12
 		anchor2 = 60,17
@@ -3294,23 +3075,10 @@ window "skilltree"
 		saved-params = "is-checked"
 		text = "TIER 1"
 		command = "skilltreez \"UnarmedT1\""
-	elem "button58"
-		type = BUTTON
-		pos = 103,123
-		size = 102x24
-		anchor1 = 0,12
-		anchor2 = 20,17
-		font-family = "@Microsoft JhengHei Light"
-		font-size = 9
-		text-color = #35bdff
-		background-color = #0a0a0a
-		saved-params = "is-checked"
-		text = "TIER 1"
-		command = "skilltreez \"BlastT1\""
 	elem "skilltreegrid"
 		type = GRID
-		pos = 1,252
-		size = 407x168
+		pos = 1,192
+		size = 407x228
 		anchor1 = 0,60
 		anchor2 = 100,100
 		font-size = 3
@@ -3337,4 +3105,30 @@ window "skilltree"
 		background-color = #000000
 		saved-params = ""
 		text = "SKILLS"
+	elem "button58"
+		type = BUTTON
+		pos = 103,72
+		size = 102x24
+		anchor1 = 0,12
+		anchor2 = 20,17
+		font-family = "@Microsoft JhengHei Light"
+		font-size = 9
+		text-color = #35bdff
+		background-color = #0a0a0a
+		saved-params = "is-checked"
+		text = "TIER 1"
+		command = "skilltreez \"BlastT1\""
+	elem "button63"
+		type = BUTTON
+		pos = 203,72
+		size = 102x24
+		anchor1 = 80,13
+		anchor2 = 100,18
+		font-family = "@Microsoft JhengHei Light"
+		font-size = 9
+		text-color = #ff2828
+		background-color = #0a0a0a
+		saved-params = "is-checked"
+		text = "TIER 1"
+		command = "skilltreez \"MagicT1\""
 

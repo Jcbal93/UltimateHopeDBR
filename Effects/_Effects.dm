@@ -141,7 +141,7 @@ obj/Effects
 		verb/RelockCameraToPartner()
 			set src in view(1)
 			if(usr.Fusee)
-				for(var/mob/M in world)
+				for(var/mob/M in players)
 					if(M.key==usr.FusionTarget)
 						usr.client.eye=M
 
@@ -381,10 +381,18 @@ obj/Effects
 				//Hopefully it won't require any higher logic.
 				EffectFinish()
 	proc/EffectFinish()
-		for(var/atom/movable/a in vis_locs) a.vis_contents -= src
+		for(var/atom/movable/a in vis_locs)
+			a.vis_contents -= src
+		for(var/turf/t in vis_locs)
+			t.vis_contents -= src
+		for(var/i in vis_contents)
+			vis_contents -= i
+		animate(src)
+		Target = null
 		src.loc=null
-		del src
-
+/*		sleep(10)
+		if(src)
+			del src*/
 
 	proc
 		Target_Watch()
@@ -393,7 +401,8 @@ obj/Effects
 				if(Target)
 					loc=Target:loc
 					pixel_z=Target:pixel_z
-					goto Start
+					if(loc != null)
+						goto Start
 
 	Bang
 		icon='fevExplosion.dmi'
@@ -513,8 +522,8 @@ proc
 		if(isturf(M)&&M.density)
 			S.loc=M
 		else
-			S.loc=M.loc
-			S.pixel_z=M.pixel_z
+			S?.loc=M?.loc
+			S?.pixel_z=M?.pixel_z
 		S.Size=Size
 		S.Lifetime=Time
 		S.pixel_x+=PixelX

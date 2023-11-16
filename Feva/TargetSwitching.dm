@@ -11,22 +11,29 @@ mob
 					for(var/mob/m in oview(15,usr))
 						if(m.client || (istype(m, /mob/Player/AI) && !istype(m, /mob/Player/AI/Nympharum)))
 							if(m in usr.ai_followers) continue
+							if(usr.party)
+								if(usr.party.members)
+									if(usr.party.members.Find(m)) continue
 							if(get_dist(usr,m)<NewTgtDist)
 								NewTgtDist=get_dist(usr,m)
 								NewTarget=m
-					for(var/obj/Skills/Buffs/b in usr.SlotlessBuffs)
-						if(b.TargetOverlay)
-							var/image/im=image(icon=b.TargetOverlay, pixel_x=b.TargetOverlayX, pixel_y=b.TargetOverlayY)
-							im.transform*=b.OverlaySize
-							usr.overlays-=im
-							if(usr.Target)
-								usr.Target.overlays-=im
+					for(var/sb in src.SlotlessBuffs)
+						var/obj/Skills/Buffs/b = SlotlessBuffs[sb]
+						if(b)
+							if(b.TargetOverlay)
+								var/image/im=image(icon=b.TargetOverlay, pixel_x=b.TargetOverlayX, pixel_y=b.TargetOverlayY)
+								im.transform*=b.OverlaySize
+								usr.overlays-=im
+								if(usr.Target)
+									usr.Target.overlays-=im
 					usr.SetTarget(NewTarget)
-					for(var/obj/Skills/Buffs/b in usr.SlotlessBuffs)
-						if(b.TargetOverlay)
-							var/image/im=image(icon=b.TargetOverlay, pixel_x=b.TargetOverlayX, pixel_y=b.TargetOverlayY)
-							im.transform*=b.OverlaySize
-							usr.Target.overlays+=im
+					for(var/sb in src.SlotlessBuffs)
+						var/obj/Skills/Buffs/b = SlotlessBuffs[sb]
+						if(b)
+							if(b.TargetOverlay)
+								var/image/im=image(icon=b.TargetOverlay, pixel_x=b.TargetOverlayX, pixel_y=b.TargetOverlayY)
+								im.transform*=b.OverlaySize
+								usr.Target.overlays+=im
 					usr<<"You target [NewTarget]."
 					if(usr.SpecialBuff)
 						if(usr.SpecialBuff.BuffName=="Kyoukaken")

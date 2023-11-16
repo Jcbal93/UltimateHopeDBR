@@ -29,7 +29,7 @@ proc/GeneratePlayActionDatabase()
 
 datum/ai_play_action
 	var/default_timeout = 50
-	var id
+	var/id
 	proc/PreUpdate(mob/Player/AI/a)
 		if(!a) return 0
 		if(a.play_action!=src)End(a)

@@ -2,6 +2,7 @@ obj
 	Skills
 		Buffs
 			var
+				AngerPoint // set an anger point
 				StyleStr=1
 				StyleFor=1
 				StyleEnd=1
@@ -12,7 +13,7 @@ obj
 
 //Martial
 			NuStyle
-				var/StylePrimeUnlock//obtained from getting mastery 4; can be a list
+				var/StylePrimeUnlock //obtained from getting mastery 4; can be a list
 				var/StyleComboUnlock=list()//obtained from getting mastery 3 in 2 styles; MUST be a list
 				Mastery=0
 				Copyable=0
@@ -74,6 +75,7 @@ obj
 						StyleEnd=1.4
 						StyleFor=1.2
 						StyleSpd=1.1
+						NoStaff = 0
 						ElementalClass="Earth"
 						StyleActive="Earth"
 						ElementalOffense="Earth"
@@ -89,6 +91,7 @@ obj
 						StyleEnd=1.1
 						StyleFor=1.3
 						StyleSpd=1.4
+						NoStaff = 0
 						ElementalClass="Wind"
 						StyleActive="Wind"
 						ElementalOffense="Wind"
@@ -104,6 +107,7 @@ obj
 						StyleEnd=1.2
 						StyleFor=1.4
 						StyleSpd=1.3
+						NoStaff = 0
 						ElementalClass="Fire"
 						StyleActive="Fire"
 						ElementalOffense="Fire"
@@ -122,6 +126,7 @@ obj
 						StyleEnd=1.3
 						StyleFor=1.1
 						StyleSpd=1.2
+						NoStaff = 0
 						ElementalClass="Water"
 						StyleActive="Water"
 						ElementalOffense="Water"
@@ -141,6 +146,7 @@ obj
 						StyleActive="Black Leg"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Strong_Fist_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Golden_Kirin_Style",\
 						"/obj/Skills/Buffs/NuStyle/UnarmedStyle/Sunlit_Sky_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Devil_Leg_Style")
+						passives = list("UnarmedDamage" = 1)
 						UnarmedDamage=1
 						Finisher="/obj/Skills/Queue/Finisher/Mouton_Shot"
 						verb/Black_Leg_Style()
@@ -155,7 +161,9 @@ obj
 						StyleActive="Strong Fist"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Black_Leg_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Golden_Kirin_Style",\
 						"/obj/Skills/Buffs/NuStyle/UnarmedStyle/Tranquil_Dove_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Dire_Wolf_Style")
+						passives = list("HardStyle" = 1, "HeavyHitter" = 0.15)
 						HardStyle=1
+						HeavyHitter=0.15
 						Finisher="/obj/Skills/Queue/Finisher/Rising_Wind"
 						verb/Strong_Fist_Style()
 							set hidden=1
@@ -170,6 +178,7 @@ obj
 						StyleActive="Gentle Fist"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Lightning_Kickboxing_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Drunken_Fist_Style",\
 						"/obj/Skills/Buffs/NuStyle/UnarmedStyle/Circuit_Breaker_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Flow_Reversal_Style")
+						passives = list("SoftStyle" = 1)
 						SoftStyle=1
 						Finisher="/obj/Skills/Queue/Finisher/Eight_Trigrams"
 						verb/Gentle_Fist_Style()
@@ -184,6 +193,7 @@ obj
 						StyleActive="Lightning Kickboxing"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Gentle_Fist_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Drunken_Fist_Style",\
 						"/obj/Skills/Buffs/NuStyle/UnarmedStyle/Inverse_Poison_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Phage_Style")
+						passives = list("CounterMaster" = 1)
 						CounterMaster=1
 						Finisher="/obj/Skills/Queue/Finisher/Rolling_Sobat"
 						verb/Lightning_Kickboxing_Style()
@@ -198,12 +208,14 @@ obj
 						StyleEnd=1.25
 						StyleFor=1.25
 						StyleSpd=1.25
+						NoStaff = 0
 						ElementalClass=list("Wind", "Earth")
 						StyleActive="Circuit Break"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Inverse_Poison_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Entropy_Style",\
 						"/obj/Skills/Buffs/NuStyle/UnarmedStyle/Gentle_Fist_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Flow_Reversal_Style")
 						ElementalOffense="Earth"
 						ElementalDefense="Wind"
+						passives = list("CyberStigma" = 1)
 						CyberStigma=1
 						IconLock='Overdrive.dmi'
 						Finisher="/obj/Skills/Queue/Finisher/Ray_Divider"
@@ -218,6 +230,7 @@ obj
 						StyleEnd=1.25
 						StyleFor=1.25
 						StyleSpd=1.25
+						NoStaff = 0
 						ElementalClass=list("Fire", "Water", "Poison")
 						StyleActive="Inverse Poison"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Circuit_Breaker_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Entropy_Style",\
@@ -242,6 +255,8 @@ obj
 						StyleActive="Sunlight"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Tranquil_Dove_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Moonlit_Lake_Style",\
 						"/obj/Skills/Buffs/NuStyle/UnarmedStyle/Black_Leg_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Devil_Leg_Style")
+						passives = list("SpiritHand" = 1)
+						NoStaff = 0
 						SpiritHand=1
 						HitSpark='fevExplosion.dmi'
 						HitX=-32
@@ -261,6 +276,7 @@ obj
 						StyleEnd=1.2
 						StyleFor=1.2
 						StyleSpd=1.3
+						NoStaff = 0
 						ElementalClass=list("Water", "Earth")
 						StyleActive="Tranquil Dove"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Sunlit_Sky_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Moonlit_Lake_Style",\
@@ -275,12 +291,11 @@ obj
 					Drunken_Fist_Style
 						SignatureTechnique=2
 						Copyable=0
-
 						StyleEnd=1.5
-						StyleSpd=1.5
+						StyleDef=1.5
+						passives = list("CounterMaster" = 2, "SoftStyle" = 2, "FluidForm" = 1)
 						CounterMaster=2
 						SoftStyle=2
-						Erosion=0.5
 						FluidForm=1
 						StyleActive="Drunken Fist"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Golden_Kirin_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/North_Star_Style")
@@ -288,15 +303,17 @@ obj
 						verb/Drunken_Master_Style()
 							set name="Drunken Fist Style"
 							set hidden=1
+							passives = list("CounterMaster" = 2, "SoftStyle" = 2, "FluidForm" = 1)
 							src.Trigger(usr)
 					Golden_Kirin_Style
 						SignatureTechnique=2
 						Copyable=0
-
 						StyleStr=1.5
 						StyleEnd=1.5
+						passives = list("UnarmedDamage" = 2.5, "HardStyle" = 2, "HeavyHitter" = 0.5, "Flicker" = 1, "FluidForm" = 1)
 						UnarmedDamage=2.5
 						HardStyle=2
+						HeavyHitter = 0.5
 						Flicker=1
 						FluidForm=1
 						StyleActive="Golden Kirin"
@@ -316,12 +333,14 @@ obj
 						StyleSpd=1.2
 						ElementalClass=list("Water", "Earth")
 						StyleActive="Dire Wolf"
+						passives=list("Hardening" = 1, "SpiritHand" = 1)
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Devil_Leg_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Imperial_Style")
-						ElementalOffense="Void"
+						ElementalOffense="Earth"
 						ElementalDefense="Earth"
 						Finisher="/obj/Skills/Queue/Finisher/Spiral_Fang"
 						verb/Dire_Wolf_Style()
 							set hidden=1
+							passives = list("Hardening" = 1, "SpiritHand" = 1)
 							src.Trigger(usr)
 					Moonlit_Lake_Style
 						SignatureTechnique=2
@@ -334,6 +353,8 @@ obj
 						ElementalClass=list("Fire", "Wind", "Earth", "Water")
 						StyleActive="Moonlight"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Entropy_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Atomic_Karate_Style")
+						passives = list("SpiritFlow" = 1, "SpiritHand" = 1)
+						NoStaff = 0
 						SpiritFlow=1
 						SpiritHand=1
 						ElementalOffense="Water"
@@ -348,9 +369,11 @@ obj
 						Copyable=0
 
 						StyleSpd=2
+						NoStaff = 0
 						ElementalClass=list("Water", "Fire", "Earth", "Wind", "Poison")
 						StyleActive="Entropy"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/UnarmedStyle/Moonlit_Lake_Style"="/obj/Skills/Buffs/NuStyle/UnarmedStyle/Atomic_Karate_Style")
+						passives = list("CyberStigma" = 2)
 						CyberStigma=2
 						ElementalOffense="Chaos"
 						ElementalDefense="Chaos"
@@ -363,8 +386,9 @@ obj
 						Copyable=0
 						StyleStr=1.5
 						StyleFor=1.5
+						passives = list("SpiritHand" = 1, "DarknessFlame" = 0.5)
 						SpiritHand=1
-						DarknessFlame=1
+						DarknessFlame=0.5
 						StyleActive="Devil Leg"
 						ElementalOffense="Fire"
 						ElementalDefense="Poison"
@@ -373,15 +397,18 @@ obj
 						Finisher="/obj/Skills/Queue/Finisher/Maiden_Masher"
 						verb/Devil_Leg_Style()
 							set hidden=1
+							passives = list("SpiritHand" = 1, "DarknessFlame" = 0.5)
 							src.Trigger(usr)
 					Flow_Reversal_Style
 						SignatureTechnique=2
 						Copyable=0
 						StyleEnd=1.5
 						StyleSpd=1.5
+						passives = list("SoftStyle" = 2, "CyberStigma" = 2, "ManaSeal" = 2)
 						SoftStyle=2
 						CyberStigma=2
 						ManaSeal=2
+						NoStaff = 0
 						StyleActive="Flow Reversal"
 						ElementalOffense="Earth"
 						ElementalDefense="Wind"
@@ -395,9 +422,11 @@ obj
 						SignatureTechnique=2
 						Copyable=0
 						StyleSpd=2
+						passives = list("CounterMaster" = 2, "VoidField" = 2, "DeathField" = 2)
 						CounterMaster=2
 						VoidField=2
 						DeathField=2
+						NoStaff = 0
 						StyleActive="Phage"
 						ElementalOffense="Poison"
 						ElementalDefense="Poison"
@@ -415,6 +444,7 @@ obj
 						StyleEnd=1.75
 						ElementalClass="Earth"
 						StyleActive="North Star"
+						passives = list("HardStyle" = 3, "SoftStyle" = 3, "UnarmedDamage" = 3, "CounterMaster" = 5)
 						HardStyle=3
 						SoftStyle=3
 						UnarmedDamage=3
@@ -436,6 +466,7 @@ obj
 						ElementalClass=list("Water", "Fire", "Earth", "Wind", "Poison")
 						ElementalOffense="Void"
 						ElementalDefense="Void"
+						passives = list("DarknessFlame" = 1, "UnarmedDamage" = 1, "SpiritHand" = 1, "Void" = 1)
 						DarknessFlame=1
 						UnarmedDamage=1
 						SpiritHand=1
@@ -451,13 +482,14 @@ obj
 						Copyable=0
 						StyleEnd=1.5
 						StyleSpd=1.5
-						Erosion=0.25
+						passives = list("SoftStyle" = 3, "ManaSeal" = 3, "CyberStigma" = 3, "CounterMaster" = 3, "VoidField" = 10, "DeathField" = 10)
 						SoftStyle=3
 						ManaSeal=3
 						CyberStigma=3
 						CounterMaster=3
 						VoidField=10
 						DeathField=10
+						NoStaff = 0
 						StyleActive="East Star"
 						ElementalClass=list("Water", "Fire", "Earth", "Wind", "Poison")
 						Finisher="/obj/Skills/Queue/Finisher/Over_The_Horizon"
@@ -469,6 +501,8 @@ obj
 						Copyable=0
 						StyleStr=1.5
 						StyleFor=1.5
+						passives = list("SpiritHand" = 1, "SpiritFlow" = 1, "CyberStigma" = 3)
+						NoStaff = 0
 						SpiritHand=1
 						SpiritFlow=1
 						CyberStigma=3
@@ -490,9 +524,9 @@ obj
 						StyleFor=1.25
 						StyleSpd=1.25
 						StyleActive="Ansatsuken"
+						passives = list("AllOutAttack" = 1)
 						ManaCost=100
 						Mastery=4
-						UnlockedStances=list("Advancing","Striking","Evasive","Defensive")
 						AllOutAttack=1
 						verb/Ansatsuken_Style()
 							set hidden=1
@@ -538,6 +572,8 @@ obj
 					Swordless_Style
 						NeedsSword=0
 						NoSword=1
+						passives = list("SwordPunching" = 1, "NeedsSword" = 0, "NoSword" = 1)
+						SwordPunching=1
 						StyleStr=1.5
 						StyleEnd=1.2
 						StyleSpd=1.3
@@ -556,11 +592,12 @@ obj
 						Copyable=0
 
 						StyleStr=1.4
-						StyleEnd=1.2
+						StyleOff=1.2
 						StyleSpd=1.4
 						StyleActive="Dual Wield"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/SwordStyle/Secret_Knife_Style"="/obj/Skills/Buffs/NuStyle/SwordStyle/Trinity_Style",\
 						"/obj/Skills/Buffs/NuStyle/FreeStyle/Soul_Crushing_Style"="/obj/Skills/Buffs/NuStyle/SwordStyle/Arcane_Bladework_Style")
+						passives = list("DoubleStrike" = 1, "NeedsSecondSword" = 1)
 						DoubleStrike=1
 						Finisher="/obj/Skills/Queue/Finisher/Geo_de_Ray"
 						verb/Dual_Wield_Style()
@@ -583,7 +620,8 @@ obj
 					Secret_Knife_Style// iaido + swordless
 						SignatureTechnique=1
 						Copyable=0
-
+						passives = list("SwordPunching" = 1)
+						SwordPunching=1
 						StyleStr=1.2
 						StyleEnd=1.4
 						StyleSpd=1.4
@@ -599,7 +637,8 @@ obj
 						SignatureTechnique=1
 						Copyable=0
 						NeedsSword=0
-
+						passives = list("SwordPunching" = 1, "NeedsSword" = 0)
+						SwordPunching=1
 						StyleStr=1.5
 						StyleEnd=1.25
 						StyleSpd=1.25
@@ -620,7 +659,9 @@ obj
 						StyleStr=1.5
 						StyleSpd=1.5
 						StyleActive="Trinity"
+						passives = list("SweepingStrike" = 1, "DoubleStrike" = 2, "TripleStrike" = 0.5, "NeedsThirdSword" = 1)
 						DoubleStrike=2
+						TripleStrike=0.5
 						SweepingStrike=1
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/SwordStyle/Butcher_Style"="/obj/Skills/Buffs/NuStyle/SwordStyle/Five_Rings_Style")
 						Finisher="/obj/Skills/Queue/Finisher/Ogre_Cutter"
@@ -634,6 +675,9 @@ obj
 						StyleStr=1.5
 						StyleSpd=1.5
 						StyleActive="Butcher"
+						NeedsSword=0
+						SwordPunching=1
+						passives = list("Shearing" = 3, "SlayerMod" = 3, "SwordPunching" = 1, "NeedsSword" = 0)
 						Shearing=2
 						SlayerMod=2.5
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/SwordStyle/Trinity_Style"="/obj/Skills/Buffs/NuStyle/SwordStyle/Five_Rings_Style")
@@ -647,6 +691,7 @@ obj
 						StyleStr=1.25
 						StyleFor=1.25
 						StyleSpd=1.5
+						passives = list("DoubleStrike" = 1, "ArcaneBladework" = 1, "TechniqueMastery" = 5, "SpiritSword" = 0.75, "WeaponBreaker" = 2)
 						DoubleStrike=1
 						NoStaff=0
 						ArcaneBladework=1
@@ -663,6 +708,8 @@ obj
 						SignatureTechnique=2
 						Copyable=0
 						NeedsSword=0
+						passives = list("SwordPunching" = 1, "WeaponBreaker" = 3, "Pursuer" = 2, "Flicker" = 2)
+						SwordPunching=1
 						StyleSpd=2
 						WeaponBreaker=3
 						Pursuer=2
@@ -680,12 +727,13 @@ obj
 						NeedsSword=0
 						NoStaff=0
 						NeedsStaff=1
+						passives = list("Flicker" = 2, "Pursuer" = 2, "MovementMastery" = 4, "MartialMagic" = 1)
 						Flicker=2
 						Pursuer=2
 						StyleStr=1.25
 						StyleFor=1.25
 						StyleSpd=1.5
-						MovementMastery=5
+						MovementMastery=4
 						MartialMagic=1
 						//Staff-as-sword
 						//Refinement
@@ -704,6 +752,7 @@ obj
 						Copyable=0
 						StyleStr=1.5
 						StyleSpd=1.5
+						passives = list("Shearing" = 5, "Crippling" = 5, "DoubleStrike" = 2, "TripleStrike" = 2, "SweepingStrike" = 1, "SlayerMod" = 2.5, "NeedsSecondSword" = 1, "NeedsThirdSword" = 1)
 						Shearing=5
 						Crippling=5
 						NoForcedWhiff=1
@@ -737,9 +786,10 @@ obj
 						StyleStr=1.4
 						StyleFor=1.4
 						StyleSpd=1.2
+						passives = list("Flicker" = 3, "Pursuer" = 3, "MovementMastery" = 8, "TechniqueMastery" = 10, "MartialMagic" = 1, "DoubleStrike" = 1, "TripleStrike" = 1, "HybridStrike" = 1, "KiBlade" = 1)
 						Flicker=3
 						Pursuer=3
-						MovementMastery=10
+						MovementMastery=8
 						TechniqueMastery=10
 						MartialMagic=1
 						DoubleStrike=1
@@ -763,9 +813,9 @@ obj
 						StyleStr=1.5
 						StyleSpd=1.5
 						StyleActive="Hiten Mitsurugi"
+						passives = list("Flicker" = 1)
 						Flicker=1
 						Mastery=4
-						UnlockedStances=list("Advancing","Striking","Evasive","Defensive")
 						ClassNeeded = list("Light","Wooden")
 						Finisher="/obj/Skills/Queue/Finisher/Flash_Strike"
 						verb/Hiten_Mitsurugi_Ryuu()
@@ -777,7 +827,6 @@ obj
 						Copyable=0
 						FlashChange=1
 						Mastery=4
-						UnlockedStances=list("Advancing","Striking","Evasive","Defensive")
 						Speed_Rave_Style
 							StyleStr=1.5
 							StyleSpd=1.5
@@ -809,6 +858,7 @@ obj
 							StyleActive="Firestorm"
 							ElementalOffense="Fire"
 							ElementalDefense="Fire"
+							passives = list("Burning" = 1)
 							Burning=1
 							Finisher="/obj/Skills/Queue/Finisher/Fire_Storm"
 							verb/Firestorm_Style()
@@ -821,6 +871,7 @@ obj
 							StyleActive="Diamond Dust"
 							ElementalOffense="Water"
 							ElementalDefense="Water"
+							passives = list("Chilling" = 1)
 							Chilling=1
 							Finisher="/obj/Skills/Queue/Finisher/Diamond_Dust"
 							verb/Diamond_Dust_Style()
@@ -833,6 +884,7 @@ obj
 							StyleActive="Thunderbolt"
 							ElementalOffense="Wind"
 							ElementalDefense="Wind"
+							passives = list("Shocking" = 1)
 							Shocking=1
 							Finisher="/obj/Skills/Queue/Finisher/Thunderbolt"
 							verb/Thunderbolt_Style()
@@ -843,6 +895,7 @@ obj
 							StyleEnd=1.25
 							StyleSpd=1.5
 							StyleActive="Wing Blade"
+							passives = list("SweepingStrike" = 1)
 							SweepingStrike=1
 							SwordIcon='BLANK.dmi'
 							SwordIconSecond='BLANK.dmi'
@@ -863,6 +916,7 @@ obj
 							StyleActive="Cyclone"
 							ElementalOffense="Wind"
 							ElementalDefense="Wind"
+							passives = list("Shocking" = 1, "Paralyzing" = 1)
 							Shocking=1
 							Paralyzing=0.2
 							Finisher="/obj/Skills/Queue/Finisher/Cyclone"
@@ -877,6 +931,7 @@ obj
 							StyleActive="Rock Breaker"
 							ElementalOffense="Earth"
 							ElementalDefense="Earth"
+							passives = list("Crushing" = 1, "Shattering" = 1)
 							Crushing=1
 							Shattering=0.2
 							Finisher="/obj/Skills/Queue/Finisher/Rock_Breaker"
@@ -902,6 +957,7 @@ obj
 							StyleFor=1.5
 							StyleSpd=1.25
 							StyleActive="Ghost Drive"
+							passives = list("Godspeed" = 1, "Flicker" = 1)
 							Godspeed=1
 							Flicker=1
 							Afterimages=1
@@ -914,6 +970,7 @@ obj
 							StyleFor=1.5
 							StyleSpd=1.25
 							StyleActive="Blade Charge"
+							passives = list("Extend" = 1, "SpiritSword" = 0.75)
 							Extend=1
 							SpiritSword=0.75
 							Finisher="/obj/Skills/Queue/Finisher/Blade_Charge"
@@ -932,6 +989,7 @@ obj
 						StyleActive="Feral"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/FreeStyle/Blitz_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Spirit_Style",\
 						"/obj/Skills/Buffs/NuStyle/FreeStyle/Flow_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Yin_Yang_Style")
+						passives = list("Instinct" = 1)
 						Instinct=1
 						Finisher="/obj/Skills/Queue/Finisher/Berserker_Claw"
 						verb/Feral_Style()
@@ -944,6 +1002,7 @@ obj
 						StyleActive="Flow"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/FreeStyle/Breaker_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Soul_Crushing_Style",\
 						"/obj/Skills/Buffs/NuStyle/FreeStyle/Feral_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Yin_Yang_Style")
+						passives = list("Flow" = 1)
 						Flow=1
 						Finisher="/obj/Skills/Queue/Finisher/Evac_Toss"
 						verb/Flow_Style()
@@ -956,6 +1015,7 @@ obj
 						StyleActive="Breaker"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/FreeStyle/Flow_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Soul_Crushing_Style",\
 						"/obj/Skills/Buffs/NuStyle/FreeStyle/Blitz_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Resonance_Style")
+						passives = list("WeaponBreaker" = 1)
 						WeaponBreaker=1
 						Finisher="/obj/Skills/Queue/Finisher/Armor_Piercer"
 						verb/Breaker_Style()
@@ -968,6 +1028,7 @@ obj
 						StyleActive="Blitz"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/FreeStyle/Feral_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Spirit_Style",\
 						"/obj/Skills/Buffs/NuStyle/FreeStyle/Breaker_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Resonance_Style")
+						passives = list("Flicker" = 1, "Pursuer" = 1)
 						Flicker=1
 						Pursuer=1
 						Finisher="/obj/Skills/Queue/Finisher/Riot_Stamp"
@@ -980,6 +1041,7 @@ obj
 						Copyable=0
 						StyleFor=1.5
 						StyleEnd=1.5
+						passives = list("SpiritStrike" = 1, "WeaponBreaker" = 1, "MovingCharge" = 1)
 						SpiritStrike=1
 						WeaponBreaker=1
 						MovingCharge=1
@@ -995,9 +1057,10 @@ obj
 						Copyable=0
 						StyleFor=1.5
 						StyleSpd=1.5
+						passives = list("Flicker" = 1, "Pursuer" = 1, "MovementMastery" = 2)
 						Flicker=1
 						Pursuer=1
-						MovementMastery=5
+						MovementMastery=2
 						StyleActive="Spirit"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/FreeStyle/Soul_Crushing_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Shunko_Style",\
 						"/obj/Skills/Buffs/NuStyle/SwordStyle/Kendo_Style"="/obj/Skills/Buffs/NuStyle/SwordStyle/Battle_Mage_Style")
@@ -1010,6 +1073,7 @@ obj
 						Copyable=0
 						StyleEnd=1.5
 						StyleSpd=1.5
+						passives = list("Flow" = 1, "Instinct" = 1)
 						Flow=1
 						Instinct=1
 						//adaptation passive
@@ -1025,6 +1089,7 @@ obj
 						Copyable=0
 						StyleStr=1.5
 						StyleFor=1.5
+						passives = list("WeaponBreaker" = 2, "Pursuer" = 1, "Flicker" = 1)
 						WeaponBreaker=2
 						Pursuer=1
 						Flicker=1
@@ -1045,13 +1110,14 @@ obj
 						StyleFor=1.4
 						StyleEnd=1.1
 						StyleSpd=1.1
+						passives = list("HybridStrike" = 0.75, "MartialMagic" = 1, "Flicker" = 1, "Pursuer" = 1, "SuperDash" = 1, "TechniqueMastery" = 2.5, "MovementMastery" = 2, "MovingCharge" = 1)
 						HybridStrike=0.75
 						MartialMagic=1
 						Flicker=1
 						Pursuer=1
 						SuperDash=1
 						TechniqueMastery=5
-						MovementMastery=5
+						MovementMastery=2
 						MovingCharge=1
 						StyleActive="Shunko"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/SwordStyle/Blade_Singing_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/Rhythm_of_War_Style")
@@ -1066,6 +1132,7 @@ obj
 						StyleFor=1.1
 						StyleEnd=1.4
 						StyleSpd=1.4
+						passives = list("WeaponBreaker" = 3, "Flow" = 2, "Instinct" = 2, "Flicker" = 1, "Pursuer" = 1)
 						WeaponBreaker=3
 						Flow=2
 						Instinct=2
@@ -1085,10 +1152,12 @@ obj
 						NoStaff=0
 						StyleStr=1.5
 						StyleFor=1.5
+						passives = list("Flow" = 2, "Instinct" = 2, "SwordPunching" = 1)
 						Flow=2
 						Instinct=2
 						//adaptation passive
 						//champloo's sord punching
+						SwordPunching=1
 						StyleActive="Shaolin"
 						ElementalOffense="Mirror"
 						StyleComboUnlock=list("/obj/Skills/Buffs/NuStyle/FreeStyle/Metta_Sutra_Style"="/obj/Skills/Buffs/NuStyle/FreeStyle/West_Star_Style")
@@ -1104,6 +1173,7 @@ obj
 						NoStaff=0
 						StyleEnd=1.5
 						StyleSpd=1.5
+						passives = list("WeaponBreaker" = 4, "Flow" = 3, "Instinct" = 3, "Flicker" = 2, "Pursuer" = 2, "SwordPunching" = 1)
 						WeaponBreaker=4
 						Flow=3
 						Instinct=3
@@ -1111,6 +1181,7 @@ obj
 						Pursuer=2
 						//adaptation
 						//Champloo's sword punching
+						SwordPunching=1
 						ElementalOffense="Mirror"
 						ElementalDefense="Mirror"
 						ElementalClass="Water"
@@ -1125,13 +1196,15 @@ obj
 						StyleStr=1.25
 						StyleFor=1.25
 						StyleSpd=1.5
+						passives = list("HybridStrike" = 1.5, "WeaponBreaker" = 3, "Flicker" = 3, "Pursuer" = 3, "SuperDash" = 2, "SwordPunching" = 1, "TechniqueMastery" = 10, "MovementMastery" = 8, "MartialMagic" = 1, "MovingCharge" = 1)
 						HybridStrike=1
 						WeaponBreaker=3
 						Flicker=3
 						Pursuer=3
 						SuperDash=2
+						SwordPunching=1
 						TechniqueMastery=10
-						MovementMastery=10
+						MovementMastery=8
 						MartialMagic=1
 						MovingCharge=1
 						HitSpark='Hit Effect Vampire.dmi'

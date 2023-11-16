@@ -67,59 +67,64 @@ proc
 			sleep(FloatTime*10)
 		animate(User,pixel_z=-48,time=DownTime, easing=QUAD_EASING, flags=ANIMATION_END_NOW | ANIMATION_RELATIVE)
 
-	LaunchEffect(var/mob/User, var/mob/Target, var/TimeMod=1, var/Delay=0) //LAUNCH BOOOOX
-		if(Target.ContinuousAttacking)
-			for(var/obj/Skills/Projectile/p in Target.contents)
-				if(p.ContinuousOn && !p.StormFall)
-					Target.UseProjectile(p)
-				continue
-		if(Delay)
-			sleep(Delay)
-			User.Frozen=0
-			User.NextAttack=0
-			flick("Attack",User)
-			KenShockwave(Target,Size=1)
-		if(Target.Rooted)
-			Target.Rooted--
-			if(Target.Rooted<0)
-				Target.Rooted=0
-			User.Frozen=0
-			Target.Frozen=0
-			User << "<b>[Target] stands their ground!</b>"
-			Target << "<b>You stands your ground!</b>"
-			return
-		Target.Frozen=1
-		if(Target.Launched>0)
-			Target.Launched+=max(2,2 * TimeMod/2)
-			if(Target.Launched >= 30) Target.Launched=30
-			return
-		else
-			Target.Launched+=20 * TimeMod
-		var/NewZ=Target.pixel_z
-		Target.ForceCancelBeam()
-		Target.ForceCancelBuster()
-		while(Target.Launched>0)
-			if(Target.Launched>15)
-				animate(Target,pixel_z=min(NewZ+2,16),icon_state="KB", easing=SINE_EASING, time=1)
-				NewZ=Target.pixel_z
-				Target.Launched-=1
-			else
-				Target.Launched-=2
-			animate(Target,pixel_z=max(NewZ-2,0),icon_state="KB", easing=SINE_EASING, time=1)
-			NewZ=Target.pixel_z
-			sleep(1)
-		LaunchLand(Target)
-	LaunchLand(var/mob/Target)
-		Target.Frozen=0
-		Target.Launched=0
-		Target.Rooted++
-		if(Target.Juggernaut||Target.LegendaryPower > 0.25)
-			if(Target.Juggernaut>1)
-				Target.Rooted+=(Target.Juggernaut-1)
-			Target.Rooted++
-		animate(Target,pixel_z=0, time=3, easing=SINE_EASING, flags=ANIMATION_END_NOW)
-		if(!Target.KO&&!Target.Knockback)
-			Target.icon_state=""
+	// LaunchEffect(var/mob/User, var/mob/Target, var/TimeMod=1, var/Delay=0) //LAUNCH BOOOOX
+	// 	if(Target.ContinuousAttacking)
+	// 		for(var/obj/Skills/Projectile/p in Target.contents)
+	// 			if(p.ContinuousOn && !p.StormFall)
+	// 				Target.UseProjectile(p)
+	// 			continue
+	// 	if(Delay)
+	// 		sleep(Delay)
+	// 		User.Frozen=0
+	// 		User.NextAttack=0
+	// 		flick("Attack",User)
+	// 		KenShockwave(Target,Size=1)
+
+
+	// 	if(Target.Grounded)
+	// 		Target.Grounded--
+	// 		if(Target.Grounded<0)
+	// 			Target.Grounded=0
+	// 		User.Frozen=0
+	// 		Target.Frozen=0
+	// 		User << "<b>[Target] stands their ground!</b>"
+	// 		Target << "<b>You stands your ground!</b>"
+	// 		return
+	// 	// stand ground check
+
+	// 	Target.Frozen=1
+	// 	if(Target.Launched>0 && Target.startOfLaunch + MAX_LAUNCH_TIME < world.time)
+	// 		Target.Launched+=max(2,2 * TimeMod/2)
+	// 		if(Target.Launched >= 30) Target.Launched=30
+	// 		return
+	// 	else
+	// 		Target.startOfLaunch = world.time
+	// 		Target.Launched+=20 * TimeMod
+	// 	var/NewZ=Target.pixel_z
+	// 	Target.ForceCancelBeam()
+	// 	Target.ForceCancelBuster()
+	// 	while(Target.Launched>0)
+	// 		if(Target.Launched>15)
+	// 			animate(Target,pixel_z=min(NewZ+2,16),icon_state="KB", easing=SINE_EASING, time=1)
+	// 			NewZ=Target.pixel_z
+	// 			Target.Launched-=1
+	// 		else
+	// 			Target.Launched-=2
+	// 		animate(Target,pixel_z=max(NewZ-2,0),icon_state="KB", easing=SINE_EASING, time=1)
+	// 		NewZ=Target.pixel_z
+	// 		sleep(1)
+	// 	LaunchLand(Target)
+	// LaunchLand(var/mob/Target)
+	// 	Target.Frozen=0
+	// 	Target.Launched=0
+	// 	Target.Grounded++
+	// 	if(Target.Juggernaut||Target.LegendaryPower > 0.25)
+	// 		if(Target.Juggernaut>1)
+	// 			Target.Grounded+=(Target.Juggernaut-1)
+	// 		Target.Grounded++
+	// 	animate(Target,pixel_z=0, time=3, easing=SINE_EASING, flags=ANIMATION_END_NOW)
+	// 	if(!Target.KO&&!Target.Knockback)
+	// 		Target.icon_state=""
 
 	SuplexEffect(var/mob/User, var/mob/Target) //MATTHEEEEEEEEW
 		User.Frozen=2
@@ -326,7 +331,7 @@ proc
 			spawn(4)
 				RecoverImage(Target)
 			sleep(12)
-			Target.Leave_Body(ForceVoid=1.5)
+			// Target.Leave_Body(ForceVoid=1.5)
 		else if(EffectType==4)
 			Target.Stasis=100
 			sleep(30)
@@ -474,7 +479,8 @@ mob/proc
 		return
 
 	WindupGlow(var/mob/m) //Handles shiny transes
-		while(m.WindingUp)
+		if(m.WindingUp<1) return
+		for(var/x in 1 to m.WindingUp+1)
 			animate(m, color=list(1,0,0, 0.5,0.5,0, 0.5,0,0.5, 0,0,0), time=2, flags=ANIMATION_RELATIVE || ANIMATION_PARALLEL)
 			sleep(2)
 			animate(m, color=src.MobColor, time=2, flags=ANIMATION_RELATIVE || ANIMATION_PARALLEL)

@@ -47,6 +47,7 @@ obj/Items/Tech/Jukebox/Disco
 	song_beat = beat
 
 obj/Items/Tech/Jukebox/proc/Initialize()
+	return
 	var/list/tracks = jukebox_includes
 	for(var/S in tracks)
 		var/datum/track/T = new()

@@ -1,4 +1,12 @@
 
+
+/mob/Admin3/verb/MasteryUp(obj/Skills/x in world)
+	if(x.vars["Mastery"])
+		x.Mastery++
+		src<<"[x] is now [x.Mastery]!"
+	else
+		src<<"[x] has no mastery variable!"
+
 obj/Skills/Utility
 //General
 
@@ -44,7 +52,7 @@ obj/Skills/Utility
 			Choice.RPPSpendable+=(Amount*Choice.GetRPPMult())
 			usr.RPPDonate-=Amount
 			if(usr.Race=="Shinjin"&&usr.ShinjinAscension=="Kai")
-				usr.potential_gain(Amount/global.RPPDaily*50)//kais have a 0.1 potential rate so this is only x5 potential in reality and i really dont think the fuckers are gonna be out there slaying npcs
+				usr.potential_gain(Amount/glob.progress.RPPDaily*50)//kais have a 0.1 potential rate so this is only x5 potential in reality and i really dont think the fuckers are gonna be out there slaying npcs
 			OMsg(usr, "[usr] passes some of their knowledge to [Choice]!")
 			Choice.LastTeach=world.realtime+Day(1)
 			src.Using=0
@@ -101,7 +109,7 @@ obj/Skills/Utility
 					Choice.AddSkill( new Choice2.type )
 					usr.RPPDonate-=Choice2.SkillCost*0.5
 					if(usr.Race=="Shinjin"&&usr.ShinjinAscension=="Kai")
-						usr.potential_gain(Choice2.SkillCost*0.5/global.RPPDaily*50)//kai only have 0.1 potential rate so this is only x5
+						usr.potential_gain(Choice2.SkillCost*0.5/glob.progress.RPPDaily*50)//kai only have 0.1 potential rate so this is only x5
 					OMsg(usr, "[usr] passes some of their knowledge to [Choice]!")
 					Choice.LastTeach=world.realtime+Day(1)
 					src.Using=0
@@ -118,91 +126,220 @@ obj/Skills/Utility
 
 
 	Cooking
+		var/recipes/savedRecipes = new()
+		var/recipe/currentMeal
+		Mastery = 1
 		suffix="Meal"
 		desc="Cook up a feast!"
-		verb/Set_Meal()
+		verb/Cooking()
 			set category="Utility"
-			src.suffix=input(usr, "What are you cooking up?", "Cooking") as text|null
-			if(src.suffix==null || src.suffix=="")
-				src.suffix="Meal"
-			src.icon=input("What icon?") as icon|null
-			src.icon_state=input("Icon state?") as text|null
-			src.pixel_x=input("Pixel X?") as num|null
-			src.pixel_y=input("Pixel Y?") as num|null
-		verb/Prepare_Meal()
-			set category="Utility"
-			if(src.Using)
-				usr << "You're already preparing a meal!"
-				return
-			if(usr.HasPiloting()||usr.HasPossessive())
-				usr << "You're not capable of necessary precision!"
-				return
-			if(usr.TotalFatigue>=90)
-				usr << "You're too exhausted to cook more!"
-				return
-			if(usr.Grab)
-				usr << "You need free hands!"
-				return
-			if(!usr.HasMoney(src.Mastery*global.EconomyCost*0.0625))
-				usr << "You don't have enough money to make a single passable meal!"
-				return
-			src.Using=1
+			var/option = input(usr, "What do you want to do? Your current meal is [currentMeal]", "Cooking") in list("Cook Meal", "Set Current Meal","Make Recipe", "Alter Recipe", "Delete Recipe", "Share Recipe", "Cancel")
+			switch(option)
+				if("Cook Meal")
+					if(savedRecipes.savedRecipes.len==0)
+						usr << "You don't have any recipes made!"
+						return
+					if(!currentMeal)
+						usr << "You don't have a meal set!"
+						return
+					if(src.Using)
+						usr << "You're already preparing a meal!"
+						return
+					if(usr.passive_handler.Get("Piloting")||usr.HasPossessive())
+						usr << "You're not capable of necessary precision!"
+						return
+					if(usr.TotalFatigue>=90)
+						usr << "You're too exhausted to cook more!"
+						return
+					if(usr.Grab)
+						usr << "You need free hands!"
+						return
+					if(!usr.HasMoney(src.Mastery*global.EconomyCost*0.05))
+						usr << "You don't have enough money to make a single passable meal!"
+						return
+					src.Using=1
 
 
-			var/Count=input(usr, "How many [src.suffix]s are you cooking?", "Count") as num
-			if(Count<1)
-				Count=1
-			if(Count>9)
-				Count=9
-			var/rem=100-usr.TotalFatigue
-			rem/=10
-			rem=round(rem)
-			if(Count>rem)
-				Count=rem
-			var/MatCost=Count*src.Mastery*global.EconomyCost*0.0625
-			if(!usr.HasMoney(MatCost))
-				usr << "You don't have enough money to make [Count] [src.suffix]!"
-			for(var/c=0, c<Count, c++)
-				var/obj/Items/Edibles/Food/M=new
-				M.name=src.suffix
-				M.icon=src.icon
-				M.icon_state=src.icon_state
-				M.pixel_x=src.pixel_x
-				M.pixel_y=src.pixel_y
-				usr.AddItem(M)
-				M.EatNutrition=rand(src.Mastery-1,src.Mastery+1)
-				if(M.EatNutrition<0)
-					M.EatNutrition=0
-				if(M.EatNutrition >= 6) M.EatNutrition = 5
-				usr.GainFatigue(10)
-				if(M.EatNutrition>2)
-					if(M.icon==null)
-						M.icon='Foods.dmi'
-						M.icon_state="Grand"
-					if(M.name=="Meal")
-						M.name="High-Quality Meal"
-					M.EatText="eats [M.name] with a delighted expression!"
-				else if(M.EatNutrition>0)
-					if(M.icon==null)
-						M.icon='Foods.dmi'
-						M.icon_state="Poor"
-					if(M.name=="Meal")
-						M.name="Full Meal"
-					M.EatText="eats [M.name]."
-				else
-					if(M.icon==null)
-						M.icon='Foods.dmi'
-						M.icon_state="Trash"
-					if(M.name=="Meal")
-						M.name="Travesty"
-					M.EatText="eats [M.name] with a disgusted expression..."
+					var/Count=input(usr, "How many [currentMeal.name]s are you cooking?", "Count") as num
+					if(Count == 0)
+						Using = 0
+						return
+					if(Count<1)
+						Count=1
+					if(Count>9)
+						Count=9
+					var/rem=100-usr.TotalFatigue
+					rem/=10
+					rem=round(rem)
+					if(Count>rem)
+						Count=rem
+					var/MatCost=Count*src.Mastery*global.EconomyCost*0.05
+					if(!usr.HasMoney(MatCost))
+						usr << "You don't have enough money to make [Count] [currentMeal.name]!"
+					for(var/c=0, c<Count, c++)
+						var/obj/Items/Edibles/Food/M=new
+						M.name=currentMeal.name
+						M.icon=currentMeal.icon
+						M.icon_state=currentMeal.icon_state
+						M.pixel_x=currentMeal.pixel_x
+						M.pixel_y=currentMeal.pixel_y
+						M.EatText = currentMeal.eat_text
+						M.desc = currentMeal.description
+						usr.AddItem(M)
+						if(currentMeal.drink)
+							M.EatToxicity=rand(src.Mastery-1,5+src.Mastery)
+							if(M.EatToxicity<0)
+								M.EatToxicity=0
+						M.EatNutrition=rand(src.Mastery-1,src.Mastery+1)
+						if(M.EatNutrition<0)
+							M.EatNutrition=0
+						if(M.EatNutrition >= 6) M.EatNutrition = 5
+						M.desc += "<br><br><b>Quality:<b> "
+						switch(M.EatNutrition)
+							if(0)
+								M.desc+="Travesty ([M.EatNutrition])"
+							if(1)
+								M.desc+="Common ([M.EatNutrition])"
+							if(2 to 9999)
+								M.desc+="Delicious ([M.EatNutrition])"
+						usr.GainFatigue(10)
 
-			usr.Frozen=2
-			OMsg(usr, "[usr] starts cooking...")
-			usr.TakeMoney(MatCost)
-			sleep(30)
-			usr.Frozen=0
-			src.Using=0
+					usr.Frozen=2
+					var/preppingtext=replacetext(currentMeal.prepare_text, "usrName", "[usr]")
+					OMsg(usr, "[preppingtext]")
+					usr.TakeMoney(MatCost)
+					sleep(30)
+					usr.Frozen=0
+					src.Using=0
+				if("Set Current Meal")
+					if(savedRecipes.savedRecipes.len==0)
+						usr << "You don't have any recipes made!"
+						return
+					var/list/recs = savedRecipes.listRecipes()
+					recs += "Cancel"
+					var/recipe = input(usr, "What recipe do you want to set as your current recipe?", "Current Recipe") in recs
+					if(recipe == "Cancel")
+						return
+					usr << "Current Meal set to [recipe]!"
+					currentMeal = savedRecipes.findByName(recipe)
+				if("Make Recipe")
+					var/mealType = input(usr, "Is the meal a drink, a food, or both?", "Cooking") in list("Drink", "Food")
+					var/name = input(usr, "What's the name of the meal?", "Cooking") as text|null
+					if(name == null || name == "")
+						return
+					var/selectedIcon = input("What icon for the meal?", "Cooking") as icon|null
+					var/selectedIconState = input("What icon state for the meal?", "Cooking") as text|null
+					var/selectedX = input("Pixel X of the meal?", "Cooking") as num|null
+					var/selectedY = input("Pixel Y of the meal?", "Cooking") as num|null
+					var/selectedeatText = input("What do you want the food to say when it's consumed? Typing usrName will macro it to replace with the eater's name.", "Cooking") as text|null
+					var/selectedpreptext = input("What do you want the meal to say when you're cooking it? Typing usrName will macro it to replace with the maker's name.", "Cooking") as text|null
+					var/selecteddescription = input("What do you want the description to be?", "Cooking") as text|null
+					var/recipe/newRecipe = new(name,selectedIcon,selectedIconState,selectedX,selectedY,selectedeatText,selectedpreptext,selecteddescription, mealType)
+					savedRecipes.addRecipe(newRecipe)
+				if("Alter Recipe")
+					if(savedRecipes.savedRecipes.len==0)
+						usr << "You don't have any recipes made!"
+						return
+					var/list/recs = savedRecipes.listRecipes()
+					recs += "Cancel"
+					var/recipe = input(usr, "What recipe do you want to alter?", "Altering Recipe") in recs
+					if(recipe=="Cancel")
+						return
+					var/recipe/actualRecipe = savedRecipes.findByName(recipe)
+					if(currentMeal == actualRecipe)
+						currentMeal = null
+					var/altering = input("What do you want to alter?" ,"Altering Recipe") in list("Name", "Preperation Text", "Eat Text", "Icon", "Pixel_X", "Pixel_Y", "Description", "Meal Type")
+					switch(altering)
+						if("Name")
+							var/newName = input("What's the new name? The current name is [actualRecipe.name]", "Altering Name") as text|null
+							if(newName==null || newName == "")
+								return
+							actualRecipe.name = newName
+						if("Preperation Text")
+							var/newprep = input("What's the new prepare text? The current prepare text is [actualRecipe.prepare_text]", "Altering Prepare Text") as text|null
+							if(newprep==null || newprep == "")
+								return
+							actualRecipe.prepare_text = newprep
+						if("Eat Text")
+							var/newprep = input("What's the new eat text? The current eat text is [actualRecipe.eat_text]", "Altering Eat Text") as text|null
+							if(newprep==null || newprep == "")
+								return
+							actualRecipe.eat_text = newprep
+						if("Icon")
+							var/newprep = input("What's the new icon? The current icon is [actualRecipe.icon]", "Altering Icon") as icon|null
+							if(newprep==null)
+								return
+							actualRecipe.icon = newprep
+						if("Pixel_X")
+							var/newprep = input("What's the new pixel x? The current pixel_x is [actualRecipe.pixel_x]", "Altering Pixel X") as num|null
+							if(newprep==null || newprep == "")
+								return
+							actualRecipe.pixel_x = newprep
+						if("Pixel_Y")
+							var/newprep = input("What's the new prepare text? The current pixel_y is [actualRecipe.pixel_y]", "Altering Pixel Y") as num|null
+							if(newprep==null || newprep == "")
+								return
+							actualRecipe.pixel_y = newprep
+						if("Description")
+							var/newprep = input("What's the new description? The current description is [actualRecipe.description]", "Altering Description") as text|null
+							if(newprep==null || newprep == "")
+								return
+							actualRecipe.description = newprep
+						if("Meal Type")
+							var/typeing
+							if(actualRecipe.meal)
+								typeing = "Meal"
+							if(actualRecipe.drink)
+								typeing = "Drink"
+							var/mealType = input("What's sort of meal is this? The type is currently [typeing]", "Altering Meal Type") in list("Drink", "Food")
+							if(mealType=="Food")
+								actualRecipe.meal = TRUE
+								actualRecipe.drink = FALSE
+							if(mealType == "Drink")
+								actualRecipe.meal = FALSE
+								actualRecipe.drink = TRUE
+
+				if("Delete Recipe")
+					if(savedRecipes.savedRecipes.len==0)
+						usr << "You don't have any recipes made!"
+						return
+					var/list/recs = savedRecipes.listRecipes()
+					recs += "Cancel"
+					var/recipe = input(usr, "What recipe do you want to delete?", "Deleting Recipe") in recs
+					if(recipe=="Cancel")
+						return
+					var/confirm = input("Are you sure you want to delete [recipe]?", "Delete Recipe") in list("Yes","No")
+					if(confirm=="No")
+						return
+					var/recipe/recc = savedRecipes.findByName(recipe)
+					if(currentMeal == recc)
+						currentMeal = null
+					savedRecipes.removeByName(recipe)
+				if("Share Recipe")
+					var/list/recs = savedRecipes.listRecipes()
+					recs += "Cancel"
+					var/recipe = input(usr, "What recipe do you want to share?", "Sharing Recipe") in recs
+					if(recipe == "Cancel")
+						return
+					var/list/mobs = list()
+					mobs += "Cancel"
+					for(var/mob/Players/m in oview(5, usr))
+						if(locate(/obj/Skills/Utility/Cooking,m))
+							mobs += m
+					if(mobs.len == 1)
+						usr << "There's no valid targets near you!"
+						return
+					var/who = input(usr, "Who do you want to share it to?", "Sharing Recipe") in mobs
+					if(who=="Cancel")
+						return
+					var/confirm = input(who, "Do you want to accept [recipe] from [usr]?", "Sharing Cooking Recipe") in list("Yes", "No")
+					if(confirm=="No")
+						return
+					for(var/obj/Skills/Utility/Cooking/c in who)
+						c.savedRecipes.addRecipe(savedRecipes.findByName(recipe))
+				if("Cancel")
+					return
+
 	Brewing
 		suffix="Booze"
 		desc="Brew up a party!"
@@ -313,11 +450,13 @@ obj/Skills/Utility
 			usr << "<font color=#FF0000>You focus your senses...</font>"
 			if(!locate(/obj/Skills/Buffs/SlotlessBuffs/Autonomous/Sensing, usr))
 				usr.AddSkill(new/obj/Skills/Buffs/SlotlessBuffs/Autonomous/Sensing)
-			for(var/turf/t in block(locate(1,1,usr.z),locate(world.maxx,world.maxy,usr.z))) for(var/mob/M in t)
-				if(istype(M, /mob/Players))
-					if(M==usr)
-						continue
-					if(!M.AdminInviso&&!M.HasGodKi()&&!M.HasVoid()&&!M.HasMechanized()&&M.PowerControl>25)
+			for(var/mob/Players/M in players)
+				if(M==usr)
+					continue
+				if(M.z!=usr.z)
+					continue
+				if(!M.AdminInviso&&M.PowerControl>25)
+					if((usr.Saga=="Unlimited Blade Works" && usr.SagaLevel >= 2)||(!M.HasGodKi()&&!M.HasVoid()&&!M.HasMechanized()))
 						if((!locate(M.EnergySignature) in usr.EnergySignaturesKnown)&&!usr.SpiritPower)
 							var/distancecalc=abs(M.x-usr.x)+abs(M.y-usr.y)
 							if(distancecalc<16)
@@ -338,10 +477,6 @@ obj/Skills/Utility
 							else
 								usr << "<b>[M.name]</b> - [usr.Get_Sense_Reading(M)] - [usr.CheckDirection(M)]"
 
-				else if(istype(M, /mob/Player))
-					var/distancecalc=abs(M.x-usr.x)+abs(M.y-usr.y)
-					if(distancecalc<60)
-						usr << "<b>!!!</b> - [usr.Get_Sense_Reading(M)] - [usr.CheckDirection(M)]"
 			if(usr.HasEmptyGrimoire())
 				usr << "Location: ([usr.x], [usr.y], [usr.z])"
 
@@ -361,13 +496,22 @@ obj/Skills/Utility
 		icon_state="Telepathy"
 		desc="Allows you to send a telepathic message to someone."
 		Level=100
+		var/anonymous = FALSE
+		verb/Toggle_Anonymous()
+			set category = "Utility"
+			if(src.anonymous)
+				src.anonymous=0
+				usr << "You toggle anonymous telepathy <font color='red'>OFF</font color>."
+			else
+				src.anonymous=1
+				usr << "You toggle anonymous telepathy <font color='green'>ON</font color>."
 //		verb/Telepathic_Message()
 //			set category="Utility"
 //			usr.SkillX("Telepath",src)
 		verb/Telepathic_Link()
 			set category="Utility"
 			var/list/who=list("Cancel")
-			for(var/mob/Players/A in world)
+			for(var/mob/Players/A in players)
 				who.Add(A)
 			for(var/mob/Players/W in who)
 				if(!usr.SpiritPower)
@@ -383,7 +527,7 @@ obj/Skills/Utility
 			var/mob/Players/selector=input("Select a player to telepath.") in who||null
 			if(selector=="Cancel")
 				return
-			usr.TwoWayTelepath(selector)
+			usr.TwoWayTelepath(selector, anonymous)
 
 	Send_Energy
 		SignatureTechnique=1
@@ -430,7 +574,7 @@ obj/Skills/Utility
 		verb/Observe()
 			set category="Utility"
 			var/list/who=list("Cancel")
-			for(var/mob/Players/M in world)
+			for(var/mob/Players/M in players)
 				who.Add(M)
 			for(var/mob/Players/W in who)
 				if(W.AdminInviso)
@@ -467,7 +611,7 @@ obj/Skills/Utility
 				Observify(usr,selector)
 				if(usr.HasEmptyGrimoire())
 					usr << "[selector] - ([selector.x], [selector.y], [selector.z])"
-				if(selector!=usr && locate(/obj/Skills/Utility/Observe,selector.contents)||selector.HasIntuition())
+				if(selector!=usr && locate(/obj/Skills/Utility/Observe,selector.contents))
 					selector << "You feel as if you're being watched."
 				usr.Observing=1
 
@@ -545,7 +689,7 @@ obj/Skills/Utility
 			switch(blah)
 				if("Person")
 					var/list/people=list("Cancel")
-					for(var/mob/Players/QQ in world)
+					for(var/mob/Players/QQ in players)
 						people.Add(QQ)
 					var/mob/whoto=input("Teleport to who?")in people||null
 					if(whoto=="Cancel")
@@ -597,6 +741,18 @@ obj/Skills/Utility
 		Level=100
 		Teachable=0
 		desc="Forge a basic blade."
+		proc/getDropDir()
+			var/norSouth = 0
+			if(usr.dir==SOUTH)
+				norSouth=-1
+			else if(usr.dir==NORTH)
+				norSouth=1
+			var/eastWest = 0
+			if(usr.dir==EAST)
+				eastWest=-1
+			else if(usr.dir==WEST)
+				eastWest=1
+			return list(eastWest, norSouth)
 		verb/Materialize_Equipment()
 			set category="Utility"
 			var/Choice=input(usr, "What kind of item will you make?", "Make Sword") in list("Weapon", "Armor", "Weights")
@@ -618,8 +774,9 @@ obj/Skills/Utility
 					s.ShatterCounter/=2
 					s.ShatterMax/=2
 					s.Cost=0
-					s.Conjured=1
-					usr.contents+=s
+					s.Conjured=0
+					var/list/dirs = getDropDir()
+					s.loc = locate(usr.x+dirs[1], usr.y+dirs[2], usr.z)
 					OMsg(usr, "[usr] creates a weapon!", "[usr] materialized some armaments.")
 			else if(Choice=="Armor")
 				if(usr.HasManaCapacity(5))
@@ -636,7 +793,8 @@ obj/Skills/Utility
 					a.ShatterCounter/=2
 					a.ShatterMax/=2
 					a.Cost=0
-					usr.contents+=a
+					var/list/dirs = getDropDir()
+					a.loc = locate(usr.x+dirs[1], usr.y+dirs[2], usr.z)
 					OMsg(usr, "[usr] creates a set of armor!", "[usr] materialized some armor.")
 			else
 				if(usr.HasManaCapacity(25))
@@ -717,15 +875,15 @@ obj/Skills/Utility
 			var/list/Upgrades=list("Cancel")
 			if(Type=="Sword"||Type=="Staff")//armors don't get reinforced
 				Upgrades.Add("Reinforce")
-			if(usr.ArmamentEnchantmentUnlocked>=4)
+			if(usr.ArmamentEnchantmentUnlocked>=4||usr.ForgingUnlocked>=5)
 				if(Type=="Sword"&&Chosen:Class!="Wooden"&&!Chosen:ExtraClass)
 					Upgrades.Add("Refine")
-			if(usr.ArmamentEnchantmentUnlocked>=1)
+			if(usr.ArmamentEnchantmentUnlocked>=1||usr.RepairAndConversionUnlocked>=3)
 				Upgrades.Add("Fire")
 				Upgrades.Add("Water")
 				Upgrades.Add("Earth")
 				Upgrades.Add("Wind")
-			if(usr.ArmamentEnchantmentUnlocked>=2)
+			if(usr.ArmamentEnchantmentUnlocked>=2||usr.RepairAndConversionUnlocked>=1)
 				if(Type=="Sword"||Type=="Staff")
 					Upgrades.Add("Poison")
 					Upgrades.Add("Silver")
@@ -742,11 +900,18 @@ obj/Skills/Utility
 			switch(Choice2)
 				//T1
 				if("Reinforce")
-					if(Chosen:Ascended>=3||Chosen:Ascended>round(usr.ArmamentEnchantmentUnlocked/2,1))
+					var/enchantmentType = usr.ArmamentEnchantmentUnlocked > usr.ForgingUnlocked ? usr.ArmamentEnchantmentUnlocked : usr.ForgingUnlocked
+					// if they have master crafts left, they can upgrade to 6
+					// if not they can only upgrade to their max enchantment type level
+					// the cost is 5* base and 4 ** ascended
+					if(!usr.MasterCrafts)
+						if(Chosen:Ascended>=5||Chosen:Ascended>round(enchantmentType,1))
+							usr<<"Ascending [Chosen] is beyond your abilities."
+							return
+					if(Chosen:Ascended + 1 > glob.progress.maxAscension && !usr.MasterCrafts)
 						usr<<"Ascending [Chosen] is beyond your abilities."
 						return
-					else
-						Cost*=5*(4**Chosen:Ascended)
+					Cost*=5*(4**Chosen:Ascended)
 
 				//T2
 				if("Poison")
@@ -782,7 +947,13 @@ obj/Skills/Utility
 						switch(Choice2)
 							if("Reinforce")
 								usr<<"[Chosen] ascends under your careful effort."
-								Chosen:Ascended+=1
+								Chosen:Ascended++
+								if(usr.MasterCrafts && Chosen:Ascended > 5)
+									usr.MasterCrafts--
+									if(usr.MasterCrafts<0)
+										usr.MasterCrafts=0
+									Chosen:name = "Master Crafted [Chosen:name]"
+									Chosen:name = input(usr, "You have worked tirelessly to create a Mythical grade item, you must name it.") as text
 							if("Fire")
 								usr<<"[Chosen] glows a vibrant red for a few moments, and now feels eternally warm to the touch."
 								Chosen:Element="Fire"
@@ -828,13 +999,13 @@ obj/Skills/Utility
 									usr << "...yet it becomes much harder to properly channel power through it..."
 									Chosen:SpeedEffectiveness/=5//Lower drain mult means higher cost
 							if("Ultima (True)")
-								if(Chosen:Ascended>2&&!Chosen:Glass)
+								if(Chosen:Ascended>=5&&!Chosen:Glass)
 									if(Chosen:Element=="Chaos")
 										usr << "[Chosen] glows a flourescent rainbow for a few moments.  Grasping [Chosen] makes you feel like a force of nature..."
 										Chosen:Element="Ultima"
 										Chosen:Destructable=0
 										Chosen:ShatterTier=0
-										Chosen:Ascended=4
+										Chosen:Ascended=6
 									else
 										usr << "[Chosen] glows a diminished rainbow for a few moments.  Grasping [Chosen] makes you feel somewhat restrained..."
 										Chosen:Element="Chaos"
@@ -893,7 +1064,7 @@ obj/Skills/Utility
 					Chosen:name="[Chosen:Element] Standard Armor"
 				if(Chosen:Class=="Heavy")
 					Chosen:name="[Chosen:Element] Plated Armor"
-
+			Chosen:Update_Description()
 	Transmute//PHILOSTONES
 		desc="Rip out the mana circuits of an incapacitated individual to forge them into a stone of mana."
 		var/LastTransmute//holds realtime
@@ -927,11 +1098,11 @@ obj/Skills/Utility
 				animate(Choice, alpha=0, time=10)
 				sleep(10)
 				var/obj/Items/Enchantment/PhilosopherStone/True/f=new
-				f.SoulStrength=Choice.GetRecov()
+				f.SoulStrength=round(Choice.Potential/10,1) // CHANGED TO FIT TIER SYSTEM
 				f.SoulIdentity="[Choice.ckey]"
 				f.SoulSignature="[Choice.EnergySignature]"
 				f.loc=Choice.loc
-				var/Chance=global.VoidChance
+				var/Chance=glob.VoidChance
 				var/c_red=Choice.Potential/100
 				Chance-=(Chance*c_red)
 				if(Chance<0)
@@ -947,154 +1118,154 @@ obj/Skills/Utility
 				usr << "You must have an incapacitated person in front of you in order to transmute them into a Philosopher's Stone."
 				src.Using=0
 
-	Summon_Spirit
-		desc="Summon a spirit!  Doesn't work on those with contracts already established."
-		var/SpiritSummonCD//holds a realtime
-		verb/Summon_Spirit()
-			set category="Utility"
-			if(src.Using)
-				return
-			if(!usr.Move_Requirements()||usr.KO)
-				return
-			if(world.realtime<src.SpiritSummonCD)
-				usr << "It's too soon to use this!  ([round((src.SpiritSummonCD-world.realtime)/Hour(1), 0.1)] hours)"
-				return
-			src.Using=1
-			var/obj/Skills/Utility/Summon_Absurdity/s = locate(/obj/Skills/Utility/Summon_Absurdity) in usr
-			if(s)
-				switch(input("Would you like to try summoning an entity using their true name?") in list("Yes","No"))
-					if("Yes")
-						s.Summon_Absurdity()
-						Using=0
-						return
-			var/list/mob/Players/Options=list()
-			for(var/mob/Players/P in world)
-				if(P.Spiritual&&!P.SummonContract&&!locate(/obj/Skills/Soul_Contract, P)&&P!=usr)
-					Options.Add(P)
-				if(P.Dead&&!P.HasEnlightenment()&&!usr.SpiritPower)
-					Options.Remove(P)
-				if(P.z in ArcaneRealmZ && 2 > usr.Imagination)
-					Options.Remove(P)
-			if(Options.len<1)
-				usr << "There are no available spirits to summon!"
-				src.Using=0
-				return
-			//var/Cost=0.75*global.EconomyMana//75 capacity
-			var/Cost=0.25*global.EconomyMana
+// 	Summon_Spirit
+// 		desc="Summon a spirit!  Doesn't work on those with contracts already established."
+// 		var/SpiritSummonCD//holds a realtime
+// 		verb/Summon_Spirit()
+// 			set category="Utility"
+// 			if(src.Using)
+// 				return
+// 			if(!usr.Move_Requirements()||usr.KO)
+// 				return
+// 			if(world.realtime<src.SpiritSummonCD)
+// 				usr << "It's too soon to use this!  ([round((src.SpiritSummonCD-world.realtime)/Hour(1), 0.1)] hours)"
+// 				return
+// 			src.Using=1
+// 			var/obj/Skills/Utility/Summon_Absurdity/s = locate(/obj/Skills/Utility/Summon_Absurdity) in usr
+// 			if(s)
+// 				switch(input("Would you like to try summoning an entity using their true name?") in list("Yes","No"))
+// 					if("Yes")
+// 						s.Summon_Absurdity()
+// 						Using=0
+// 						return
+// 			var/list/mob/Players/Options=list()
+// 			for(var/mob/Players/P in world)
+// 				if(P.Spiritual&&!P.SummonContract&&!locate(/obj/Skills/Soul_Contract, P)&&P!=usr)
+// 					Options.Add(P)
+// 				if(P.Dead&&!P.HasEnlightenment()&&!usr.SpiritPower)
+// 					Options.Remove(P)
+// 				if(P.z in ArcaneRealmZ && 2 > usr.Imagination)
+// 					Options.Remove(P)
+// 			if(Options.len<1)
+// 				usr << "There are no available spirits to summon!"
+// 				src.Using=0
+// 				return
+// 			//var/Cost=0.75*global.EconomyMana//75 capacity
+// 			var/Cost=0.25*global.EconomyMana
 
-			if(!usr.HasManaCapacity(Cost))
-				usr << "You don't have enough capacity to summon a spirit!  It takes [Commas(Cost)] capacity."
-				src.Using=0
-				return
-			var/mob/Players/Choice=pick(Options)
-//			if(Choice=="Cancel")
-//				src.Using=0
-//				return
+// 			if(!usr.HasManaCapacity(Cost))
+// 				usr << "You don't have enough capacity to summon a spirit!  It takes [Commas(Cost)] capacity."
+// 				src.Using=0
+// 				return
+// 			var/mob/Players/Choice=pick(Options)
+// //			if(Choice=="Cancel")
+// //				src.Using=0
+// //				return
 
-			//Distance handling
-			if(Choice.z != src.z)
-				Cost = min(0.99*global.EconomyMana, (1+abs(src.z - Choice.z)) * Cost)
-				switch(input(usr, "Summoning this spirit will cost [Cost] mana. Are you sure you want to do it?", "Summon Spirit") in list("Yes","No"))
-					if("No")
-						src.Using=0
-						return
-			var/FailChance=20*((Choice.Power*Choice.EnergyUniqueness)/(usr.Power*usr.EnergyUniqueness))/(usr.SummoningMagicUnlocked+1)
+// 			//Distance handling
+// 			if(Choice.z != src.z)
+// 				Cost = min(0.99*global.EconomyMana, (1+abs(src.z - Choice.z)) * Cost)
+// 				switch(input(usr, "Summoning this spirit will cost [Cost] mana. Are you sure you want to do it?", "Summon Spirit") in list("Yes","No"))
+// 					if("No")
+// 						src.Using=0
+// 						return
+// 			var/FailChance=20*((Choice.Power*Choice.EnergyUniqueness)/(usr.Power*usr.EnergyUniqueness))/(usr.SummoningMagicUnlocked+1)
 
-			usr.TakeManaCapacity(Cost)
-			if(prob(FailChance)&&!usr.HasSpiritPower())
-				OMsg(usr, "[usr] fails their ritual!")
-				src.Using=0
-				return
-			else
-				Choice.PrevX=Choice.x
-				Choice.PrevY=Choice.y
-				Choice.PrevZ=Choice.z
-				OMsg(Choice, "[Choice] is whisked away!")
-				Choice.loc=locate(usr.x, usr.y-1, usr.z)
-				OMsg(usr, "[usr] summons forth a spirit!")
-				spawn()
-					LightningBolt(Choice)
-				Choice.SummonReturnTimer=RawMinutes(5)
-				if(!Choice.SummonContract)
-					Choice.SummonContract=1
-				src.SpiritSummonCD=world.realtime+Hour(1)
-				src.Using=0
-				return
+// 			usr.TakeManaCapacity(Cost)
+// 			if(prob(FailChance)&&!usr.HasSpiritPower())
+// 				OMsg(usr, "[usr] fails their ritual!")
+// 				src.Using=0
+// 				return
+// 			else
+// 				Choice.PrevX=Choice.x
+// 				Choice.PrevY=Choice.y
+// 				Choice.PrevZ=Choice.z
+// 				OMsg(Choice, "[Choice] is whisked away!")
+// 				Choice.loc=locate(usr.x, usr.y-1, usr.z)
+// 				OMsg(usr, "[usr] summons forth a spirit!")
+// 				spawn()
+// 					LightningBolt(Choice)
+// 				Choice.SummonReturnTimer=RawMinutes(5)
+// 				if(!Choice.SummonContract)
+// 					Choice.SummonContract=1
+// 				src.SpiritSummonCD=world.realtime+Hour(1)
+// 				src.Using=0
+// 				return
 
-	Summon_Absurdity
-		desc="Summon something otherworldly if you know its True Name. Can summon through contracts!"
-		var/AbsurdSummonCD
-		proc/Summon_Absurdity()
-			set category="Utility"
-			var/mob/Choice
-			if(src.Using)
-				return
-			if(!usr.Move_Requirements()||usr.KO)
-				return
-			if(world.realtime<src.AbsurdSummonCD)
-				usr << "It's too soon to use this!  ([round((src.AbsurdSummonCD-world.realtime)/Hour(1), 0.1)] hours)"
-				return
-			src.Using=1
+// 	Summon_Absurdity
+// 		desc="Summon something otherworldly if you know its True Name. Can summon through contracts!"
+// 		var/AbsurdSummonCD
+// 		proc/Summon_Absurdity()
+// 			set category="Utility"
+// 			var/mob/Choice
+// 			if(src.Using)
+// 				return
+// 			if(!usr.Move_Requirements()||usr.KO)
+// 				return
+// 			if(world.realtime<src.AbsurdSummonCD)
+// 				usr << "It's too soon to use this!  ([round((src.AbsurdSummonCD-world.realtime)/Hour(1), 0.1)] hours)"
+// 				return
+// 			src.Using=1
 
-			var/Cost=5*global.EconomyMana
+// 			var/Cost=5*global.EconomyMana
 
-			if(!usr.HasManaCapacity(Cost))
-				usr << "You don't have enough capacity to summon an otherworldly entity!  It takes [Commas(Cost)] capacity."
-				src.Using=0
-				return
+// 			if(!usr.HasManaCapacity(Cost))
+// 				usr << "You don't have enough capacity to summon an otherworldly entity!  It takes [Commas(Cost)] capacity."
+// 				src.Using=0
+// 				return
 
-			switch(input(usr, "Summoning this otherworldly entity will cost [Cost] mana. Are you sure you want to do it?", "Summon Absurdity") in list("Yes","No"))
-				if("No")
-					src.Using=0
-					return
+// 			switch(input(usr, "Summoning this otherworldly entity will cost [Cost] mana. Are you sure you want to do it?", "Summon Absurdity") in list("Yes","No"))
+// 				if("No")
+// 					src.Using=0
+// 					return
 
-			var/Failure=0
-			var/Invocation=input(usr, "What True Name do you attempt to invoke?", "Summon Absurdity") as text
-			if(Invocation in global.TrueNames)
-				var/Found=0
-				for(var/mob/Players/m in world)
-					if(m.TrueName==Invocation)
-						Found=1
-						Choice=m
-						break
+// 			var/Failure=0
+// 			var/Invocation=input(usr, "What True Name do you attempt to invoke?", "Summon Absurdity") as text
+// 			if(Invocation in global.TrueNames)
+// 				var/Found=0
+// 				for(var/mob/Players/m in world)
+// 					if(m.TrueName==Invocation)
+// 						Found=1
+// 						Choice=m
+// 						break
 
-				if(!Found)
-					OMsg(usr, "[usr] invoked a True Name properly, but the being slumbers currently...")
-					src.Using=0
-					return
+// 				if(!Found)
+// 					OMsg(usr, "[usr] invoked a True Name properly, but the being slumbers currently...")
+// 					src.Using=0
+// 					return
 
-			else
-				Failure=1
-				OMsg(usr, "[usr] attempted to invoke a True Name of no existing being!")
+// 			else
+// 				Failure=1
+// 				OMsg(usr, "[usr] attempted to invoke a True Name of no existing being!")
 
-			var/PerfectRitual=0+(usr.SummoningMagicUnlocked*10)
+// 			var/PerfectRitual=0+(usr.SummoningMagicUnlocked*10)
 
-			usr.TakeManaCapacity(Cost/(1+Failure))//if you fuck the name up you only pay half
+// 			usr.TakeManaCapacity(Cost/(1+Failure))//if you fuck the name up you only pay half
 
-			if(!Failure)
+// 			if(!Failure)
 
-				OMsg(Choice, "[Choice] is compelled to appear elsewhere!")
-				Choice.loc=locate(usr.x, usr.y-1, usr.z)
-				spawn()
-					for(var/x=0, x<5, x++)
-						LightningBolt(Choice)
-						sleep(3)
+// 				OMsg(Choice, "[Choice] is compelled to appear elsewhere!")
+// 				Choice.loc=locate(usr.x, usr.y-1, usr.z)
+// 				spawn()
+// 					for(var/x=0, x<5, x++)
+// 						LightningBolt(Choice)
+// 						sleep(3)
 
-				if(prob(PerfectRitual)||usr.SpiritPower)
-					OMsg(usr, "[usr] invokes the True Name of [Choice] to compel them to appear!")
-					var/obj/Skills/Buffs/SlotlessBuffs/Autonomous/Shackled/S=new
-					S.Password=usr.name
-					S.Infatuated=3
-					S.ActiveMessage="is forced to appear by an invocation of their True Name! They cannot hurt their summoner!"
-					S.OffMessage="feels the effects of the ritual summoning fade away..."
-					S.TimerLimit=3600
-					Choice.AddSkill(S)
-				else
-					OMsg(usr, "[usr] does not invoke the True Name of [Choice] properly! They are offered no protection against the otherworldly entity...")
+// 				if(prob(PerfectRitual)||usr.SpiritPower)
+// 					OMsg(usr, "[usr] invokes the True Name of [Choice] to compel them to appear!")
+// 					var/obj/Skills/Buffs/SlotlessBuffs/Autonomous/Shackled/S=new
+// 					S.Password=usr.name
+// 					S.Infatuated=3
+// 					S.ActiveMessage="is forced to appear by an invocation of their True Name! They cannot hurt their summoner!"
+// 					S.OffMessage="feels the effects of the ritual summoning fade away..."
+// 					S.TimerLimit=3600
+// 					Choice.AddSkill(S)
+// 				else
+// 					OMsg(usr, "[usr] does not invoke the True Name of [Choice] properly! They are offered no protection against the otherworldly entity...")
 
-			src.AbsurdSummonCD=world.realtime+Day(1)
-			src.Using=0
-			return
+// 			src.AbsurdSummonCD=world.realtime+Day(1)
+// 			src.Using=0
+// 			return
 
 
 	Seal_Turf
@@ -1430,16 +1601,16 @@ obj/Skills/Utility
 			var/list/GrimoireChoices=list("Cancel")//Which grims have you grimmed?
 			var/GrimoireDesc//Explains how to grim the grim.
 			var/GrimoireLimit=99//3
-			global.PureMade=0
-			global.BlueMade=0
-			global.RedMade=0
-			global.ChainMade=0
-			global.BloodMade=0
-			global.SealMade=0
-			global.NobleMade=0
-			global.RagnaMade=0
-			global.EmptyMade=0
-			global.RelativityMade=0
+			// global.PureMade=0
+			// global.BlueMade=0
+			// global.RedMade=0
+			// global.ChainMade=0
+			// global.BloodMade=0
+			// global.SealMade=0
+			// global.NobleMade=0
+			// global.RagnaMade=0
+			// global.EmptyMade=0
+			// global.RelativityMade=0
 
 			if(src.Operating)
 				usr << "You're already running a project!"
@@ -1448,47 +1619,47 @@ obj/Skills/Utility
 				if(usr.HumanAscension=="Enchantment")
 					GrimoireLimit+=usr.AscensionsAcquired
 			src.Operating=1
-			if(global.PureMade<3)//Made less than 3 pure grimoires?
-				if(usr.GrimoiresMade<GrimoireLimit&&(usr.AlchemyUnlocked>=5||usr.ImprovedAlchemyUnlocked>=3))//Made less than 3 types of grimoires?
-					GrimoireChoices.Add("Pure Grimoire: No Name")//Allow this to be selectable.
-			if(global.BlueMade<2&&usr.ImprovedAlchemyUnlocked>=5&&usr.TomeCreationUnlocked>=3)//Less than 2 blue grimoires of either type made?
-				if(usr.GrimoiresMade<GrimoireLimit)//Less than 3 types of grimoires?
-					GrimoireChoices.Add("Azure Grimoire: Blaze Blue")//Allow
-					if(usr.Intelligence*usr.Imagination>=2)
-						GrimoireChoices.Add("Azure Grimoire (True): Blaze Blue")
-			if(global.RedMade<1&&usr.TomeCreationUnlocked>=5&&usr.ImprovedAlchemyUnlocked>=3)
-				if(usr.GrimoiresMade<GrimoireLimit)
-					GrimoireChoices.Add("Crimson Grimoire: Burning Red")
-			if(global.ChainMade<2&&usr.SummoningMagicUnlocked>=5)
-				if(usr.GrimoiresMade<GrimoireLimit)
-					GrimoireChoices.Add("Chain Grimoire: Soul Contract")//Contract crafting
-			if(global.BloodMade<1&&usr.ToolEnchantmentUnlocked>=5)
-				if(usr.GrimoiresMade<GrimoireLimit)
-					GrimoireChoices.Add("Blood Grimoire: Demon-Blood Talismans")//Demon Blood Talismans
-			if(global.SealMade<1&&usr.SealingMagicUnlocked>=5)
-				if(usr.GrimoiresMade<GrimoireLimit)
-					GrimoireChoices.Add("Seal Grimoire: Evil-Containment Wave")//Mafuba
-			if(global.NobleMade<2&&usr.CrestCreationUnlocked>=5&&(usr.SummoningMagicUnlocked>=5||usr.SpaceMagicUnlocked>=3))
-				if(usr.GrimoiresMade<GrimoireLimit)
-					GrimoireChoices.Add("Destruction Grimoire: Giga Slave")//Gravity bomb
-			if(global.RagnaMade<2&&usr.CrestCreationUnlocked>=5&&(usr.SummoningMagicUnlocked>=5||usr.SpaceMagicUnlocked>=3))
-				if(usr.GrimoiresMade<GrimoireLimit)
-					GrimoireChoices.Add("Severance Grimoire: Ragna Blade")//Heeeeh
-			if(global.EmptyMade<2&&usr.SpaceMagicUnlocked>=5)
-				if(usr.GrimoiresMade<GrimoireLimit)
-					GrimoireChoices.Add("Empty Grimoire: Traverse Void")//Traverse Void
-			if(global.RelativityMade<1&&usr.TimeMagicUnlocked>=5)
-				if(usr.GrimoiresMade<GrimoireLimit)
-					GrimoireChoices.Add("Relativity Grimoire: Time Alter")//Time Alter
-			if(global.StasisMade<1&&(usr.TimeMagicUnlocked>=5&&usr.SpaceMagicUnlocked>=5))
-				if(usr.GrimoiresMade<GrimoireLimit)
-					GrimoireChoices.Add("Stasis Grimoire: Time Stop")//THE WORLD
-			if(!global.YukianesaMade&&usr.GrimoiresMade<GrimoireLimit&&usr.ArmamentEnchantmentUnlocked>=5)
-				GrimoireChoices.Add("Arch-Enemy Grimoire: Ice Sword")
-			if(!global.BolverkMade&&usr.GrimoiresMade<GrimoireLimit&&usr.ArmamentEnchantmentUnlocked>=5)
-				GrimoireChoices.Add("Arch-Enemy Grimoire: Demon Guns")
-			if(!global.OokamiMade&&usr.GrimoiresMade<GrimoireLimit&&usr.ArmamentEnchantmentUnlocked>=5)
-				GrimoireChoices.Add("Arch-Enemy Grimoire: Slaying Demon")
+			// if(global.PureMade<3)//Made less than 3 pure grimoires?
+			// 	if(usr.GrimoiresMade<GrimoireLimit&&(usr.AlchemyUnlocked>=5||usr.ImprovedAlchemyUnlocked>=3))//Made less than 3 types of grimoires?
+			// 		GrimoireChoices.Add("Pure Grimoire: No Name")//Allow this to be selectable.
+			// if(global.BlueMade<2&&usr.ImprovedAlchemyUnlocked>=5&&usr.TomeCreationUnlocked>=3)//Less than 2 blue grimoires of either type made?
+			// 	if(usr.GrimoiresMade<GrimoireLimit)//Less than 3 types of grimoires?
+			// 		GrimoireChoices.Add("Azure Grimoire: Blaze Blue")//Allow
+			// 		if(usr.Intelligence*usr.Imagination>=2)
+			// 			GrimoireChoices.Add("Azure Grimoire (True): Blaze Blue")
+			// if(global.RedMade<1&&usr.TomeCreationUnlocked>=5&&usr.ImprovedAlchemyUnlocked>=3)
+			// 	if(usr.GrimoiresMade<GrimoireLimit)
+			// 		GrimoireChoices.Add("Crimson Grimoire: Burning Red")
+			// if(global.ChainMade<2&&usr.SummoningMagicUnlocked>=5)
+			// 	if(usr.GrimoiresMade<GrimoireLimit)
+			// 		GrimoireChoices.Add("Chain Grimoire: Soul Contract")//Contract crafting
+			// if(global.BloodMade<1&&usr.ToolEnchantmentUnlocked>=5)
+			// 	if(usr.GrimoiresMade<GrimoireLimit)
+			// 		GrimoireChoices.Add("Blood Grimoire: Demon-Blood Talismans")//Demon Blood Talismans
+			// if(global.SealMade<1&&usr.SealingMagicUnlocked>=5)
+			// 	if(usr.GrimoiresMade<GrimoireLimit)
+			// 		GrimoireChoices.Add("Seal Grimoire: Evil-Containment Wave")//Mafuba
+			// if(global.NobleMade<2&&usr.CrestCreationUnlocked>=5&&(usr.SummoningMagicUnlocked>=5||usr.SpaceMagicUnlocked>=3))
+			// 	if(usr.GrimoiresMade<GrimoireLimit)
+			// 		GrimoireChoices.Add("Destruction Grimoire: Giga Slave")//Gravity bomb
+			// if(global.RagnaMade<2&&usr.CrestCreationUnlocked>=5&&(usr.SummoningMagicUnlocked>=5||usr.SpaceMagicUnlocked>=3))
+			// 	if(usr.GrimoiresMade<GrimoireLimit)
+			// 		GrimoireChoices.Add("Severance Grimoire: Ragna Blade")//Heeeeh
+			// if(global.EmptyMade<2&&usr.SpaceMagicUnlocked>=5)
+			// 	if(usr.GrimoiresMade<GrimoireLimit)
+			// 		GrimoireChoices.Add("Empty Grimoire: Traverse Void")//Traverse Void
+			// if(global.RelativityMade<1&&usr.TimeMagicUnlocked>=5)
+			// 	if(usr.GrimoiresMade<GrimoireLimit)
+			// 		GrimoireChoices.Add("Relativity Grimoire: Time Alter")//Time Alter
+			// if(global.StasisMade<1&&(usr.TimeMagicUnlocked>=5&&usr.SpaceMagicUnlocked>=5))
+			// 	if(usr.GrimoiresMade<GrimoireLimit)
+			// 		GrimoireChoices.Add("Stasis Grimoire: Time Stop")//THE WORLD
+			// if(!global.YukianesaMade&&usr.GrimoiresMade<GrimoireLimit&&usr.ArmamentEnchantmentUnlocked>=5)
+			// 	GrimoireChoices.Add("Arch-Enemy Grimoire: Ice Sword")
+			// if(!global.BolverkMade&&usr.GrimoiresMade<GrimoireLimit&&usr.ArmamentEnchantmentUnlocked>=5)
+			// 	GrimoireChoices.Add("Arch-Enemy Grimoire: Demon Guns")
+			// if(!global.OokamiMade&&usr.GrimoiresMade<GrimoireLimit&&usr.ArmamentEnchantmentUnlocked>=5)
+			// 	GrimoireChoices.Add("Arch-Enemy Grimoire: Slaying Demon")
 
 			for(var/mob/m in view(usr, 1))
 				Targets+=m
@@ -1584,317 +1755,317 @@ obj/Skills/Utility
 				src.Operating=0
 				return
 
-			switch(GrimoireChoice)
-				if("Pure Grimoire: No Name")
-					M.contents+=new/obj/Items/Gear/Pure_Grimoire
-					usr.GrimoiresMade++//Add grimoires made
-					global.PureMade++//Add one to the count
-				if("Azure Grimoire: Blaze Blue")
-					M.contents+=new/obj/Items/Gear/Prosthetic_Limb/Azure_Grimoire
-					usr.GrimoiresMade++
-					global.BlueMade++
-				if("Azure Grimoire (True): Blaze Blue")
-					M.contents+=new/obj/Items/Gear/Prosthetic_Limb/Blue_Grimoire
-					usr.GrimoiresMade++
-					global.BlueMade++
-				if("Crimson Grimoire: Burning Red")
-					M.contents+=new/obj/Items/Gear/Crimson_Grimoire
-					usr.GrimoiresMade++
-					global.RedMade++
-				if("Chain Grimoire: Soul Contract")
-					if(locate(/obj/Skills/Utility/Contractor, M))
-						OMsg(usr, "[M] already has a Chain Grimoire recorded in their memory!")
-						src.Operating=0
-						return
-					M.AddSkill(new/obj/Skills/Utility/Contractor)
-					M.ContractPowered+=5
-					usr.GrimoiresMade++
-					global.ChainMade++
-				if("Blood Grimoire: Demon-Blood Talismans")
-					M.contents+=new/obj/Items/Gear/Blood_Grimoire
-					usr.GrimoiresMade++
-					global.BloodMade++
-				if("Seal Grimoire: Evil-Containment Wave")
-					if(locate(/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Mafuba, M))
-						OMsg(usr, "[M] already has a Seal Grimoire recorded in their memory!")
-						src.Operating=0
-						return
-					M.AddSkill(new/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Mafuba)
-					usr.GrimoiresMade++
-					global.SealMade++
-				if("Severance Grimoire: Ragna Blade")
-					if(locate(/obj/Skills/Queue/Ragna_Blade, M))
-						OMsg(usr, "[M] already has a Severance Grimoire recorded in their memory!")
-						src.Operating=0
-						return
-					M.AddSkill(new/obj/Skills/Queue/Ragna_Blade)
-					usr.GrimoiresMade++
-					global.RagnaMade++
-				if("Destruction Grimoire: Giga Slave")
-					if(locate(/obj/Skills/AutoHit/Giga_Slave, M))
-						OMsg(usr, "[M] already has a Destruction Grimoire recorded in their memory!")
-						src.Operating=0
-						return
-					M.AddSkill(new/obj/Skills/AutoHit/Giga_Slave)
-					usr.GrimoiresMade++
-					global.NobleMade++
-				if("Empty Grimoire: Traverse Void")
-					if(locate(/obj/Skills/Teleport/Traverse_Void, M))
-						OMsg(usr, "[M] already has an Empty Grimoire recorded in their memory!")
-						src.Operating=0
-						return
-					M.AddSkill(new/obj/Skills/Teleport/Traverse_Void)
-					if(!locate(/obj/Skills/Utility/Observe, M))
-						M.AddSkill(new/obj/Skills/Utility/Observe)
-					usr.GrimoiresMade++
-					global.EmptyMade++
-				if("Stasis Grimoire: Time Stop")
-					if(locate(/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Time_Stop, M))
-						OMsg(usr, "[M] already has a Stasis Grimoire recorded in their memory!")
-						src.Operating=0
-						return
-					M.AddSkill(new/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Time_Stop)
-					usr.GrimoiresMade++
-					global.StasisMade++
-				if("Relativity Grimoire: Time Alter")
-					if(locate(/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Time_Alter, M))
-						OMsg(usr, "[M] already has a Relativity Grimoire recorded in their memory!")
-						src.Operating=0
-						return
-					M.AddSkill(new/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Time_Alter)
-					usr.GrimoiresMade++
-					global.RelativityMade++
-				if("Arch-Enemy Grimoire: Ice Sword")
-					var/obj/Items/Sword/S=new/obj/Items/Sword/Light/Legendary/Yukianesa
-					S.TrueLegend=1
-					M.contents+=S
-					usr.GrimoiresMade++
-					global.YukianesaMade++
-				if("Arch-Enemy Grimoire: Demon Guns")
-					var/obj/Items/Enchantment/Staff/S=new/obj/Items/Enchantment/Staff/NonElemental/Rod/Legendary/Bolverk
-					S.TrueLegend=1
-					M.contents+=S
-					usr.GrimoiresMade++
-					global.BolverkMade++
-				if("Arch-Enemy Grimoire: Slaying Demon")
-					var/obj/Items/Sword/S=new/obj/Items/Sword/Heavy/Legendary/Ookami
-					S.TrueLegend=1
-					M.contents+=S
-					usr.GrimoiresMade++
-					global.OokamiMade++
-			//at the end
-			OMsg(usr, "[usr] experimented on [M], recording a [GrimoireChoice]!")
-			usr.TakeManaCapacity(Cost)
-			src.Operating=0
+			// switch(GrimoireChoice)
+			// 	if("Pure Grimoire: No Name")
+			// 		M.contents+=new/obj/Items/Gear/Pure_Grimoire
+			// 		usr.GrimoiresMade++//Add grimoires made
+			// 		global.PureMade++//Add one to the count
+			// 	if("Azure Grimoire: Blaze Blue")
+			// 		M.contents+=new/obj/Items/Gear/Prosthetic_Limb/Azure_Grimoire
+			// 		usr.GrimoiresMade++
+			// 		global.BlueMade++
+			// 	if("Azure Grimoire (True): Blaze Blue")
+			// 		M.contents+=new/obj/Items/Gear/Prosthetic_Limb/Blue_Grimoire
+			// 		usr.GrimoiresMade++
+			// 		global.BlueMade++
+			// 	if("Crimson Grimoire: Burning Red")
+			// 		M.contents+=new/obj/Items/Gear/Crimson_Grimoire
+			// 		usr.GrimoiresMade++
+			// 		global.RedMade++
+			// 	if("Chain Grimoire: Soul Contract")
+			// 		// if(locate(/obj/Skills/Utility/Contractor, M))
+			// 		// 	OMsg(usr, "[M] already has a Chain Grimoire recorded in their memory!")
+			// 		// 	src.Operating=0
+			// 		// 	return
+			// 		// M.AddSkill(new/obj/Skills/Utility/Contractor)
+			// 		M.ContractPowered+=5
+			// 		usr.GrimoiresMade++
+			// 		global.ChainMade++
+			// 	if("Blood Grimoire: Demon-Blood Talismans")
+			// 		M.contents+=new/obj/Items/Gear/Blood_Grimoire
+			// 		usr.GrimoiresMade++
+			// 		global.BloodMade++
+			// 	if("Seal Grimoire: Evil-Containment Wave")
+			// 		if(locate(/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Mafuba, M))
+			// 			OMsg(usr, "[M] already has a Seal Grimoire recorded in their memory!")
+			// 			src.Operating=0
+			// 			return
+			// 		M.AddSkill(new/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Mafuba)
+			// 		usr.GrimoiresMade++
+			// 		global.SealMade++
+			// 	if("Severance Grimoire: Ragna Blade")
+			// 		if(locate(/obj/Skills/Queue/Ragna_Blade, M))
+			// 			OMsg(usr, "[M] already has a Severance Grimoire recorded in their memory!")
+			// 			src.Operating=0
+			// 			return
+			// 		M.AddSkill(new/obj/Skills/Queue/Ragna_Blade)
+			// 		usr.GrimoiresMade++
+			// 		global.RagnaMade++
+			// 	if("Destruction Grimoire: Giga Slave")
+			// 		if(locate(/obj/Skills/AutoHit/Giga_Slave, M))
+			// 			OMsg(usr, "[M] already has a Destruction Grimoire recorded in their memory!")
+			// 			src.Operating=0
+			// 			return
+			// 		M.AddSkill(new/obj/Skills/AutoHit/Giga_Slave)
+			// 		usr.GrimoiresMade++
+			// 		global.NobleMade++
+			// 	if("Empty Grimoire: Traverse Void")
+			// 		if(locate(/obj/Skills/Teleport/Traverse_Void, M))
+			// 			OMsg(usr, "[M] already has an Empty Grimoire recorded in their memory!")
+			// 			src.Operating=0
+			// 			return
+			// 		M.AddSkill(new/obj/Skills/Teleport/Traverse_Void)
+			// 		if(!locate(/obj/Skills/Utility/Observe, M))
+			// 			M.AddSkill(new/obj/Skills/Utility/Observe)
+			// 		usr.GrimoiresMade++
+			// 		global.EmptyMade++
+			// 	if("Stasis Grimoire: Time Stop")
+			// 		if(locate(/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Time_Stop, M))
+			// 			OMsg(usr, "[M] already has a Stasis Grimoire recorded in their memory!")
+			// 			src.Operating=0
+			// 			return
+			// 		M.AddSkill(new/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Time_Stop)
+			// 		usr.GrimoiresMade++
+			// 		global.StasisMade++
+			// 	if("Relativity Grimoire: Time Alter")
+			// 		if(locate(/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Time_Alter, M))
+			// 			OMsg(usr, "[M] already has a Relativity Grimoire recorded in their memory!")
+			// 			src.Operating=0
+			// 			return
+			// 		M.AddSkill(new/obj/Skills/Buffs/SlotlessBuffs/Grimoire/Time_Alter)
+			// 		usr.GrimoiresMade++
+			// 		global.RelativityMade++
+			// 	if("Arch-Enemy Grimoire: Ice Sword")
+			// 		var/obj/Items/Sword/S=new/obj/Items/Sword/Light/Legendary/Yukianesa
+			// 		S.TrueLegend=1
+			// 		M.contents+=S
+			// 		usr.GrimoiresMade++
+			// 		global.YukianesaMade++
+			// 	if("Arch-Enemy Grimoire: Demon Guns")
+			// 		var/obj/Items/Enchantment/Staff/S=new/obj/Items/Enchantment/Staff/NonElemental/Rod/Legendary/Bolverk
+			// 		S.TrueLegend=1
+			// 		M.contents+=S
+			// 		usr.GrimoiresMade++
+			// 		global.BolverkMade++
+			// 	if("Arch-Enemy Grimoire: Slaying Demon")
+			// 		var/obj/Items/Sword/S=new/obj/Items/Sword/Heavy/Legendary/Ookami
+			// 		S.TrueLegend=1
+			// 		M.contents+=S
+			// 		usr.GrimoiresMade++
+			// 		global.OokamiMade++
+			// //at the end
+			// OMsg(usr, "[usr] experimented on [M], recording a [GrimoireChoice]!")
+			// usr.TakeManaCapacity(Cost)
+			// src.Operating=0
 
-	Contractor
-		NoTransplant=1
-		Level=100
-		desc="Allows you to contract souls and use them."
-		var
-			NeverContracted=1//for first pip of summoner power
-			//These are variables for the user to flag for themselves.
-			TeleportX=0
-			TeleportY=0
-			TeleportZ=0
-			SummonX=0
-			SummonY=0
-			SummonZ=0
-		verb/ContractSoul()
-			set category="Utility"
-			set name="Contract Soul"
-			var/list/PeopleX=new
-			for(var/mob/Players/M in get_step(usr,usr.dir))
-				PeopleX+=M
-			var/mob/A=input(usr,"Contract who?") in PeopleX||null
-			if(A)
-				var/Consent
-				Consent=alert(A, "[usr] wishes to link your souls together with a contract.  Do you accept this contract?", "Soul Contract", "Yes", "No")
-				if(Consent=="No")
-					OMsg(usr, "[A] refuses to be chained to [usr]!")
-					return
-				OMsg(usr, "<font color='red'>[A] signed their soul to [usr]!</font color>")
-				var/obj/L=new/obj/Skills/Soul_Contract
-				L:ContractKey=usr.key
-				A.AddSkill(L)
-				A.ContractPowered=1
-				if(src.NeverContracted)
-					src.NeverContracted=0
-					usr.ContractPowered=1
-		verb/UseContract()
-			set category="Utility"
-			set name="Use Contract"
-			if(!usr.Move_Requirements()||usr.KO)
-				return
-			var/list/ContractedPeople=list("Cancel")
-			var/ContractConfirmed=0
-			for(var/mob/Players/A in world)
-				if(locate(/obj/Skills/Soul_Contract,A.contents))
-					for(var/obj/Skills/Soul_Contract/B in A)
-						if(B.ContractKey==usr.key)
-							ContractedPeople+=A
-							ContractConfirmed=1
+	// Contractor
+	// 	NoTransplant=1
+	// 	Level=100
+	// 	desc="Allows you to contract souls and use them."
+	// 	var
+	// 		NeverContracted=1//for first pip of summoner power
+	// 		//These are variables for the user to flag for themselves.
+	// 		TeleportX=0
+	// 		TeleportY=0
+	// 		TeleportZ=0
+	// 		SummonX=0
+	// 		SummonY=0
+	// 		SummonZ=0
+	// 	verb/ContractSoul()
+	// 		set category="Utility"
+	// 		set name="Contract Soul"
+	// 		var/list/PeopleX=new
+	// 		for(var/mob/Players/M in get_step(usr,usr.dir))
+	// 			PeopleX+=M
+	// 		var/mob/A=input(usr,"Contract who?") in PeopleX||null
+	// 		if(A)
+	// 			var/Consent
+	// 			Consent=alert(A, "[usr] wishes to link your souls together with a contract.  Do you accept this contract?", "Soul Contract", "Yes", "No")
+	// 			if(Consent=="No")
+	// 				OMsg(usr, "[A] refuses to be chained to [usr]!")
+	// 				return
+	// 			OMsg(usr, "<font color='red'>[A] signed their soul to [usr]!</font color>")
+	// 			var/obj/L=new/obj/Skills/Soul_Contract
+	// 			L:ContractKey=usr.key
+	// 			A.AddSkill(L)
+	// 			A.ContractPowered=1
+	// 			if(src.NeverContracted)
+	// 				src.NeverContracted=0
+	// 				usr.ContractPowered=1
+	// 	verb/UseContract()
+	// 		set category="Utility"
+	// 		set name="Use Contract"
+	// 		if(!usr.Move_Requirements()||usr.KO)
+	// 			return
+	// 		var/list/ContractedPeople=list("Cancel")
+	// 		var/ContractConfirmed=0
+	// 		for(var/mob/Players/A in world)
+	// 			if(locate(/obj/Skills/Soul_Contract,A.contents))
+	// 				for(var/obj/Skills/Soul_Contract/B in A)
+	// 					if(B.ContractKey==usr.key)
+	// 						ContractedPeople+=A
+	// 						ContractConfirmed=1
 
-			if(ContractConfirmed==0)
-				usr<<"You have no active contracts currently."
-				return
-			var/mob/C=input(usr,"Who would you like to invoke your Contract abilities on?") in ContractedPeople
-			if(C=="Cancel")
-				return
-			else
-				var/list/thelist=list("Summon","Dismiss","Transfer Power","Take Power","Communicate","Lifelink","Punish","Teleport","Unteleport","Cancel")
+	// 		if(ContractConfirmed==0)
+	// 			usr<<"You have no active contracts currently."
+	// 			return
+	// 		var/mob/C=input(usr,"Who would you like to invoke your Contract abilities on?") in ContractedPeople
+	// 		if(C=="Cancel")
+	// 			return
+	// 		else
+	// 			var/list/thelist=list("Summon","Dismiss","Transfer Power","Take Power","Communicate","Lifelink","Punish","Teleport","Unteleport","Cancel")
 
-				if(locate(/obj/Seal/Command_Seal,usr))
-					thelist.Add("Suicide")
-					thelist.Add("Miracle")
-					thelist.Add("Obedience")
+	// 			if(locate(/obj/Seal/Command_Seal,usr))
+	// 				thelist.Add("Suicide")
+	// 				thelist.Add("Miracle")
+	// 				thelist.Add("Obedience")
 
-				var/Choice=input("What action would you like to do?") in thelist
-				switch(Choice)
-					if("Cancel")
-						return
-					if("Summon")
-						for(var/obj/Skills/Soul_Contract/D in C)
-							C.PrevX=C.x
-							C.PrevY=C.y
-							C.PrevZ=C.z
-							C.SummonReturnTimer=-1
-							D.SummonX=C.x
-							D.SummonY=C.y
-							D.SummonZ=C.z
-							C.loc=locate(usr.x,usr.y,usr.z)
-							if(usr.y==1)
-								C.y=usr.y
-							else
-								C.y=usr.y-1
-							OMsg(usr, "[usr] summons [C]!")
-					if("Dismiss")
-						for(var/obj/Skills/Soul_Contract/D in C)
-							if(D.SummonX==0||D.SummonY==0||D.SummonZ==0)
-								usr<<"You can't dismiss someone without summoning them first!"
-								return
-							C.loc=locate(D.SummonX,D.SummonY,D.SummonZ)
-							C.SummonReturnTimer=0
-							D.SummonX=0
-							D.SummonY=0
-							D.SummonZ=0
-							OMsg(usr, "[usr] dismisses [C]!")
-					if("Communicate")
-						usr.TwoWayTelepath(C)
-						return
-					if("Transfer Power")
-						if(usr.ContractPowered)
-							C.ContractPowered+=1
-							usr.ContractPowered-=1
-							usr << "You give [C] power through the contract!"
-							C << "[usr] imbues you with power via their contract!"
-						else
-							usr << "You don't have any contract power to spare!"
-						return
-					if("Take Power")
-						if(C.ContractPowered)
-							C.ContractPowered-=1
-							usr.ContractPowered+=1
-							usr << "You take [C]'s power, adding it to your own!"
-							C << "[usr] draws on your power via the contract!"
-						else
-							usr << "You've already taken their power, or they don't have any contract to you!"
-						return
-					if("Lifelink")
-						if(usr.Transfering)
-							usr<<"You stop lifelinking."
-							usr.Transfering=null
-							src.Using=0
-							return
-						else
-							usr.Transfering=C
-							usr<<"You begin sharing your lifeforce."
-							src.Using=0
-						return
-					if("Punish")
-						if(usr.ManaAmount>=30*max((C.Power/usr.Power),1))
-							usr.LoseMana(30*max((C.Power/usr.Power),1))
-							if(C.HellPower&&prob(50))
-								OMsg(usr, "[usr] failed to punish [C] using their contract!")
-								src.Using=0
-								return
-							C << "<font color=#FF0000>A jolt of pain goes through your body!</font>"
-							C.DamageSelf(TrueDamage(10))
-							Stun(C, 3)
-							OMsg(usr, "[usr] punishes [C] using their contract!")
-							src.Using=0
-							return
-						else
-							OMsg(usr, "[usr] lacks strength to punish [C].")
-							src.Using=0
-							return
-					if("Teleport")
-						if(usr.Grab)
-							usr << "You can't grab someone and teleport!"
-							src.Using=0
-							return
-						src.TeleportX=usr.x
-						src.TeleportY=usr.y
-						src.TeleportZ=usr.z
-						usr.loc=C.loc
-						OMsg(usr, "[usr] appears beside [C] by their contract!")
-						return
-					if("Unteleport")
-						if(usr.Grab)
-							usr << "You can't grab someone and unteleport!"
-							src.Using=0
-							return
-						if(!src.TeleportX||!src.TeleportY||!src.TeleportZ)
-							usr << "You don't have a previous location to return to."
-							src.Using=0
-							return
-						OMsg(usr, "[usr] returns to a previous location!")
-						usr.loc=locate(src.TeleportX, src.TeleportY, src.TeleportZ)
-						return
-					if("Suicide")
-						for(var/obj/Seal/Command_Seal/CS in usr)
-							if(CS.Orders>=3)
-								CS.Orders--
-								CS.Orders--
-								CS.Orders--
-								if(CS.Orders<=0)
-									OMsg(usr, "The Command Seal fades from [usr]!")
-									del CS
-								if(C.HellPower&&prob(50))
-									OMsg(usr, "[usr] failed to order [C] using their Command Seal!")
-									src.Using=0
-									return
-								C.CursedWounds=1
-								C.DamageSelf(TrueDamage(250))
-								C.CursedWounds=0
-								OMsg(usr, "[C] harms themselves grieviously under [usr]'s command!")
-						return
-					if("Miracle")
-						for(var/obj/Seal/Command_Seal/CS in usr)
-							if(CS.Orders>=2)
-								CS.Orders--
-								CS.Orders--
-								if(CS.Orders<=0)
-									OMsg(usr, "The Command Seal fades from [usr]!")
-									del CS
-								C.AddSkill(new/obj/Skills/Buffs/SlotlessBuffs/Autonomous/Empowered)
-								OMsg(usr, "[C] becomes capable of miracles under [usr]'s command!")
-						return
-					if("Obedience")
-						for(var/obj/Seal/Command_Seal/CS in usr)
-							CS.Orders--
-							if(CS.Orders<=0)
-								OMsg(usr, "The Command Seal fades from [usr]!")
-								del CS
-							if(C.HellPower&&prob(50))
-								OMsg(usr, "[usr] failed to order [C] using their Command Seal!")
-								src.Using=0
-								return
-							var/obj/Skills/Buffs/SlotlessBuffs/Autonomous/Shackled/S=new
-							S.Password=usr.name
-							C.AddSkill(S)
-							OMsg(usr, "[C] becomes incapable of harming [usr]!")
-						return
+	// 			var/Choice=input("What action would you like to do?") in thelist
+	// 			switch(Choice)
+	// 				if("Cancel")
+	// 					return
+	// 				if("Summon")
+	// 					for(var/obj/Skills/Soul_Contract/D in C)
+	// 						C.PrevX=C.x
+	// 						C.PrevY=C.y
+	// 						C.PrevZ=C.z
+	// 						C.SummonReturnTimer=-1
+	// 						D.SummonX=C.x
+	// 						D.SummonY=C.y
+	// 						D.SummonZ=C.z
+	// 						C.loc=locate(usr.x,usr.y,usr.z)
+	// 						if(usr.y==1)
+	// 							C.y=usr.y
+	// 						else
+	// 							C.y=usr.y-1
+	// 						OMsg(usr, "[usr] summons [C]!")
+	// 				if("Dismiss")
+	// 					for(var/obj/Skills/Soul_Contract/D in C)
+	// 						if(D.SummonX==0||D.SummonY==0||D.SummonZ==0)
+	// 							usr<<"You can't dismiss someone without summoning them first!"
+	// 							return
+	// 						C.loc=locate(D.SummonX,D.SummonY,D.SummonZ)
+	// 						C.SummonReturnTimer=0
+	// 						D.SummonX=0
+	// 						D.SummonY=0
+	// 						D.SummonZ=0
+	// 						OMsg(usr, "[usr] dismisses [C]!")
+	// 				if("Communicate")
+	// 					usr.TwoWayTelepath(C)
+	// 					return
+	// 				if("Transfer Power")
+	// 					if(usr.ContractPowered)
+	// 						C.ContractPowered+=1
+	// 						usr.ContractPowered-=1
+	// 						usr << "You give [C] power through the contract!"
+	// 						C << "[usr] imbues you with power via their contract!"
+	// 					else
+	// 						usr << "You don't have any contract power to spare!"
+	// 					return
+	// 				if("Take Power")
+	// 					if(C.ContractPowered)
+	// 						C.ContractPowered-=1
+	// 						usr.ContractPowered+=1
+	// 						usr << "You take [C]'s power, adding it to your own!"
+	// 						C << "[usr] draws on your power via the contract!"
+	// 					else
+	// 						usr << "You've already taken their power, or they don't have any contract to you!"
+	// 					return
+	// 				if("Lifelink")
+	// 					if(usr.Transfering)
+	// 						usr<<"You stop lifelinking."
+	// 						usr.Transfering=null
+	// 						src.Using=0
+	// 						return
+	// 					else
+	// 						usr.Transfering=C
+	// 						usr<<"You begin sharing your lifeforce."
+	// 						src.Using=0
+	// 					return
+	// 				if("Punish")
+	// 					if(usr.ManaAmount>=30*max((C.Power/usr.Power),1))
+	// 						usr.LoseMana(30*max((C.Power/usr.Power),1))
+	// 						if(C.HellPower&&prob(50))
+	// 							OMsg(usr, "[usr] failed to punish [C] using their contract!")
+	// 							src.Using=0
+	// 							return
+	// 						C << "<font color=#FF0000>A jolt of pain goes through your body!</font>"
+	// 						C.DamageSelf(TrueDamage(10))
+	// 						Stun(C, 3)
+	// 						OMsg(usr, "[usr] punishes [C] using their contract!")
+	// 						src.Using=0
+	// 						return
+	// 					else
+	// 						OMsg(usr, "[usr] lacks strength to punish [C].")
+	// 						src.Using=0
+	// 						return
+	// 				if("Teleport")
+	// 					if(usr.Grab)
+	// 						usr << "You can't grab someone and teleport!"
+	// 						src.Using=0
+	// 						return
+	// 					src.TeleportX=usr.x
+	// 					src.TeleportY=usr.y
+	// 					src.TeleportZ=usr.z
+	// 					usr.loc=C.loc
+	// 					OMsg(usr, "[usr] appears beside [C] by their contract!")
+	// 					return
+	// 				if("Unteleport")
+	// 					if(usr.Grab)
+	// 						usr << "You can't grab someone and unteleport!"
+	// 						src.Using=0
+	// 						return
+	// 					if(!src.TeleportX||!src.TeleportY||!src.TeleportZ)
+	// 						usr << "You don't have a previous location to return to."
+	// 						src.Using=0
+	// 						return
+	// 					OMsg(usr, "[usr] returns to a previous location!")
+	// 					usr.loc=locate(src.TeleportX, src.TeleportY, src.TeleportZ)
+	// 					return
+	// 				if("Suicide")
+	// 					for(var/obj/Seal/Command_Seal/CS in usr)
+	// 						if(CS.Orders>=3)
+	// 							CS.Orders--
+	// 							CS.Orders--
+	// 							CS.Orders--
+	// 							if(CS.Orders<=0)
+	// 								OMsg(usr, "The Command Seal fades from [usr]!")
+	// 								del CS
+	// 							if(C.HellPower&&prob(50))
+	// 								OMsg(usr, "[usr] failed to order [C] using their Command Seal!")
+	// 								src.Using=0
+	// 								return
+	// 							C.CursedWounds=1
+	// 							C.DamageSelf(TrueDamage(250))
+	// 							C.CursedWounds=0
+	// 							OMsg(usr, "[C] harms themselves grieviously under [usr]'s command!")
+	// 					return
+	// 				if("Miracle")
+	// 					for(var/obj/Seal/Command_Seal/CS in usr)
+	// 						if(CS.Orders>=2)
+	// 							CS.Orders--
+	// 							CS.Orders--
+	// 							if(CS.Orders<=0)
+	// 								OMsg(usr, "The Command Seal fades from [usr]!")
+	// 								del CS
+	// 							C.AddSkill(new/obj/Skills/Buffs/SlotlessBuffs/Autonomous/Empowered)
+	// 							OMsg(usr, "[C] becomes capable of miracles under [usr]'s command!")
+	// 					return
+	// 				if("Obedience")
+	// 					for(var/obj/Seal/Command_Seal/CS in usr)
+	// 						CS.Orders--
+	// 						if(CS.Orders<=0)
+	// 							OMsg(usr, "The Command Seal fades from [usr]!")
+	// 							del CS
+	// 						if(C.HellPower&&prob(50))
+	// 							OMsg(usr, "[usr] failed to order [C] using their Command Seal!")
+	// 							src.Using=0
+	// 							return
+	// 						var/obj/Skills/Buffs/SlotlessBuffs/Autonomous/Shackled/S=new
+	// 						S.Password=usr.name
+	// 						C.AddSkill(S)
+	// 						OMsg(usr, "[C] becomes incapable of harming [usr]!")
+	// 					return
 
 	Smelt
 		desc="Smelt an item to refund 50% of its cost."
@@ -1923,7 +2094,9 @@ obj/Skills/Utility
 					src.Using=0
 					return
 			if(Choice)//make sure people can't spam a single item to get inf money
-				usr.GiveMoney(0.5*Technology_Price(usr,Choice))
+				var/enchantBoon = Choice:Element ? Choice:Element : "None"
+				var/list/boonValues = list("None" = 1,"Poison" = 2.5, "Silver" = 2.5, "Dark" = 5, "Light" = 5, "Chaos" = 50, "Ultima" = 200)
+				usr.GiveMoney((0.5*Technology_Price(usr,Choice)) * boonValues[enchantBoon])
 				if(Choice.TotalStack)
 					Choice.TotalStack--
 					Choice.suffix="[Choice.TotalStack]"
@@ -1935,7 +2108,7 @@ obj/Skills/Utility
 
 
 	Copy_Key
-		var/Copying//Don't spam this.
+		var/Copying //Don't spam this.
 		verb
 			Copy_Key()
 				set category="Utility"
@@ -2175,7 +2348,7 @@ obj/Skills/Utility
 			for(var/mob/Body/m in view(usr, 1))
 				if(world.realtime<m.DeathTime+Minute(30))
 					Bodies+=m
-			for(var/mob/m in world)
+			for(var/mob/m in players)
 				if(m.Dead&&!m.DeathKilled)
 					Souls+=m
 			for(var/mob/m in Souls)
@@ -2256,15 +2429,15 @@ obj/Skills/Utility
 			set name="Communicator Transmit"
 			set src in usr
 			if(usr.CheckSlotless("Camouflage"))
-				for(var/obj/Skills/Buffs/SlotlessBuffs/Camouflage/C in usr.SlotlessBuffs)
+				var/obj/Skills/Buffs/SlotlessBuffs/Camouflage/C = usr.GetSlotless("Camouflage")
 					C.Trigger(usr)
 				usr << "Your camouflage is broken!"
 			if(usr.CheckSlotless("Invisibility"))
-				for(var/obj/Skills/Buffs/SlotlessBuffs/Magic/Magic_Show/I in usr.SlotlessBuffs)
-					if(I.Invisible)
-						I.Trigger(usr)
+				var/obj/Skills/Buffs/SlotlessBuffs/Magic/Magic_Show/I = usr.GetSlotless("Magic Show")
+				if(I.Invisible)
+					I.Trigger(usr)
 				usr << "You reveal yourself!"
-			for(var/mob/Players/M in world)
+			for(var/mob/Players/M in players)
 				for(var/obj/Items/Tech/Communicator/Q in M)
 					if(Q.Frequency==src.ICFrequency)
 						M<<"<font color=green><b>([Q.name])</b> [usr.name]: [html_encode(A)]"
@@ -2363,7 +2536,7 @@ obj/Skills/Utility
 			for(var/obj/Items/Enchantment/PocketDimensionGenerator/W in world)
 				if(usr.z==W.z)
 					usr << "<b><font color='red'>(DISTURBANCE)</font color></b> - ([W.x], [W.y], [W.z])"
-			for(var/mob/Players/M in world)
+			for(var/mob/Players/M in players)
 				if(!M.AdminInviso&&!M.HasVoid()&&!M.HasMechanized()&&!M.HasGodKi())
 					if(M.z==usr.z)
 						var/D=abs(M.x-usr.x)+abs(M.y-usr.y)
@@ -2373,7 +2546,7 @@ obj/Skills/Utility
 							else
 								if(M.PowerControl>25)
 									usr << "[Commas(usr.Get_Scouter_Reading(M))] - [usr.CheckDirection(M)] - [Commas(D)] tiles away"
-			for(var/mob/Player/M in world)
+			for(var/mob/Player/M in players)
 				if(M.z==usr.z)
 					var/D=abs(M.x-usr.x)+abs(M.y-usr.y)
 					if(D<=src.Range*80)
@@ -2420,7 +2593,7 @@ obj/Skills/Utility
 						if(Confirm=="Yes")
 							if(usr.HasMoney(Cost))
 								usr.TakeMoney(Cost)
-								for(var/mob/Players/p in world)
+								for(var/mob/Players/p in players)
 									if(p.z==usr.z)
 										p<<"<font color='red'><b>A jet stream rises to the sky to where a new star lingers...</b></font color>"
 								src.ZPlanes.Add(usr.z)
@@ -2438,7 +2611,7 @@ obj/Skills/Utility
 					if(src.ZPlanes.len>0)
 						var/list/mob/Players/Bugged=list("Cancel")
 						var/SpyLand=input(usr, "What Z-section would you like to observe?", "Satellite Surveilance") in ZPlanes
-						for(var/mob/Players/p in world)
+						for(var/mob/Players/p in players)
 							if(p.z==SpyLand)
 								Bugged.Add(p)
 							if(p.invisibility)
@@ -2549,7 +2722,7 @@ obj/Skills/Utility
 				return
 			src.Using=1
 
-			if("Enhancement Chips" in usr.UnlockedTechnology)
+			if("Cyber Augmentations" in usr.knowledgeTracker.learnedKnowledge)
 				ModChoices.Add("Enhanced Strength")
 				ModChoices.Add("Enhanced Force")
 				ModChoices.Add("Enhanced Endurance")
@@ -2557,7 +2730,7 @@ obj/Skills/Utility
 				ModChoices.Add("Enhanced Reflexes")
 				ModChoices.Add("Enhanced Speed")
 
-			if("Conversion Modules" in usr.UnlockedTechnology)
+			if("Neuron Manipulation" in usr.knowledgeTracker.learnedKnowledge)
 				ModChoices.Add("Internal Comms Suite")//talky in your heady
 				ModChoices.Add("Blade Mode")//Cyberrush
 				ModChoices.Add("Taser Strike")
@@ -2570,23 +2743,24 @@ obj/Skills/Utility
 				ModChoices.Add("Internal Life Support")
 				ModChoices.Add("Energy Assimilators")
 
-			if("Involuntary Implantation" in usr.UnlockedTechnology)
+			if("War Crimes" in usr.knowledgeTracker.learnedKnowledge)
 				ModChoices.Add("Punishment Chip")
 				ModChoices.Add("Failsafe Circuit")
 				ModChoices.Add("Explosive Implantation")
 
 			//These are unlocked by default
-			ModChoices.Add("Ripper Mode")
-			ModChoices.Add("Armstrong Augmentation")
-			ModChoices.Add("Ray Gear")
-			ModChoices.Add("Overdrive")
-			ModChoices.Add("Infinity Drive")
+			if("Singularity" in usr.knowledgeTracker.learnedKnowledge)
+				ModChoices.Add("Ripper Mode")
+				ModChoices.Add("Armstrong Augmentation")
+				ModChoices.Add("Ray Gear")
+				ModChoices.Add("Overdrive")
+				ModChoices.Add("Infinity Drive")
 
 			var/list/Who=list("Cancel")
 			for(var/mob/m in view(1, usr))
-				if(m.Race=="Android"&&!("Android Creation" in usr.UnlockedTechnology))
+				if(m.Race=="Android"&&!("Android Creation" in usr.knowledgeTracker.learnedKnowledge))
 					continue
-				if(m==usr&&!("Self Augmentation" in usr.UnlockedTechnology))
+				if(m==usr&&!("Neuron Manipulation" in usr.knowledgeTracker.learnedKnowledge))
 					continue
 				Who+=m
 			if(Who.len<1)
@@ -2600,7 +2774,7 @@ obj/Skills/Utility
 				src.Using=0
 				return
 			if(M!=usr)
-				if(!("Involuntary Implantation" in usr.UnlockedTechnology)||!M.KO)
+				if(!("War Crimes" in usr.knowledgeTracker.learnedKnowledge)||!M.KO)
 					Consent=alert(M, "Do you want to undergo the augmentation procedure?", "Cybernetic Augmentation", "No", "Yes")
 					if(Consent!="Yes")
 						OMsg(usr, "[usr] rejects the surgery.")
@@ -2663,29 +2837,29 @@ obj/Skills/Utility
 
 			switch(ModChoice)
 				if("Enhanced Strength")
-					Cost=EconomyCost
+					Cost=EconomyCost*2.5
 					ModDesc="Enhanced Strength increases Strength."
 				if("Enhanced Force")
-					Cost=EconomyCost
+					Cost=EconomyCost*2.5
 					ModDesc="Enhanced Force increases Force."
 				if("Enhanced Endurance")
-					Cost=EconomyCost
+					Cost=EconomyCost*2.5
 					ModDesc="Enhanced Endurance increases Endurance."
 				if("Enhanced Aggression")
-					Cost=EconomyCost
+					Cost=EconomyCost*2.5
 					ModDesc="Enhanced Aggression increases Offense."
 				if("Enhanced Reflexes")
-					Cost=EconomyCost
+					Cost=EconomyCost*2.5
 					ModDesc="Enhanced Reflexes increases Defense."
 				if("Enhanced Speed")
-					Cost=EconomyCost
+					Cost=EconomyCost*2.5
 					ModDesc="Enhanced Speed increases Speed."
 
 				if("Internal Comms Suite")
-					Cost=EconomyCost*5
+					Cost=EconomyCost*2
 					ModDesc="Internal Suite allows the augmented to use internal systems to scan precise power levels and access wireless communications."
 				if("Blade Mode")
-					Cost=EconomyCost*5
+					Cost=EconomyCost*10
 					ModDesc="Blade Mode allows high speed calculations improving accuracy and swiftness of delivered blows!"
 				if("Taser Strike")
 					Cost=EconomyCost*5
@@ -2700,13 +2874,13 @@ obj/Skills/Utility
 					Cost=EconomyCost*5
 					ModDesc="Stealth Systems allow the augmented to visually disguise themselves when they lower their power!"
 				if("Nano Boost")
-					Cost=EconomyCost*10
+					Cost=EconomyCost*20
 					ModDesc="Nano Boost gives the subject a sudden surge of cybernetic power!"
 				if("Combat CPU")
-					Cost=EconomyCost*10
+					Cost=EconomyCost*20
 					ModDesc="Combat CPU allows the augmented to automatically burn some battery in order to constantly run simulations of the current engagement; bottom line: better evasion."
 				if("Reconstructive Nanobots")
-					Cost=EconomyCost*10
+					Cost=EconomyCost*25
 					ModDesc="Reconstructive Nanobots repair the augmented when they enter a rest cycle with precise efficiency."
 				if("Internal Life Support")
 					Cost=EconomyCost*10
@@ -2727,19 +2901,19 @@ obj/Skills/Utility
 					ModDesc="Install a powerful explosive device inside your target."
 
 				if("Ripper Mode")
-					Cost=EconomyCost*30
+					Cost=EconomyCost*300
 					ModDesc="Ripper Mode allows the augmented to present a facsimile of sadism to greatly bolster speed and offensive prowess."
 				if("Armstrong Augmentation")
-					Cost=EconomyCost*30
+					Cost=EconomyCost*300
 					ModDesc="Armstrong Augmentation allows the augmented to forge a powerful nanite shell in response to physical trauma; increases strength and endurance while forsaking defense. "
 				if("Ray Gear")
-					Cost=EconomyCost*30
+					Cost=EconomyCost*300
 					ModDesc="Ray Gear provides the augmented with unparalleled firepower and integrates ranged capabilities into their basic combat protocols while sapping their battery."
 				if("Infinity Drive")
-					Cost=EconomyCost*50
+					Cost=EconomyCost*500
 					ModDesc="Infinity Drive allows a fusion-powered augmented to constantly support their overall performance with their nigh-infinite energy outpour."
 				if("Overdrive")
-					Cost=EconomyCost*50
+					Cost=EconomyCost*500
 					ModDesc="Overdrive allows the augmented to overclock every cybernetically enhanced aspect in exchange for battery life."
 
 				if("Repair")
@@ -2748,7 +2922,6 @@ obj/Skills/Utility
 
 			if(M.Race=="Android")
 				Cost*=2
-
 
 			ModDesc="[ModDesc]  It costs [Commas(Cost)] to install.  Do you wish to install this module into [M]?"
 			Confirm=alert(usr, "[ModDesc]", "Cybernetic Augmentation ([ModChoice])", "No", "Yes")
@@ -2959,103 +3132,25 @@ obj/Skills/Utility
 		desc="Call for assistance of your Zodiacal guardian."
 		verb/Zodiac_Invocation()
 			set category="Utility"
-			switch(usr.ClothGold)
-				if("Aries")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Aries_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Aries_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
-				if("Gemini")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Gemini_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Gemini_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
-				if("Cancer")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Cancer_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Cancer_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
-				if("Leo")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Leo_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Leo_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
-				if("Virgo")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Virgo_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Virgo_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
-				if("Libra")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Libra_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Libra_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
-				if("Scorpio")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Scorpio_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Scorpio_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
-				if("Capricorn")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Capricorn_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Capricorn_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
-				if("Aquarius")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Aquarius_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Aquarius_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
-				if("Pisces")
-					if(!locate(/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Pisces_Cloth, usr))
-						for(var/obj/Items/Symbiotic/Saint_Cloth/Gold_Cloth/Pisces_Cloth/C in world)
-							if(!C.suffix)
-								C.ReturnX=C.x
-								C.ReturnY=C.y
-								C.ReturnZ=C.z
-								C.loc=get_step(usr.loc, usr.dir)
-								spawn()LightningBolt(C,2)
+			if(!usr.ClothGold)
+				usr.PickGoldCloth()
+				if(!glob.infConstellations)
+					glob.takeLimited("GoldConstellation", usr.ClothGold)
+			if(!usr.ZodiacCharges)
+				usr<<"You have no charges of Zodiac Invocation left!"
+				return
+			var/obj/Skills/Buffs/SpecialBuffs/Saint_Cloth/Gold_Cloth/goldCloth
+			var/path = "/obj/Skills/Buffs/SpecialBuffs/Saint_Cloth/Gold_Cloth/[usr.ClothGold]_Cloth"
+			goldCloth = new path
+			usr.AddSkill(goldCloth)
+			goldCloth.setRandomTime(usr)
+			spawn()LightningBolt(usr,2)
 			OMsg(usr, "[usr] summons forth their Zodiac Cloth!")
+			usr.ZodiacCharges--
 			if(usr.SagaLevel<7)
-				usr.HealFatigue(100)
-				usr.HealEnergy(100)
-				spawn(5)
-					del src
+				usr.HealFatigue(30)
+				usr.HealEnergy(30)
+
 
 	Call_Blade
 		Cooldown=10800
@@ -3068,6 +3163,24 @@ obj/Skills/Utility
 				usr << "You cannot call blade while dead."
 				return
 			switch(usr.BoundLegend)
+				if("Green Dragon Crescent Blade")
+					if(!locate(/obj/Items/Sword/Heavy/Legendary/WeaponSoul/Spear_of_War, usr))
+						for(var/obj/Items/Sword/Heavy/Legendary/WeaponSoul/Spear_of_War/S in world)
+							if(!S.LockedLegend)
+								usr.contents+=S
+								break
+				if("Ruyi Jingu Bang")
+					var/obj/Items/Sword/Wooden/Legendary/WeaponSoul/RyuiJinguBang/found = 0
+					for(var/obj/Items/Sword/Wooden/Legendary/WeaponSoul/RyuiJinguBang/s in world)
+						if(s)
+							found = s
+							break
+					if(found)
+						found.Move(usr)
+					else
+						if(!locate(/obj/Items/Sword/Wooden/Legendary/WeaponSoul/RyuiJinguBang, usr))
+							new/obj/Items/Sword/Wooden/Legendary/WeaponSoul/RyuiJinguBang(usr)
+
 				if("Masamune")
 					if(!locate(/obj/Items/Sword/Light/Legendary/WeaponSoul/Sword_of_Purity, usr))
 						for(var/obj/Items/Sword/Light/Legendary/WeaponSoul/Sword_of_Purity/S in world)
@@ -3131,7 +3244,7 @@ obj/Skills/Utility
 			var/list/Souls=list()
 			for(var/mob/Body/m in view(usr, 3))
 				Bodies.Add(m)
-			for(var/mob/Players/m in world)
+			for(var/mob/Players/m in players)
 				if(m.Dead&&m.DeathKilled<1)
 					Souls+=m
 			for(var/mob/Players/m in Souls)
@@ -3186,8 +3299,8 @@ obj/Skills/Utility
 				return
 			src.Using=1
 			var/list/mob/Players/Options=list("Cancel")
-			for(var/mob/Players/P in world)
-				if(P.Dead&&!P.SummonContract&&!locate(/obj/Skills/Soul_Contract, P)&&P.z==global.DeadZ&&P!=usr)
+			for(var/mob/Players/P in players)
+				if(P.Dead&&!P.SummonContract&&!locate(/obj/Skills/Soul_Contract, P)&&P.z==glob.DEATH_LOCATION[3]&&P!=usr)
 					Options.Add(P)
 			if(Options.len<1)
 				usr << "There are no available souls to invoke!"
@@ -3245,7 +3358,7 @@ obj/Skills/Utility
 			for(var/mob/Body/m in view(usr, 3))
 				if(m.TrulyDead)
 					Bodies+=m
-			for(var/mob/m in world)
+			for(var/mob/m in players)
 				if(m.Dead&&m!=usr)
 					Souls+=m
 			for(var/mob/m in Souls)
