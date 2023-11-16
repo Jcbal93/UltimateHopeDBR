@@ -20,8 +20,8 @@
 			EndMult=1.25
 			SpdMult=1.5
 			Cooldown=60
-			IconLock='senketsu_activated.dmi'
-			TopOverlayLock='senketsu_activated_headpiece.dmi'
+			// IconLock='senketsu_activated.dmi'
+			// TopOverlayLock='senketsu_activated_headpiece.dmi'
 			TopOverlayX=0
 			TopOverlayY=0
 			ActiveMessage="feeds blood into their Kamui, drawing on its full power.  Life Fiber Synchronize!"
@@ -60,30 +60,30 @@
 							switch(usr.SagaLevel)
 								if(2)
 									src.VaizardHealth=1
-									src.IconLock='senketsu_v2.dmi'
-									src.TopOverlayLock='senketsu_v2_headpiece.dmi'
+									// src.IconLock='senketsu_v2.dmi'
+									// src.TopOverlayLock='senketsu_v2_headpiece.dmi'
 									src.TopOverlayX=0
 									src.TopOverlayY=0
 									src.ActiveMessage="feeds blood into their Kamui, drawing on its full power.  Life Fiber Synchronize!"
 									src.OffMessage="runs out of blood to feed their Kamui, releasing the transformed state..."
 								if(3)
-									src.IconLock='senketsu_v2.dmi'
-									src.TopOverlayLock='senketsu_v2_headpiece.dmi'
+									// src.IconLock='senketsu_v2.dmi'
+									// src.TopOverlayLock='senketsu_v2_headpiece.dmi'
 									src.TopOverlayX=0
 									src.TopOverlayY=0
 									src.ActiveMessage="feeds blood into their Kamui, drawing on its full power.  Life Fiber Synchronize!"
 									src.OffMessage="runs out of blood to feed their Kamui, releasing the transformed state..."
 								if(4)
-									src.IconLock='senketsu_v2.dmi'
-									src.TopOverlayLock='senketsu_v2_headpiece.dmi'
+									// src.IconLock='senketsu_v2.dmi'
+									// src.TopOverlayLock='senketsu_v2_headpiece.dmi'
 									src.TopOverlayX=0
 									src.TopOverlayY=0
 									src.ActiveMessage="feeds blood into their Kamui, drawing on its full power.  Life Fiber Synchronize!"
 									src.ActiveMessage="feeds blood into their Kamui, drawing on its full power.  Life Fiber Synchronize!"
 									src.OffMessage="runs out of blood to feed their Kamui, releasing the transformed state..."
 								if(5)
-									src.IconLock='senketsu_v2.dmi'
-									src.TopOverlayLock='senketsu_v2_headpiece.dmi'
+									// src.IconLock='senketsu_v2.dmi'
+									// src.TopOverlayLock='senketsu_v2_headpiece.dmi'
 									src.TopOverlayX=0
 									src.TopOverlayY=0
 									src.ActiveMessage="feeds blood into their Kamui, drawing on its full power.  Life Fiber Synchronize!"
@@ -96,8 +96,8 @@
 									src.WoundCost=0
 									src.HealthCost=0
 									src.VaizardHealth=0
-									src.IconLock='senketsu_v2.dmi'
-									src.TopOverlayLock='senketsu_v2_headpiece.dmi'
+									// src.IconLock='senketsu_v2.dmi'
+									// src.TopOverlayLock='senketsu_v2_headpiece.dmi'
 									src.TopOverlayX=0
 									src.TopOverlayY=0
 									src.ActiveMessage="synchronizes perfectly with their Kamui!"
@@ -111,8 +111,8 @@
 									src.WoundCost=0
 									src.HealthCost=0
 									src.VaizardHealth=0
-									src.IconLock='senketsu_v2.dmi'
-									src.TopOverlayLock='senketsu_v2_headpiece.dmi'
+									// src.IconLock='senketsu_v2.dmi'
+									// src.TopOverlayLock='senketsu_v2_headpiece.dmi'
 									src.TopOverlayX=0
 									src.TopOverlayY=0
 									src.ActiveMessage="synchronizes perfectly with their Kamui!"
@@ -126,8 +126,8 @@
 									src.WoundCost=0
 									src.HealthCost=0
 									src.VaizardHealth=0
-									src.IconLock='senketsu_v2.dmi'
-									src.TopOverlayLock='senketsu_v2_headpiece.dmi'
+									// src.IconLock='senketsu_v2.dmi'
+									// src.TopOverlayLock='senketsu_v2_headpiece.dmi'
 									src.TopOverlayX=0
 									src.TopOverlayY=0
 									src.ActiveMessage="synchronizes perfectly with their Kamui!"
@@ -142,8 +142,8 @@
 			SpdMult=1.25
 			RegenMult=0.5
 			Cooldown=5
-			IconLock='junketsu_activated.dmi'
-			TopOverlayLock='junketsu_activated_headpiece.dmi'
+			// IconLock='junketsu_activated.dmi'
+			// TopOverlayLock='junketsu_activated_headpiece.dmi'
 			TopOverlayX=0
 			TopOverlayY=0
 			BuffName="Life Fiber Override"
@@ -227,8 +227,8 @@
 		StrMult=1.25
 		OffMult=1.25
 		passives = list("PureDamage" = 1, "DeathField" = 1, "HardStyle" = 1 )
-		IconLock='senketsu_senjin.dmi'
-		TopOverlayLock='senketsu_senjin_headpiece.dmi'
+		// IconLock='senketsu_senjin.dmi'
+		// TopOverlayLock='senketsu_senjin_headpiece.dmi'
 		TopOverlayX=0
 		TopOverlayY=0
 		verb/Kamui_Senjin()
@@ -251,10 +251,10 @@
 		SpdMult=1.25
 		DefMult=1.25
 		passives = list("VoidField" = 1, "PureReduction" = 1, "Flicker" = 1)
-		IconLock='senketsu_shippu.dmi'
+		// IconLock='senketsu_shippu.dmi'
 		LockX=-14
 		LockY=-16
-		TopOverlayLock='senketsu_shippu_headpiece.dmi'
+		// TopOverlayLock='senketsu_shippu_headpiece.dmi'
 		TopOverlayX=-16
 		TopOverlayY=-16
 		verb/Kamui_Shippu()
@@ -279,10 +279,10 @@
 		DefMult=1.25
 		OffMult=1.25
 		passives = list("PureDamage" = 1, "DeathField" = 1, "HardStyle" = 1, "VoidField" = 1, "PureReduction" = 1, "Flicker" = 1, "Instinct" = 1 )
-		IconLock='senketsu_senjinshippu.dmi'
+		// IconLock='senketsu_senjinshippu.dmi'
 		LockX=-14
 		LockY=-16
-		TopOverlayLock='senketsu_senjinshippu_headpiece.dmi'
+		// TopOverlayLock='senketsu_senjinshippu_headpiece.dmi'
 		verb/Kamui_Senjin_Shippu()
 			set category="Skills"
 			passives = list("PureDamage" = 1, "DeathField" = 1, "HardStyle" = 1.25, "VoidField" = 1, "PureReduction" = 1, "Flicker" = 1, "Instinct" = 1 )
@@ -306,10 +306,10 @@
 		Pursuer=3
 		Skimming=2
 		Flicker=1
-		IconLock='junketsu_senpu.dmi'
+		// IconLock='junketsu_senpu.dmi'
 		LockX=-16
 		LockY=-16
-		TopOverlayLock='junketsu_senpu_headpiece.dmi'
+		// TopOverlayLock='junketsu_senpu_headpiece.dmi'
 		TopOverlayX=-32
 		TopOverlayY=-32
 		verb/Kamui_Senpu()
@@ -343,10 +343,10 @@
 		Pursuer=3
 		Skimming=2
 		Flicker=1
-		IconLock='junketsu_senpuzenkan.dmi'
+		// IconLock='junketsu_senpuzenkan.dmi'
 		LockX=-16
 		LockY=-16
-		TopOverlayLock='junketsu_senpuzenkan_headpiece.dmi'
+		// TopOverlayLock='junketsu_senpuzenkan_headpiece.dmi'
 		TopOverlayX=-16
 		TopOverlayY=-16
 		verb/Kamui_Senpu_Zanken()

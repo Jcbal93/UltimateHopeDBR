@@ -965,7 +965,7 @@ obj/Items/Sword
 
 			Scissor_Blade
 				name="Scissor Blade"
-				icon='scissor_blade.dmi'
+				// icon='scissor_blade.dmi'
 				pixel_x=-16
 				pixel_y=-16
 				passives = list("Shearing" = 0.5)
@@ -984,7 +984,7 @@ obj/Items/Sword
 
 				Sword_of_Glory//Caledfwlch
 					name="Sword of Glory"
-					icon='protoexcalibur.dmi'
+					// icon='protoexcalibur.dmi'
 					pixel_x=-31
 					pixel_y=-30
 					passives = list("SpiritSword" = 0.75)
@@ -1231,11 +1231,11 @@ obj/Items/Symbiotic
 	Kamui
 		Unwieldy=1
 		KamuiSenketsu
-			icon='senketsu.dmi'
+			// icon='senketsu.dmi'
 			name="Senketsu"
 			Techniques=list("/obj/Skills/Buffs/ActiveBuffs/Kamui/KamuiSenketsu")
 		KamuiJunketsu
-			icon='junketsu.dmi'
+			// icon='junketsu.dmi'
 			name="Junketsu"
 			Techniques=list("/obj/Skills/Buffs/ActiveBuffs/Kamui/KamuiJunketsu")
 

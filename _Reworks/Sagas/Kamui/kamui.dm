@@ -29,5 +29,5 @@
     SpdMult = 1.25
     Cooldown = -1
     ArmorClass = "Light"
-    ArmorIcon = 'senketsu_activated.dmi'
+    // ArmorIcon = 'senketsu_activated.dmi'
     ArmorName = "Senketsu"
