@@ -1,0 +1,8 @@
+KKT role=admin
+Glutton For Punishment role=admin
+Kokutou role=admin
+GalionKnight role=admin
+KokoroWatari role=admin
+ 
+Galion role=admin
+Shelpies no Akuma role=admin
