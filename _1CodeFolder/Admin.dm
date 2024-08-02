@@ -1,5 +1,5 @@
 var/list
-	CodedAdmins=list("Galion"=4,  "Gogeto25"=4, "Taco938"=4, "StardustRebellion"=4, "Zamas2"=  4)
+	CodedAdmins=list("TheUltimateHope"=4,  "Gogeto25"=4, ""=4, "StardustRebellion"=4, ""=  4)
 	Admins=new
 	Mappers=new
 	Punishments=new
@@ -863,7 +863,7 @@ TO BE CORRECTED
 					if("OOC")
 						client.HttpPost(
 							//"https://discordapp.com/api/webhooks/579782784508493830/hLAAncgNHpoItf28UuqdKkTQxaCGIi_12kIRm4KeHlIecv7WatuZwIBQuEyjFiifazWN",
-							
+
 							,
 							list(
 								content = discord_output,
